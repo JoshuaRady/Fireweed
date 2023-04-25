@@ -50,6 +50,8 @@
 #below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij) -> A_b_ij.
 #
 #[Add variables table...]
+        #(w0)ij ((w sub o) sub ij) = w_o_ij Array of oven dry fuel load for each fuel class (lb/ft^2).
+#
 #
 #Variable notes:
 # - The surface-area-to-volume ratio for fuels is notated as σ (sigma) and abbreviated as sav or
@@ -66,10 +68,6 @@
 #Globals:-------------------------------------------------------------------------------------------
 
 #Code:----------------------------------------------------------------------------------------------
-
-#Rothermel & Albini Spread Model:-------------------------------------------------------------------
-
-#Move bulk densities up with packing ratios?
 
 #Bulk Density:--------------------------------------------------------------------------------------
 #  The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
@@ -101,14 +99,13 @@ BulkDensity <- function(w_o, fuelBedDepth)
 #The original notation includes from and to sum subscripts and bars over rho and w.
 #
 #Input variables / parameters:
-#(w sub o [bar]) = An array of fuel loadings for each fuel category (i: live vs. dead) and fuel size
-#class (j) (lb/ft^2).
+#(w0)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #  This function could also be written to take something like an array of fuel model objects.  It
 #is not clear yet what would be most useful.
 #δ (delta) = fuel bed depth (ft)
 #
 #Output units: lb/ft^3
-MeanBulkDensity <- function(fuelLoadings, fuelBedDepth)#Change to w_o_ij
+MeanBulkDensity <- function(w_o_ij, fuelBedDepth)
 {
   #Sum the individual fuel loadings across elements:
   #No weights are needed since the w_o is expressed as mass per area.
@@ -118,7 +115,7 @@ MeanBulkDensity <- function(fuelLoadings, fuelBedDepth)#Change to w_o_ij
   #fuel models have 3 dead and 2 live classes.  That is not a fixed requirement of the Rothermel
   #in theory, but is in practice [I think].
   
-  if (length(fuelLoadings) < 2)
+  if (length(w_o_ij) < 2)
   {
     warning("More than one fuel class expected.")
   }
@@ -136,8 +133,7 @@ MeanBulkDensity <- function(fuelLoadings, fuelBedDepth)#Change to w_o_ij
   #   }
   # }
   
-  totalLoading = sum(fuelLoadings)
-  #rho_b_bar = totalLoading / totalLoading#Wrong!
+  totalLoading = sum(w_o_ij)
   rho_b_bar = totalLoading / fuelBedDepth
   
   return(rho_b_bar)
@@ -156,7 +152,7 @@ MeanBulkDensity <- function(fuelLoadings, fuelBedDepth)#Change to w_o_ij
 #  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #
 #Output units: Dimensionless ratio
-PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)
+PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_p)
 {
   return(fuelArrayBulkDensity / fuelParticleDensity)
 }
@@ -170,24 +166,23 @@ PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)
 #The original notation includes from and to sum subscripts and bars over beta, rho, and w.
 #
 #Input variables / parameters:
-#(w sub o [bar]) = An array of fuel loadings for each fuel category (i: live vs. dead) and fuel size
-#class (j) (lb/ft^2).
-#w_oij?????
-#ρp (rho sub p [bar]) = particle densities for each fuel class (lb/ft^3)
+#(w0)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
+#(ρp)ij ((rho sub p[bar]) sub ij) = fuel particle density for each fuel type (lb/ft^3)
+#  A1l the 53 standard fuel models use 32 lb/ft^3.
 #  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #δ (delta) = fuel bed depth (ft)
 #
 #Output units: Dimensionless ratio
-MeanPackingRatio <- function(fuelLoadings, fuelBedDepth, particleDensities = 32)#Order for defaults?
+MeanPackingRatio <- function(w_o_ij, fuelBedDepth, rho_p_ij = 32)#Order for defaults?
 {
   #Parameter checking:
-  numLoadings = length(fuelLoadings)
-  numDensities = length(particleDensities)
+  numLoadings = length(w_o_ij)
+  numDensities = length(rho_p_ij)
   
   #If only one particle density is provided assume that is it the same for all fuel classes:
   if (numDensities == 1)
   {
-    particleDensities = array(data = particleDensities, dim = numLoadings)
+    rho_p_ij = array(data = rho_p_ij, dim = numLoadings)
   }
   else#Otherwise one should be provided for each fuel class.
   {
@@ -198,7 +193,7 @@ MeanPackingRatio <- function(fuelLoadings, fuelBedDepth, particleDensities = 32)
   }
   
   #Calculate w_o / rho_p for each fuel element:
-  x = fuelLoadings / particleDensities
+  x = w_o_ij / rho_p_ij
   
   beta_bar = sum(x) / fuelBedDepth#Mean packing ratio
   return(beta_bar)
@@ -228,10 +223,10 @@ OptimumPackingRatio <- function(sav)
 #Input variables / parameters:
 #σ (SAVs) = An array of characteristic surface-area-to-volume ratios for the fuel classes
 #  (ft^2/ft^3).
-#w_oij (w sub o ij) = An array of fuel loadings for each fuel category (i: live vs. dead) and fuel
+#w_oij (w sub o ij) = An array of fuel loadings for each fuel type (i: live vs. dead) and fuel
 #  size class (j) (lb/ft^2).
 #     Rotethermel used w_o while Albini used w_oij.
-#ρp (rho sub p) = ...
+#(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3)
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) or fuel categories.
 #Need to know the live dead indexes!!!!!
@@ -242,8 +237,7 @@ OptimumPackingRatio <- function(sav)
 #give spread rate scenario.  However, I'm not sure the best way the handle the outputs.  Would it
 #be better to put them in a global?
 #Calc_f_ij_Weights
-CalcWeightings <- function(SAV_ij, w_os, rho_ps,#fuelParticleDensity = 32,#Change name?
-                           liveDead)
+CalcWeightings <- function(SAV_ij, w_os, rho_p_ij, liveDead)
 {
   #Add error checking...
   
@@ -252,7 +246,7 @@ CalcWeightings <- function(SAV_ij, w_os, rho_ps,#fuelParticleDensity = 32,#Chang
   #Calcualte the (mean) total surface area for each fuel component:
   #Rothermel equation 53?:
   #Aij = (σ)ij (w0)ij ⁄(ρp)ij
-  A_ij = SAV_ij * w_os / rho_ps
+  A_ij = SAV_ij * w_os / rho_p_ij
   
   #Mean total surface area by live / dead fuel categories:
   #Rothermel equation 54?:
@@ -268,13 +262,12 @@ CalcWeightings <- function(SAV_ij, w_os, rho_ps,#fuelParticleDensity = 32,#Chang
   #AT = ΣiAi
   A_T = sum(A_i)#Single scalar value.
   
-  #f_ij weighting factor...
+  #f_ij fuel class weighting factor:
   #Rothermel equation 56?:
   #fij = Aij/Ai
   
-  #f_ij = array(dim = numFuelTypes)
-  f_ij = array(data = 0, dim = numFuelTypes)#A vector seems nicer.
-  #f_ij = vector(mode = "numeric", length = numFuelTypes)
+  #f_ij = array(data = 0, dim = numFuelTypes)#A vector seems nicer.
+  f_ij = vector(mode = "numeric", length = numFuelTypes)
   for (l in 1:numFuelTypes)
   {
     if (A_i[liveDead[l]] != 0)
@@ -286,12 +279,12 @@ CalcWeightings <- function(SAV_ij, w_os, rho_ps,#fuelParticleDensity = 32,#Chang
     #appropriate weight of 0.  Given the initialization we don't have to do this explicitly.
   }
   
-  #fi
+  #fi fuel category (live/dead) weighting factor:
   #Rothermel equation 57?:
   #fi = Ai/AT
   f_i = A_i / A_T#Array of 2.
   
-  #g_ij:
+  #g_ij weighting factor:
   #The final set of weights was added in Albini 1976 to get arround a logical problem of using f_ij
   #for fuel loading.
   #Albini 1972 pg. 15:
@@ -301,61 +294,43 @@ CalcWeightings <- function(SAV_ij, w_os, rho_ps,#fuelParticleDensity = 32,#Chang
   #What size subclass is each fuel type in?
   #A better names is needed.  This is the subclass that each fuel type is in: subclassOfFuelType?
   subclass = array(data = 0, dim = numFuelTypes)
-  #subclassWt = array(data = 0, dim = 6)#Didn't end up needed in this since f_ij is used.
   subclassTotal = array(data = 0, dim = 6)
   for (n in 1:numFuelTypes)
   {
     if (SAV_ij[n] >= 1200)
     {
       subclass[n] = 1
-      #subclassWt[1] = subclassWt[1] + f_ij[n]
     }
     else if (SAV_ij[n] >= 192)
     {
       subclass[n] = 2
-      #subclassWt[2] = subclassWt[2] + f_ij[n]
     }
     else if (SAV_ij[n] >= 192)
     {
       subclass[n] = 3
-      #subclassWt[3] = subclassWt[3] + f_ij[n]
     }
     else if (SAV_ij[n] >= 96)
     {
       subclass[n] = 4
-      #subclassWt[4] = subclassWt[4] + f_ij[n]
     }
     else if (SAV_ij[n] >= 48)
     {
       subclass[n] = 5
-      #subclassWt[5] = subclassWt[5] + f_ij[n]
     }
     else if (SAV_ij[n] >= 16)
     {
       subclass[n] = 6
-      #subclassWt[6] = subclassWt[6] + f_ij[n]
     }
-    #Add the 
-    #subclassWt[subclass[n]] = subclassWt[subclass[n]] + f_ij[n]
     #Bin the fuels type weights by subclass they belong to... 
     subclassTotal[subclass[n]] = subclassTotal[subclass[n]] + f_ij[n]
   }
   
   #Complete the weight calculation:
-  #Determine the fraction of surface area in each size subclass...
-  #subclassWt = subclassWt / A_T
-  #g_ij = subclassTotal / A_T#Not quite...
-  
-  #subclassWt = subclassTotal / A_T#Length 6.
-  #Hold on how did A_T get in here in the first place?
   
   #Assign the subclass weights to each size class.  Some may share the same weight.
-  g_ij = vector(mode = "numeric", length = numFuelTypes)#Or array?
+  g_ij = vector(mode = "numeric", length = numFuelTypes)
   for (k in 1:numFuelTypes)#k reused...
   {
-    #g_ij[k] = subclassWt[subclass[k]]
-    #g_ij[k] = subclassTotal[subclass[k]]
-    
     if (subclass[k] != 0)
     {
       g_ij[k] = subclassTotal[subclass[k]]
@@ -393,20 +368,16 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)#f_ij, SAVs -> SAV_ij?
   #Rothermel 1972 equation 72:
   #σi = Σj fijσij (~ over sigma sub i and bar over sigma sub ij in original)
   
-  sav_i = c(0,0)#Or sigma_i?
+  SAV_i = c(0,0)#Or sigma_i?
   for (k in 1:numFuelTypes)
   {
-    #sigma_i[liveDead[k]] = sigma_i[liveDead[k]] + SAVs[k]
-    #sav_i[liveDead[k]] = sav_i[liveDead[k]] + SAV_ij[k]
-    #Left out weights!
-    
-    sav_i[liveDead[k]] = sav_i[liveDead[k]] + (f_ij[k] * SAV_ij[k])
+    SAV_i[liveDead[k]] = SAV_i[liveDead[k]] + (f_ij[k] * SAV_ij[k])
   }
   
   #Sum the live and dead components to get the final value...
   #Rothermel 1972 equation 71:
   #σ = Σi fiσi (~ over sigma and sigma sub i in original)
-  fuelBedSAV = sum(f_i * sav_i)
+  fuelBedSAV = sum(f_i * SAV_i)
   
   return(fuelBedSAV)
 }
@@ -1101,7 +1072,7 @@ Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
 #  mass, unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #(Se)ij ((S sub e) sub ij) = effective mineral content (fuel particle property: (mass minerals –
 #  mass silica) / total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
-#(ρp)ij ((rho sub p) sub ij) = fuel particle density (density, originally lb/ft^3)
+#(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3)
 #  A1l the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
