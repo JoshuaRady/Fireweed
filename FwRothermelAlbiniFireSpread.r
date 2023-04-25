@@ -1,20 +1,73 @@
 #FwRothermelAlbiniFireSpread.r
-#The following code was extracted from Proj_11_Exp_3_Analysis_D5.r from Project 11 Experiment 3.
-
 #Programed by: Joshua M. Rady
-#Woodwell Climate Reseach Center
+#Woodwell Climate Research Center
 #Started: 2/27/2023
+#
+#Description:---------------------------------------------------------------------------------------
+# This file is part of the Fireweed fire code library.  It contains R implementations of the
+#Rothermel fire spread model (Rothermel 1972) with the modifications of Albini (Albini 1972).
+#
+# The Rothermel/Albini equations have been implemented in a form as close to the originals as was
+#possible.  The modifications of Albini 1972 are considered official parts of the Rothermel fire
+#spread model and all equations include these modifications where they apply.  The Rothermel model
+#consists of a nested set of equations. The library presents functions for each equation with useful
+#output.  Some functions are very simple and could be inlined but a focus on clarity and modularity
+#have been prioritized over compactness.
+#
+# This code was started in Proj_11_Exp_3_Analysis_D5.r from Project 11 Experiment 3.
+#
+#References:----------------------------------------------------------------------------------------
+#Richard C. Rothermel.
+#A mathematical model for predicting fire spread in wildland fuels.
+#Res. Pap. INT-115. Ogden, UT: U.S. Department of Agriculture, Intermountain Forest and Range
+#Experiment Station. 40 p. 1972
+#
+#Computer-based models of wildland fire behavior: a user's manual.
+#Albini, F. A.
+#Intermountain Forest and Range Experiment Station, Forest Service, U.S. Department of Agriculture.
+#1976.
+#
+#Andrews, Patricia L., Miguel G. Cruz, and Richard C. Rothermel.
+#Examination of the wind speed limit function in the Rothermel surface fire spread model.
+#International Journal of Wildland Fire 22(7): 959-69, 2013. http://dx.doi.org/10.1071/WF12122
+# This review summarizes and contextualizes the equations of Rothermel and Albini as well as
+#related work and was an important reference for preparing this code.
+#
+#Notation:------------------------------------------------------------------------------------------
+# The equations contain mathematical notation and variables with characters that cannot be directly
+#represented in R/C++.  To represent the variables the following translations were used.
+#
+#Greek letters in variable names:
+# Many variables use Greek characters.  In most cases these are translated using their English names
+#with the case indicating the case of the character, e.g. β -> Beta and σ -> sigma.  In a few cases
+#Greek variable names have been changed to abbreviations or descriptive names.  Greek is used in
+#the comments.
+#[See table of variables below.]
+#
+#Subscripts:
+# Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number of
+#variables have two levels of subscript, the second representing fuel type indexes (i and j, see
+#below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij) -> A_b_ij.
+#
+#[Add variables table...]
+#
+#Variable notes:
+# - The surface-area-to-volume ratio for fuels is notated as σ (sigma) and abbreviated as sav or
+#SAV in different places in the papers.  We use SAV in the code.
+# - It is unclear if fuel loading is w0 or wo.  In Rothermel 1972 it is not clear and in reprints it
+#varies.  We usse w sub o (w_0).
+# - Total mineral content is sometimes notated S sub t and sometimes S sub T.  We use S sub t (S_t).
+#
+#Units:
+# The original equations used English units.  Units are indicated for function inputs and outputs.
+#SI units will be added later.
+#___________________________________________________________________________________________________
+
+#Globals:-------------------------------------------------------------------------------------------
 
 #Code:----------------------------------------------------------------------------------------------
 
 #Rothermel & Albini Spread Model:-------------------------------------------------------------------
-#
-#Notation:
-#Substripts...
-# - I'm not sure if fuel loading is w0 or wo.  I'm going with w sub o.
-# - Total mineral content is sometimes S sub t and sometimes S sub T.
-# - The surface-area-to-volume ratio for fuels is notated as σ (sigma) and abbreviated as sav or
-#SAV in different places.  We use SAV in the code.
 
 #Propagating Flux Ratio:
 #The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
@@ -190,7 +243,7 @@ CalcWeightings <- function(SAV_ij, w_os, rho_ps,#fuelParticleDensity = 32,#Chang
   #g_ij:
   #The final set of weights was added in Albini 1976 to get arround a logical problem of using f_ij
   #for fuel loading.
-  #ALlbini 1972 pg. 15:
+  #Albini 1972 pg. 15:
   #...
   #The notation here is a bit confusing in my opinion.
   
@@ -377,7 +430,7 @@ NetFuelLoad_Albini <- function(w_o, S_t)
 #Input variables / parameters:
 #(w0)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #(ST)ij ((S sub T) sub ij) = Array of total mineral content for each fuel class (unitless fraction).
-#g_ij =  Net fuel load weights (Albini 1976).
+#g_ij = Net fuel load weights (Albini 1976).
 #
 #Returns: w_n_i ((w sub o) sub i) = An 
 #Output units: lb/ft^2
