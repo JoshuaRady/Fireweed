@@ -69,30 +69,81 @@
 
 #Rothermel & Albini Spread Model:-------------------------------------------------------------------
 
-#Propagating Flux Ratio:
-#The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
-#intensity that heats fuels adjacent to the fire front.
+#Move bulk densities up with packing ratios?
+
+#Bulk Density:--------------------------------------------------------------------------------------
+#  The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
+#area divided by the fuel bed depth).
 #
-#The equation is the same for Rothermel 1972 (eq. 42/76) and Albini 1976 (pg?????):
-#ξ = (192 + 0.2595σ)^-1 exp[(0.792 + 0.681σ^0.5)(β + 0.1)]
+#Rothermel 1972 equation 40:
+#ρb = w_o/δ
 #
 #Input variables / parameters:
-#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
-#  For heterogeneous fuels the mean packing ratio is passed in.
-#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
-#  For heterogeneous fuels the fuel bed level SAV is used.
+#w_o (w sub o) = Oven dry fuel load (lb/ft^2).  This includes combustible and mineral fractions.
+#δ (delta) = fuel bed depth (ft)
 #
-#Output units: Dimensionless proportion
-PropagatingFluxRatio <- function(packingRatio, sav)
+#Output units: lb/ft^3
+BulkDensity <- function(w_o, fuelBedDepth)
 {
-  xi = (192 + 0.2595 * sav)^-1 * exp((0.792 + 0.681 * sav^0.5) * (packingRatio + 0.1))
-  
-  #Convert units????
-  
-  return(xi)
+  rho_b = w_o / fuelBedDepth
+  return(rho_b)
 }
 
-#Packing Ratio:
+#EffectiveBulkDensity: Is this needed?
+
+#Mean Bulk Density:
+#  The heterogeneous fuel version of the spread equation requires a mean bulk density for the 
+#fuels.
+#
+#Rothermel 1972 equation 74:
+#ρb = 1/δ Σi Σj (wo)ij
+#For i = 1 to m fuel categories (live vs. dead) and j = 1 to n fuel size classes.
+#The original notation includes from and to sum subscripts and bars over rho and w.
+#
+#Input variables / parameters:
+#(w sub o [bar]) = An array of fuel loadings for each fuel category (i: live vs. dead) and fuel size
+#class (j) (lb/ft^2).
+#  This function could also be written to take something like an array of fuel model objects.  It
+#is not clear yet what would be most useful.
+#δ (delta) = fuel bed depth (ft)
+#
+#Output units: lb/ft^3
+MeanBulkDensity <- function(fuelLoadings, fuelBedDepth)#Change to w_o_ij
+{
+  #Sum the individual fuel loadings across elements:
+  #No weights are needed since the w_o is expressed as mass per area.
+  #The fuel loadings chould be a a 2D array / matrix but the positions have no significance in the
+  #calculation  Only a sum of all elments needs to be computed.
+  #If we know the size of dimensions we could apply error checking.  The 53 standard fire behavior
+  #fuel models have 3 dead and 2 live classes.  That is not a fixed requirement of the Rothermel
+  #in theory, but is in practice [I think].
+  
+  if (length(fuelLoadings) < 2)
+  {
+    warning("More than one fuel class expected.")
+  }
+  
+  #Explicit matrix: R is row, column: (probably not ideal due to standard fuel models)
+  # rows = nrow(fuelLoadings)
+  # cols = ncol(fuelLoadings)
+  # 
+  # totalLoading = 0
+  # for (i in 1:rows)
+  # {
+  #   for (j in cols)
+  #   {
+  #     totalLoading = fuelLoadings[i,j]
+  #   }
+  # }
+  
+  totalLoading = sum(fuelLoadings)
+  #rho_b_bar = totalLoading / totalLoading#Wrong!
+  rho_b_bar = totalLoading / fuelBedDepth
+  
+  return(rho_b_bar)
+}
+
+#Packing Ratio:-------------------------------------------------------------------------------------
 # The packing ratio is the fraction of the (surface) fuel bed volume occupied by fuel, aka
 #compactness.
 #
@@ -318,8 +369,7 @@ CalcWeightings <- function(SAV_ij, w_os, rho_ps,#fuelParticleDensity = 32,#Chang
   #Or save in globals?
 }
 
-
-#Fuel Bed Surface-area-to-volume Ratio:
+#Fuel Bed Surface-area-to-volume Ratio:----------
 #  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.
 #
 #Input variables / parameters:
@@ -361,46 +411,7 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)#f_ij, SAVs -> SAV_ij?
   return(fuelBedSAV)
 }
 
-#Optimum (Potential) Reaction Velocity:
-#  This is a measure of the optimum (potential) fuel consumption rate (fire efficiency / reaction
-#time).  The 'optimum' rate is the ideal rate that would occur for alpha cellulose in the absence
-#of minerals and moisture.
-#Notation: Γ' (Gamma prime)
-#
-#  This version includes the Albini modification...
-#
-#Input variables / parameters:
-#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
-#  For heterogeneous fuels the mean packing ratio is passed in.  (see PackingRatio()?????
-#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
-#  For heterogeneous fuels the SAV of the fuel bed / complex is used.
-#
-#Output units: min^1
-OptimumReactionVelocity <- function(meanPackingRatio, sav)#, liveDead)
-{
-  #Calculate the maximum reaction velocity (min^-1):
-  #This is rate for moisture free fuel with mineral compostion of alpha cellulose.
-  #Rothermel 1972 equations 36,68:
-  #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
-  GammaPrimeMax = sav^1.5 / (495 + 0.0594 * sav^1.5)
-  
-  optPackingRatio = OptimumPackingRatio(sav)
-  
-  #"Arbitrary" variable (no units?????):
-  #Albini 1976 pg. 15????
-  #A = 133σ^-0.7913
-  A = 133 * sav^-0.7913
-  
-  #These are combined to produce the optimal reaction velocity (min^-1):
-  #Rothermel 1972 equation 38:
-  #Γ' = Γ'max(β/βop)^A exp[A(1 - β/βop)]
-  GammaPrime = GammaPrimeMax * (meanPackingRatio/optPackingRatio)^A  *
-    exp(A * (1 - meanPackingRatio/optPackingRatio))
-  
-  return(GammaPrime)
-}
-
-#Net Fuel Load:
+#Net Fuel Load:----------
 # The fuel load (w sub n) is mass per ground area of dry combustible fuel removing the
 #noncombustible mineral mass.
 #
@@ -644,75 +655,7 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
   return(eta_s_i)
 }
 
-
-#Reaction Velocity
-# The reaction velocity is the actual fuel consumption rate at the fire front.
-#
-#Γ = Γ'ηM ηs
-#
-#This is not currently needed in an of itself.  It is imbedded in ReactionIntensityAlbini().
-# ReactionVelocity <- function()
-# {
-#   gammaPrime = OptimumReactionVelocity(meanPackingRatio, sav)
-# }
-
-
-#Reaction Intensity:
-# The reaction intensity (IR / I sub R) is the total energy released by the fire front in 
-#Btu/ft^2-min ... Btu/ft^2/min #in all forms (radiation, conduction, and convection).
-#  This it not the same as fireline intensity.
-#
-#IR (I sub R) / I_R
-#Units Btu/ft^2/min or kW/m^2/min kW/min/m^2
-
-#Reaction Intensity Rothermel homogeneous fuel:
-#
-#Rothermel equation ##?:
-#IR = Γ'wnhηMηs
-#or: I_R = Γ' x w_n x h x η_M x η_s
-#
-#Input variables / parameters:
-#Γ' (Gamma prime) = optimum reaction velocity
-#wn (w sub n) = net fuel load (for a single fuel component...)
-#h = heat content of the fuel class (Btu/lb)
-#ηM (eta sub M) = moisture damping coefficient
-#ηs (eta sub s) = mineral damping coefficient
-#
-#Output units: Btu/ft^2/min
-#
-#Are these the best parameters?
-ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)
-{
-  #I_R = optimumReactionVelocity * w_n * h * η_M * η_s
-  #I_R = GammaPrime * w_n * h * η_M * η_s
-  I_R = GammaPrime * w_n * h * eta_M * eta_s
-  
-  return(I_R)
-}
-#function(GammaPrime, w_n, h, Mf, Mx, Se)
-
-#Reaction Intensity for Heterogeneous Fuels:
-#
-#Input variables / parameters:
-#Γ' (Gamma prime) = optimum reaction velocity
-#(wn)i ((w sub n) sub i) = net fuel load for live/dead fuel categories (UNITS!!!!!).
-#hi (h sub i) = Heat content for live/dead fuel categories.
-#(ηM)i ((eta sub M) sub i) = Moisture damping coefficient for live/dead fuel categories
-#(UNITS!!!!!).
-#(ηs)i ((eta sub s) sub i) = mineral damping coefficient for live/dead fuel categories (UNITS!!!!!).
-
-#Some representation of the fuel array...
-#
-#Output units: Btu/ft^2/min
-#ReactionIntensityAlbini <- function()
-ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
-{
-  #Rothermel equation 58 modified by Albini 1976 pg. 17:
-  #IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
-  IR = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
-  
-  return(IR)
-}
+#Slope and Wind Factors:----------------------------------------------------------------------------
 
 #Slope factor:
 #Dimensionless multiplier that accounts for the effect of slope on spread behavior.  Same for
@@ -803,23 +746,56 @@ WindLimit <- function(U, I_R)
   return(U)
 }
 
-#Heat Of Preignition:
+#Heat Source Components:----------------------------------------------------------------------------
+
+#Reaction Velocity
+# The reaction velocity is the actual fuel consumption rate at the fire front.
 #
-#Rothermel 1972 equations 12,78:
-#Qig = 250 + 1,116Mf
+#Γ = Γ'ηM ηs
+#
+#This is not currently needed in an of itself.  It is imbedded in ReactionIntensityAlbini().
+# ReactionVelocity <- function()
+# {
+#   gammaPrime = OptimumReactionVelocity(meanPackingRatio, sav)
+# }
+
+#Optimum (Potential) Reaction Velocity:
+#  This is a measure of the optimum (potential) fuel consumption rate (fire efficiency / reaction
+#time).  The 'optimum' rate is the ideal rate that would occur for alpha cellulose in the absence
+#of minerals and moisture.
+#Notation: Γ' (Gamma prime)
+#
+#  This version includes the Albini modification...
 #
 #Input variables / parameters:
-#Mf (M sub f) = Fuel moisture content (water weight/dry fuel weight)
+#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
+#  For heterogeneous fuels the mean packing ratio is passed in.  (see PackingRatio()?????
+#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
-#Output units: btu/lb
-#For heterogeneous fuels this is calculated for each fuel type.  In R this is array compatible but
-#may need to be reworked in C++.
-HeatOfPreignition <- function(Mf)
+#Output units: min^1
+OptimumReactionVelocity <- function(meanPackingRatio, sav)#, liveDead)
 {
-  Qig = 250 + 1116 * Mf
-  return(Qig)
+  #Calculate the maximum reaction velocity (min^-1):
+  #This is rate for moisture free fuel with mineral compostion of alpha cellulose.
+  #Rothermel 1972 equations 36,68:
+  #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
+  GammaPrimeMax = sav^1.5 / (495 + 0.0594 * sav^1.5)
   
-  #Metric: Qig = 581 + 2,594Mf
+  optPackingRatio = OptimumPackingRatio(sav)
+  
+  #"Arbitrary" variable (no units?????):
+  #Albini 1976 pg. 15????
+  #A = 133σ^-0.7913
+  A = 133 * sav^-0.7913
+  
+  #These are combined to produce the optimal reaction velocity (min^-1):
+  #Rothermel 1972 equation 38:
+  #Γ' = Γ'max(β/βop)^A exp[A(1 - β/βop)]
+  GammaPrime = GammaPrimeMax * (meanPackingRatio/optPackingRatio)^A  *
+    exp(A * (1 - meanPackingRatio/optPackingRatio))
+  
+  return(GammaPrime)
 }
 
 #Live / Dead Heat Content:
@@ -848,79 +824,108 @@ LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
   return(h_i)
 }
 
-#Move bulk densities up with packing ratios?
-
-#Bulk Density:
-#  The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
-#area divided by the fuel bed depth).
+#Reaction Intensity:
+# The reaction intensity (IR / I sub R) is the total energy released by the fire front in 
+#Btu/ft^2-min ... Btu/ft^2/min #in all forms (radiation, conduction, and convection).
+#  This it not the same as fireline intensity.
 #
-#Rothermel 1972 equation 40:
-#ρb = w_o/δ
+#IR (I sub R) / I_R
+#Units Btu/ft^2/min or kW/m^2/min kW/min/m^2
+
+#Reaction Intensity Rothermel homogeneous fuel:
+#
+#Rothermel equation ##?:
+#IR = Γ'wnhηMηs
+#or: I_R = Γ' x w_n x h x η_M x η_s
 #
 #Input variables / parameters:
-#w_o (w sub o) = Oven dry fuel load (lb/ft^2).  This includes combustible and mineral fractions.
-#δ (delta) = fuel bed depth (ft)
+#Γ' (Gamma prime) = optimum reaction velocity
+#wn (w sub n) = net fuel load (for a single fuel component...)
+#h = heat content of the fuel class (Btu/lb)
+#ηM (eta sub M) = moisture damping coefficient
+#ηs (eta sub s) = mineral damping coefficient
 #
-#Output units: lb/ft^3
-BulkDensity <- function(w_o, fuelBedDepth)
+#Output units: Btu/ft^2/min
+#
+#Are these the best parameters?
+ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)
 {
-  rho_b = w_o / fuelBedDepth
-  return(rho_b)
+  #I_R = optimumReactionVelocity * w_n * h * η_M * η_s
+  #I_R = GammaPrime * w_n * h * η_M * η_s
+  I_R = GammaPrime * w_n * h * eta_M * eta_s
+  
+  return(I_R)
 }
+#function(GammaPrime, w_n, h, Mf, Mx, Se)
 
-#EffectiveBulkDensity: Is this needed?
-
-#Mean Bulk Density:
-#  The heterogeneous fuel version of the spread equation requires a mean bulk density for the 
-#fuels.
-#
-#Rothermel 1972 equation 74:
-#ρb = 1/δ Σi Σj (wo)ij
-#For i = 1 to m fuel categories (live vs. dead) and j = 1 to n fuel size classes.
-#The original notation includes from and to sum subscripts and bars over rho and w.
+#Reaction Intensity for Heterogeneous Fuels:
 #
 #Input variables / parameters:
-#(w sub o [bar]) = An array of fuel loadings for each fuel category (i: live vs. dead) and fuel size
-#class (j) (lb/ft^2).
-#  This function could also be written to take something like an array of fuel model objects.  It
-#is not clear yet what would be most useful.
-#δ (delta) = fuel bed depth (ft)
+#Γ' (Gamma prime) = optimum reaction velocity
+#(wn)i ((w sub n) sub i) = net fuel load for live/dead fuel categories (UNITS!!!!!).
+#hi (h sub i) = Heat content for live/dead fuel categories.
+#(ηM)i ((eta sub M) sub i) = Moisture damping coefficient for live/dead fuel categories
+#(UNITS!!!!!).
+#(ηs)i ((eta sub s) sub i) = mineral damping coefficient for live/dead fuel categories (UNITS!!!!!).
+
+#Some representation of the fuel array...
 #
-#Output units: lb/ft^3
-MeanBulkDensity <- function(fuelLoadings, fuelBedDepth)#Change to w_o_ij
+#Output units: Btu/ft^2/min
+#ReactionIntensityAlbini <- function()
+ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
 {
-  #Sum the individual fuel loadings across elements:
-  #No weights are needed since the w_o is expressed as mass per area.
-  #The fuel loadings chould be a a 2D array / matrix but the positions have no significance in the
-  #calculation  Only a sum of all elments needs to be computed.
-  #If we know the size of dimensions we could apply error checking.  The 53 standard fire behavior
-  #fuel models have 3 dead and 2 live classes.  That is not a fixed requirement of the Rothermel
-  #in theory, but is in practice [I think].
+  #Rothermel equation 58 modified by Albini 1976 pg. 17:
+  #IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
+  IR = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
   
-  if (length(fuelLoadings) < 2)
-  {
-    warning("More than one fuel class expected.")
-  }
+  return(IR)
+}#Propagating Flux Ratio:
+#The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
+#intensity that heats fuels adjacent to the fire front.
+#
+#The equation is the same for Rothermel 1972 (eq. 42/76) and Albini 1976 (pg?????):
+#ξ = (192 + 0.2595σ)^-1 exp[(0.792 + 0.681σ^0.5)(β + 0.1)]
+#
+#Input variables / parameters:
+#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
+#  For heterogeneous fuels the mean packing ratio is passed in.
+#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#  For heterogeneous fuels the fuel bed level SAV is used.
+#
+#Output units: Dimensionless proportion
+PropagatingFluxRatio <- function(packingRatio, sav)
+{
+  xi = (192 + 0.2595 * sav)^-1 * exp((0.792 + 0.681 * sav^0.5) * (packingRatio + 0.1))
   
-  #Explicit matrix: R is row, column: (probably not ideal due to standard fuel models)
-  # rows = nrow(fuelLoadings)
-  # cols = ncol(fuelLoadings)
-  # 
-  # totalLoading = 0
-  # for (i in 1:rows)
-  # {
-  #   for (j in cols)
-  #   {
-  #     totalLoading = fuelLoadings[i,j]
-  #   }
-  # }
+  #Convert units????
   
-  totalLoading = sum(fuelLoadings)
-  #rho_b_bar = totalLoading / totalLoading#Wrong!
-  rho_b_bar = totalLoading / fuelBedDepth
-  
-  return(rho_b_bar)
+  return(xi)
 }
+
+#Propagating Flux Ratio:
+#The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
+#intensity that heats fuels adjacent to the fire front.
+#
+#The equation is the same for Rothermel 1972 (eq. 42/76) and Albini 1976 (pg?????):
+#ξ = (192 + 0.2595σ)^-1 exp[(0.792 + 0.681σ^0.5)(β + 0.1)]
+#
+#Input variables / parameters:
+#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
+#  For heterogeneous fuels the mean packing ratio is passed in.
+#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#  For heterogeneous fuels the fuel bed level SAV is used.
+#
+#Output units: Dimensionless proportion
+PropagatingFluxRatio <- function(packingRatio, sav)
+{
+  xi = (192 + 0.2595 * sav)^-1 * exp((0.792 + 0.681 * sav^0.5) * (packingRatio + 0.1))
+  
+  #Convert units????
+  
+  return(xi)
+}
+
+#Heat Sink Components:------------------------------------------------------------------------------
 
 #Effective Heating Number:
 #  This represents the proportion of a fuel type that is heated to ignition temperature in advance
@@ -943,7 +948,26 @@ EffectiveHeatingNumber <- function(sav)
 }
 #For heterogeneous fuels...
 
-#Spread Rate Calculations:
+#Heat Of Preignition:
+#
+#Rothermel 1972 equations 12,78:
+#Qig = 250 + 1,116Mf
+#
+#Input variables / parameters:
+#Mf (M sub f) = Fuel moisture content (water weight/dry fuel weight)
+#
+#Output units: btu/lb
+#For heterogeneous fuels this is calculated for each fuel type.  In R this is array compatible but
+#may need to be reworked in C++.
+HeatOfPreignition <- function(Mf)
+{
+  Qig = 250 + 1116 * Mf
+  return(Qig)
+  
+  #Metric: Qig = 581 + 2,594Mf
+}
+
+#Spread Rate Calculations:--------------------------------------------------------------------------
 
 #Albini 1976 modified Rothermel spread model [for homogeneous fuels]:
 #  Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
