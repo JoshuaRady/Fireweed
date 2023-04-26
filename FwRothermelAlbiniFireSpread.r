@@ -26,6 +26,10 @@
 #Albini, F. A.
 #Intermountain Forest and Range Experiment Station, Forest Service, U.S. Department of Agriculture.
 #1976.
+# This paper documents the changes that Albini made to the eqations of Rothermel 1972 as well as
+#a set of functions implementing the equations in FORTRAN (sometimes referred to collectively as
+#FIREMOD, the name of the spread rate routine).  The code here was developed directly from the
+#equations in the paper.  I have not been able to find the FORTRAN code itself.
 #
 #Andrews, Patricia L., Miguel G. Cruz, and Richard C. Rothermel.
 #Examination of the wind speed limit function in the Rothermel surface fire spread model.
@@ -48,6 +52,7 @@
 # Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number of
 #variables have two levels of subscript, the second representing fuel type indexes (i and j, see
 #below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij) -> A_b_ij.
+#[Explain ij notation and k.]
 #
 #[Add variables table...]
         #(w0)ij ((w sub o) sub ij) = w_o_ij Array of oven dry fuel load for each fuel class (lb/ft^2).
