@@ -211,13 +211,13 @@ MeanPackingRatio <- function(w_o_ij, fuelBedDepth, rho_p_ij = 32)#Order for defa
 #βop = 3.348(σ)^-0.8189
 #
 #Input variables / parameters:
-#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
 #  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
 #Output units: Dimensionless ratio
-OptimumPackingRatio <- function(sav)
+OptimumPackingRatio <- function(SAV)
 {
-  optPackingRatio = 3.348 * (sav)^-0.8189
+  optPackingRatio = 3.348 * (SAV)^-0.8189
   return(optPackingRatio)
 }
 
@@ -656,7 +656,7 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 #(propigating flux ratio specifically).  Same for homegenous and heterogeneous fuels.
 #
 #Input variables / parameters:
-#σ / sav = characteristic surface-area-to-volume ratio (ft^2/ft^3) 
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3) 
 #β = packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 #βop = optimum packing ratio (Note: optimum packing ratio is a function of SAV)
 #U = wind speed at midflame height (ft/min)
@@ -666,22 +666,22 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 #Note: It is not possible to calculate if a wind limit is indicated internal to this function
 #and not all authors agree that a wind limit should be used.  U should be capped, if deemed
 #appropriate prior to passing it in to this function.
-WindFactor <- function(sav, packingRatio, optPackingRatio, U)
+WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
 {
   #C = unnamed term
   #Rothermel 1972 equation 48,82:
   #C = 7.47exp(-0.133σ^0.55)
-  C = 7.47 * exp(-0.133 * sav^0.55)
+  C = 7.47 * exp(-0.133 * SAV^0.55)
   
   #B = unnamed term
   #Rothermel 1972 equation 49,83:
   #B = 0.02526σ^0.54
-  B = 0.02526 * sav^0.54
+  B = 0.02526 * SAV^0.54
   
   #E = unnamed term
   #Rothermel 1972 equation 50,84:
   #E = 0.715exp(-3.59×10^-4 σ)
-  E = 0.715 * exp(-3.59 * 10^-4 * sav)
+  E = 0.715 * exp(-3.59 * 10^-4 * SAV)
   
   #Rothermel 1972 equation 47,79:
   #ϕw = CU^B(β/βop)^-E
@@ -732,7 +732,7 @@ WindLimit <- function(U, I_R)
 #This is not currently needed in an of itself.  It is imbedded in ReactionIntensityAlbini().
 # ReactionVelocity <- function()
 # {
-#   gammaPrime = OptimumReactionVelocity(meanPackingRatio, sav)
+#   gammaPrime = OptimumReactionVelocity(meanPackingRatio, SAV)
 # }
 
 #Optimum (Potential) Reaction Velocity:
@@ -746,24 +746,24 @@ WindLimit <- function(U, I_R)
 #Input variables / parameters:
 #β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 #  For heterogeneous fuels the mean packing ratio is passed in.  (see PackingRatio()?????
-#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
 #  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
 #Output units: min^1
-OptimumReactionVelocity <- function(meanPackingRatio, sav)#, liveDead)
+OptimumReactionVelocity <- function(meanPackingRatio, SAV)#, liveDead)
 {
   #Calculate the maximum reaction velocity (min^-1):
   #This is rate for moisture free fuel with mineral compostion of alpha cellulose.
   #Rothermel 1972 equations 36,68:
   #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
-  GammaPrimeMax = sav^1.5 / (495 + 0.0594 * sav^1.5)
+  GammaPrimeMax = SAV^1.5 / (495 + 0.0594 * SAV^1.5)
   
-  optPackingRatio = OptimumPackingRatio(sav)
+  optPackingRatio = OptimumPackingRatio(SAV)
   
   #"Arbitrary" variable (no units?????):
   #Albini 1976 pg. 15????
   #A = 133σ^-0.7913
-  A = 133 * sav^-0.7913
+  A = 133 * SAV^-0.7913
   
   #These are combined to produce the optimal reaction velocity (min^-1):
   #Rothermel 1972 equation 38:
@@ -865,13 +865,13 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
 #Input variables / parameters:
 #β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 #  For heterogeneous fuels the mean packing ratio is passed in.
-#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
 #  For heterogeneous fuels the fuel bed level SAV is used.
 #
 #Output units: Dimensionless proportion
-PropagatingFluxRatio <- function(packingRatio, sav)
+PropagatingFluxRatio <- function(packingRatio, SAV)
 {
-  xi = (192 + 0.2595 * sav)^-1 * exp((0.792 + 0.681 * sav^0.5) * (packingRatio + 0.1))
+  xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
   
   #Convert units????
   
@@ -888,13 +888,13 @@ PropagatingFluxRatio <- function(packingRatio, sav)
 #Input variables / parameters:
 #β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 #  For heterogeneous fuels the mean packing ratio is passed in.
-#σ (sav) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3)
 #  For heterogeneous fuels the fuel bed level SAV is used.
 #
 #Output units: Dimensionless proportion
-PropagatingFluxRatio <- function(packingRatio, sav)
+PropagatingFluxRatio <- function(packingRatio, SAV)
 {
-  xi = (192 + 0.2595 * sav)^-1 * exp((0.792 + 0.681 * sav^0.5) * (packingRatio + 0.1))
+  xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
   
   #Convert units????
   
@@ -913,12 +913,12 @@ PropagatingFluxRatio <- function(packingRatio, sav)
 #ε = exp(-138/σ)
 #
 #Input variables / parameters:
-#σ / sav = characteristic surface-area-to-volume ratio (ft^2/ft^3) 
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3) 
 #
 #Units: Dimensionless.
-EffectiveHeatingNumber <- function(sav)
+EffectiveHeatingNumber <- function(SAV)
 {
-  epsilon = exp(-138/sav)
+  epsilon = exp(-138/SAV)
   return(epsilon)
   #Note: Constant = −4.528 for metric units.
 }
@@ -963,7 +963,7 @@ HeatOfPreignition <- function(Mf)
 #  A1l the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
-#σ / sav = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3)
 #w_o (w sub o) = Oven dry fuel load (lb/ft^2).  This includes combustible and mineral fractions.
 #     Sometimes expressed as ton/acre?????
 #δ (delta) = fuel bed depth (ft)
@@ -980,7 +980,7 @@ HeatOfPreignition <- function(Mf)
 #Returns: R = rate of spread in ft/min.
 Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
                               fuelParticleDensity = 32,#or rho_p
-                              sav, w_o, fuelBedDepth, Mx,#fuelLoad
+                              SAV, w_o, fuelBedDepth, Mx,#fuelLoad
                               Mf, U, slopeSteepness, useWindLimit = TRUE)#Update the name!
 {
   #Rate of spread = heat source / heat sink
@@ -998,13 +998,13 @@ Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
   rho_b = BulkDensity(w_o, fuelBedDepth)
   
   packingRatio = PackingRatio(rho_b, fuelParticleDensity)
-  optPackingRatio = OptimumPackingRatio(sav)
+  optPackingRatio = OptimumPackingRatio(SAV)
   
   #Heat source (numerator) = IR𝜉(1 + 𝜙w + 𝜙s)
   #IR = ReactionIntensityAlbini(...)
   
   #Reaction intensity:
-  GammaPrime = OptimumReactionVelocity(packingRatio, sav)
+  GammaPrime = OptimumReactionVelocity(packingRatio, SAV)
   w_n = NetFuelLoad_Albini(w_o, St)
   eta_M = MoistureDampingCoefficient(Mf, Mx)#M_f, M_x?????
   eta_s = MineralDampingCoefficient(Se)#S_e?????
@@ -1019,7 +1019,7 @@ Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
   # print(paste("I_R =", I_R))
   
   #Other terms:
-  xi = PropagatingFluxRatio(packingRatio, sav)
+  xi = PropagatingFluxRatio(packingRatio, SAV)
   phi_s = SlopeFactor(packingRatio, slopeSteepness)
   
   #Apply wind limit check:
@@ -1034,14 +1034,14 @@ Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
     }
   }
   
-  phi_w = WindFactor(sav, packingRatio, optPackingRatio, U)
+  phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U)
   
   
   #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3:
   #ρbεQig
   
   #rho_b = BulkDensity(w_o, fuelBedDepth)
-  epsilon = EffectiveHeatingNumber(sav)
+  epsilon = EffectiveHeatingNumber(SAV)
   Qig = HeatOfPreignition(Mf)
   
   #For debugging:
