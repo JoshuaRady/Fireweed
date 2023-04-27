@@ -55,7 +55,7 @@
 #[Explain ij notation and k.]
 #
 #[Add variables table...]
-        #(w0)ij ((w sub o) sub ij) = w_o_ij Array of oven dry fuel load for each fuel class (lb/ft^2).
+        #(wo)ij ((w sub o) sub ij) = w_o_ij Array of oven dry fuel load for each fuel class (lb/ft^2).
 #
 #
 #Variable notes:
@@ -104,7 +104,7 @@ BulkDensity <- function(w_o, fuelBedDepth)
 #The original notation includes from and to sum subscripts and bars over rho and w.
 #
 #Input variables / parameters:
-#(w0)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
+#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #  This function could also be written to take something like an array of fuel model objects.  It
 #is not clear yet what would be most useful.
 #δ (delta) = fuel bed depth (ft)
@@ -171,7 +171,7 @@ PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_
 #The original notation includes from and to sum subscripts and bars over beta, rho, and w.
 #
 #Input variables / parameters:
-#(w0)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
+#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #(ρp)ij ((rho sub p[bar]) sub ij) = fuel particle density for each fuel type (lb/ft^3)
 #  A1l the 53 standard fuel models use 32 lb/ft^3.
 #  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
@@ -250,7 +250,7 @@ CalcWeightings <- function(SAV_ij, w_os, rho_p_ij, liveDead)
   
   #Calcualte the (mean) total surface area for each fuel component:
   #Rothermel equation 53?:
-  #Aij = (σ)ij (w0)ij ⁄(ρp)ij
+  #Aij = (σ)ij (wo)ij ⁄(ρp)ij
   A_ij = SAV_ij * w_os / rho_p_ij
   
   #Mean total surface area by live / dead fuel categories:
@@ -361,8 +361,7 @@ CalcWeightings <- function(SAV_ij, w_os, rho_p_ij, liveDead)
 #  dead (1) or live (2) or fuel categories.
 #
 #Output units: ft^2/ft^3
-#FuelBedSAV <- function(SAVs, weights, liveDead)#f_ij, SAVs -> SAV_ij?
-FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)#f_ij, SAVs -> SAV_ij?
+FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 {
   #Add error checking...
   
@@ -393,7 +392,7 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)#f_ij, SAVs -> SAV_ij?
 #
 #Albini 1976 pg. 14?????
 #wn = wo(1 - St)
-#Or alt notation? w_n = w_0(1 - S_t)
+#Or alt notation? w_n = w_o(1 - S_t)
 #
 #Input variables / parameters:
 #w_o (w sub o) = Oven dry fuel load (lb/ft^2).  This includes combustible and mineral fraction.
@@ -415,7 +414,7 @@ NetFuelLoad_Albini <- function(w_o, S_t)
 #weights.
 #
 #Input variables / parameters:
-#(w0)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
+#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #(ST)ij ((S sub T) sub ij) = Array of total mineral content for each fuel class (unitless fraction).
 #g_ij = Net fuel load weights (Albini 1976).
 #
@@ -429,7 +428,7 @@ NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
   
   #Calculate the net fuel load for each fuel class:
   #Rothermel equation ?????? modified by Albini 1976 pg. 14:
-  #(wn)ij = (w0)ij (1 – (ST)ij)
+  #(wn)ij = (wo)ij (1 – (ST)ij)
   w_n_ij = w_o_ij * (1 - S_T_ij)
   
   #Sum the net fuel load for each 
@@ -521,7 +520,7 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 #  weight/dry fuel weight)
 #(Mx)1 ((M sub x) sub 1 = Dead fuel moisture of extinction (fraction, water weight/dry fuel weight).
 #w_o_ij ...
-#(w0)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
+#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #σij (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes.
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) or fuel categories.
@@ -532,7 +531,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
 {
   #Calculate dead:live loading ratio, notated W:
   #Albini 1976 pg. 16:
-  #W = Σj(w0)1jexp(-138/σ1j) / Σj(w0)2jexp(-500/σ2j)
+  #W = Σj(wo)1jexp(-138/σ1j) / Σj(wo)2jexp(-500/σ2j)
   #
   #These sums could be done in a vector aware way but that we limit ourselves to C compatible code.
   #The loops could also be combined with a live/dead conditional.
@@ -552,7 +551,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   
   #Calculate fine dead fuel moisture as:
   #Albini 1976 pg. 16:
-  #Mf,dead = Σj(Mf)1j(w0)1jexp(–138/σ1j) / Σj(w0)1jexp(–138/σ1j)
+  #Mf,dead = Σj(Mf)1j(wo)1jexp(–138/σ1j) / Σj(wo)1jexp(–138/σ1j)
   top = 0#Better names
   bottom = 0
   for (k in which(liveDead == 1))
@@ -653,7 +652,7 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 
 #Wind factor:
 #Dimensionless multiplier that accounts for the effect of wind speed on spread behavior
-#(propigating flux ratio specifically).  Same for homegenous and heterogeneous fuels.
+#(propagating flux ratio specifically).  Same for homegenous and heterogeneous fuels.
 #
 #Input variables / parameters:
 #σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3) 
@@ -832,7 +831,7 @@ ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)
   
   return(I_R)
 }
-#function(GammaPrime, w_n, h, Mf, Mx, Se)
+#function(GammaPrime, w_n, h, M_f, M_x, Se)
 
 #Reaction Intensity for Heterogeneous Fuels:
 #
@@ -852,9 +851,9 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
 {
   #Rothermel equation 58 modified by Albini 1976 pg. 17:
   #IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
-  IR = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
+  I_R = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
   
-  return(IR)
+  return(I_R)
 }#Propagating Flux Ratio:
 #The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
 #intensity that heats fuels adjacent to the fire front.
@@ -935,12 +934,12 @@ EffectiveHeatingNumber <- function(SAV)
 #Output units: btu/lb
 #For heterogeneous fuels this is calculated for each fuel type.  In R this is array compatible but
 #may need to be reworked in C++.
-HeatOfPreignition <- function(Mf)
+HeatOfPreignition <- function(M_f)
 {
-  Qig = 250 + 1116 * Mf
+  Qig = 250 + 1116 * M_f
   return(Qig)
   
-  #Metric: Qig = 581 + 2,594Mf
+  #Metric: Qig = 581 + 2,594M_f
 }
 
 #Spread Rate Calculations:--------------------------------------------------------------------------
@@ -978,10 +977,10 @@ HeatOfPreignition <- function(Mf)
 #useWindLimit = Use the wind limit calculation or not.
 #
 #Returns: R = rate of spread in ft/min.
-Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
+Albini1976_Spread <- function(heatContent = 8000, S_t = 0.0555, S_e = 0.01,
                               fuelParticleDensity = 32,#or rho_p
-                              SAV, w_o, fuelBedDepth, Mx,#fuelLoad
-                              Mf, U, slopeSteepness, useWindLimit = TRUE)#Update the name!
+                              SAV, w_o, fuelBedDepth, M_x,
+                              M_f, U, slopeSteepness, useWindLimit = TRUE)#Update the name!
 {
   #Rate of spread = heat source / heat sink
   
@@ -1001,22 +1000,13 @@ Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
   optPackingRatio = OptimumPackingRatio(SAV)
   
   #Heat source (numerator) = IR𝜉(1 + 𝜙w + 𝜙s)
-  #IR = ReactionIntensityAlbini(...)
   
-  #Reaction intensity:
+  #Reaction intensity I_R:
   GammaPrime = OptimumReactionVelocity(packingRatio, SAV)
-  w_n = NetFuelLoad_Albini(w_o, St)
-  eta_M = MoistureDampingCoefficient(Mf, Mx)#M_f, M_x?????
-  eta_s = MineralDampingCoefficient(Se)#S_e?????
+  w_n = NetFuelLoad_Albini(w_o, S_t)
+  eta_M = MoistureDampingCoefficient(M_f, M_x)
+  eta_s = MineralDampingCoefficient(S_e)
   I_R = ReactionIntensityRothermel(GammaPrime, w_n, heatContent, eta_M, eta_s)
-  
-  #For debugging:
-  # print(paste("GammaPrime =", GammaPrime))
-  # print(paste("w_n =", w_n))
-  # print(paste("h =", heatContent))
-  # print(paste("eta_M =", eta_M))
-  # print(paste("eta_s =", eta_s))
-  # print(paste("I_R =", I_R))
   
   #Other terms:
   xi = PropagatingFluxRatio(packingRatio, SAV)
@@ -1040,28 +1030,27 @@ Albini1976_Spread <- function(heatContent = 8000, St = 0.0555, Se = 0.01,
   #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3:
   #ρbεQig
   
-  #rho_b = BulkDensity(w_o, fuelBedDepth)
   epsilon = EffectiveHeatingNumber(SAV)
-  Qig = HeatOfPreignition(Mf)
+  Qig = HeatOfPreignition(M_f)
   
   #For debugging:
+  # print(paste("GammaPrime =", GammaPrime))
+  # print(paste("w_n =", w_n))
+  # print(paste("h =", heatContent))
+  # print(paste("eta_M =", eta_M))
+  # print(paste("eta_s =", eta_s))
+  # print(paste("I_R =", I_R))
   # print(paste("rho_b =", rho_b))
   # print(paste("epsilon =", epsilon))
   # print(paste("Qig =", Qig))
   # print(paste("Heat sink = ", rho_b * epsilon * Qig))
   
-  #There is a sum form for heterogeneous fuels...
-  #...(Qig)ij
-  #fi and fij are weights...
-  
   #Full spread calculation for homogeneous fuels:
   #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ρbεQig
   R = (I_R * xi * (1 + phi_s + phi_w)) / (rho_b * epsilon * Qig)
-  #R = (I_R * xi * (1 + phi_s + 17.8)) / (rho_b * epsilon * Qig)#Test
 }
 
 #Albini 1976 modified Rothermel spread model for heterogenous fuels:
-#w_o -> w_os?
 #These parameters should be converted to some object representing a fire behavior fuel mode.
 #RAFBFM is a mouthful!
 
@@ -1122,9 +1111,6 @@ SpreadRateAlbini1976_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij = 0.01
   
   #Calculate the weights:
   weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead)
-  #Debugging:
-  #print(paste("Weights", weights))
-  
   
   #The heat source (numerator) term represents the heat flux from the fire front to the fuel in
   #front of it:
@@ -1157,14 +1143,6 @@ SpreadRateAlbini1976_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij = 0.01
   
   I_R = ReactionIntensity_Het(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
   
-  #For debugging:
-  # print(paste("GammaPrime =", GammaPrime))
-  # print(paste("w_n_i =", w_n_i))
-  # print(paste("h_i =", h_i))
-  # print(paste("eta_M_i =", eta_M_i))
-  # print(paste("eta_s_i =", eta_s_i))
-  # print(paste("I_R =", I_R))
-  
   #Other numerator terms:
   xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV)
   phi_s = SlopeFactor(meanPackingRatio, slopeSteepness)
@@ -1177,19 +1155,14 @@ SpreadRateAlbini1976_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij = 0.01
   
   phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U)
   
-  
   #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3:
   #ρbεQig
-  #The heat sink term is calculated with weights with out calculating epsilon explicitly...
+  #The heat sink term is calculated with weights without calculating epsilon explicitly...
   #Rothermel equation 77:
   #ρbεQig = ρb Σi fi Σj fij[exp(-138/σij)](Qig)ij
   
   rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth)
   Q_ig_ij = HeatOfPreignition(M_f_ij)
-  
-  #For debugging:
-  # print(paste("rho_b_bar =", rho_b_bar))
-  # print(paste("Q_ig_ij =", Q_ig_ij))
   
   #We'll do it in two steps:
   #Weight and size class:
@@ -1204,11 +1177,16 @@ SpreadRateAlbini1976_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij = 0.01
   heatSink = rho_b_bar * sum(weights$f_i * heatSink_i)
   
   #For debugging:
+  # print(paste("Weights", weights))
+  # print(paste("GammaPrime =", GammaPrime))
+  # print(paste("w_n_i =", w_n_i))
+  # print(paste("h_i =", h_i))
+  # print(paste("eta_M_i =", eta_M_i))
+  # print(paste("eta_s_i =", eta_s_i))
+  # print(paste("I_R =", I_R))
+  # print(paste("rho_b_bar =", rho_b_bar))
+  # print(paste("Q_ig_ij =", Q_ig_ij))
   # print(paste("Heat sink =", heatSink))
-  
-  #Full spread calculation for homogeneous fuels:
-  #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ρbεQig
-  #  R = (I_R * xi * (1 + phi_s + phi_w)) / (rho_b * epsilon * Qig)
   
   #Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
   #Rate of spread = heat source / heat sink
