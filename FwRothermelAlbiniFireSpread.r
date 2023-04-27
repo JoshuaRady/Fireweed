@@ -977,10 +977,13 @@ HeatOfPreignition <- function(M_f)
 #useWindLimit = Use the wind limit calculation or not.
 #
 #Returns: R = rate of spread in ft/min.
-Albini1976_Spread <- function(heatContent = 8000, S_t = 0.0555, S_e = 0.01,
-                              fuelParticleDensity = 32,#or rho_p
-                              SAV, w_o, fuelBedDepth, M_x,
-                              M_f, U, slopeSteepness, useWindLimit = TRUE)#Update the name!
+#Was Albini1976_Spread().
+SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
+                                           S_t = 0.0555, S_e = 0.01,
+                                           fuelParticleDensity = 32,#rho_p
+                                           SAV, w_o, fuelBedDepth,#delta
+                                           M_x, M_f, U, slopeSteepness,#tan ϕ
+                                           useWindLimit = TRUE)
 {
   #Rate of spread = heat source / heat sink
   
@@ -1087,18 +1090,23 @@ Albini1976_Spread <- function(heatContent = 8000, S_t = 0.0555, S_e = 0.01,
 #useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
 #
 #Returns: R = rate of spread in ft/min.
-#Name?????
-SpreadRateAlbini1976_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij = 0.01, rho_p_ij = 32,
-                                     SAV_ij,
-                                     w_o_ij,
-                                     fuelBedDepth,
-                                     M_x_1,
-                                     M_f_ij,
-                                     U, slopeSteepness, useWindLimit = FALSE)
+#Was SpreadRateRothermelAlbini_Het().
+SpreadRateRothermelAlbini_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij = 0.01,
+                                          rho_p_ij = 32,
+                                          SAV_ij,
+                                          w_o_ij,
+                                          fuelBedDepth,#delta
+                                          M_x_1,
+                                          M_f_ij,
+                                          U, slopeSteepness,#tan ϕ
+                                          liveDead = c(1,1,1,2,2),#Standard fuel model 5 classes.
+                                          useWindLimit = FALSE)
 {
   numFuelTypes = length(SAV_ij)
   #Add checking for parameters (input lengths, etc.)...
-  liveDead = c(1,1,1,2,2)[1:numFuelTypes]#Global or pass in?
+  
+  #Truncate liveDead to match the number of classes provided.  This may assume too much!:
+  liveDead = liveDead[1:numFuelTypes]
   
   #For the heat content, total mineral content, effective mineral content, and fuel particle density
   #allow the value for all types to to set with a single value:
