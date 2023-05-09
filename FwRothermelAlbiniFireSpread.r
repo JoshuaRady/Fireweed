@@ -1221,3 +1221,34 @@ InitSpreadParam <- function(paramVal, paramName, numFuelTypes)
     stop(paste(paramName, "is an unxpected length."))
   }
 }
+
+#---------------------------------------------------------------------------------------------------
+#Related Fire Property Equations:-------------------------------------------------------------------
+# These equations are not part of the Rothermel & Albini spread model per se but can be used with it
+#to calculate additional fire front properties.  See Andrews 2018 section 4 for more information.
+
+#Residence Time:
+#The residence time is the how long it takes the fire flame front to pass over a point on the
+#ground.  This only considers the flame front and not the residual burning and smoldering. Th
+#calculation is from:
+# Anderson, Hal E.
+# Heat transfer and fire spread.
+# Res. Pap. INT-69. Ogden, UT: U.S. Department of Agriculture, Forest Service, Intermountain Forest
+# and Range Experiment Station. 20 p. 1969.
+#
+#This does not take into consideration the any effect of packing density.
+#This can be used to help calculate energy transfer to soil.
+#
+#Input variables / parameters:
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3)
+#
+#Output units: minutes
+ResidenceTime <- function(SAV)#ResidenceTimeAnderson
+{
+  #The original equation predicts the residence time as 8 times the fuel diameter in inches.
+  #We use the Rotheremel relationship between diameter and SAV, d = 48/SAV:
+  t_r = 384 / SAV
+  return(t_r)
+}
+
+
