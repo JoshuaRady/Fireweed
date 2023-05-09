@@ -1251,4 +1251,28 @@ ResidenceTime <- function(SAV)#ResidenceTimeAnderson
   return(t_r)
 }
 
+#Heat per Unit Area:
+# This the total energy released by the flame front as it passed per unit area.
+#Input variables / parameters:
+#I_R = reaction intensity (Btu/ft^2/min)
+#t_r = residence time (min)
+#
+#Output units: 
+HeatPerUnitArea <- function(I_R, t_r)
+{
+  H_A = I_R * t_r
+  #This can also be calculated as H_A = 384 * I_R/SAV.  See ResidenceTime().
+  
+  return(H_A)
+}
+
+#Input variables / parameters:
+#
+#
+#Output units: 
+
+#Input variables / parameters:
+#
+#
+#Output units: 
 
