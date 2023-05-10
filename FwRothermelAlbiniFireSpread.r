@@ -1252,24 +1252,40 @@ ResidenceTime <- function(SAV)#ResidenceTimeAnderson
 }
 
 #Heat per Unit Area:
-# This the total energy released by the flame front as it passed per unit area.
+# This is the total energy released by the flame front as it passed per unit area.
+#
 #Input variables / parameters:
 #I_R = reaction intensity (Btu/ft^2/min)
 #t_r = residence time (min)
 #
-#Output units: 
+#Output units: Btu/ft^2
 HeatPerUnitArea <- function(I_R, t_r)
 {
+  #Andrews 2018 section 4.3:
   H_A = I_R * t_r
   #This can also be calculated as H_A = 384 * I_R/SAV.  See ResidenceTime().
   
   return(H_A)
 }
 
+#Byram’s Fireline Intensity:
+#  Byram 1959 defines fireline intensity as:
+#I_B = HwR
+#Where H = heat content of the fuel (Btu/lb), w = weight of "available" fuel (lb/ft^2), and R is the
+#fire rate of spread (ft/2)
+#Albini uses H_A as an approximation of H x W (Andrews 2018).  (Note: I can't find this in the text
+#of Albini 1976.  I may be in the code.)
+#
 #Input variables / parameters:
+#H_A = heat per unit area from the flame front (Btu/ft^2)
+#R = fire front rate of spread (ft/min)
 #
-#
-#Output units: 
+#Output units: Btu/ft/s
+ByramsFirelineIntensity <- function(H_A, R)
+{
+  I_B = H_A * R/60#Seccond / minute
+  return(I_B)
+}
 
 #Input variables / parameters:
 #
