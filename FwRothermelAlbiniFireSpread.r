@@ -1287,8 +1287,17 @@ ByramsFirelineIntensity <- function(H_A, R)
   return(I_B)
 }
 
+#Flame Length:
+#  Calculate the flame length (not height) of the flame front.
+#The equation is from Brown and Davis 1973, page 175 (per Andrews 2018, I haven't been able to get
+#book yet.)
+#
 #Input variables / parameters:
+#I_B = Byram's fireline intensity (Btu/ft/s)
 #
-#
-#Output units: 
-
+#Output units: ft
+FlameLength <- function(I_B)
+{
+  F_B = 0.45 * I_B^0.46
+  return(F_B)
+}
