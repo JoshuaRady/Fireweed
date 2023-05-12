@@ -63,7 +63,8 @@
 #SAV in different places in the papers.  We use SAV in the code.
 # - It is unclear if fuel loading is w0 or wo.  In Rothermel 1972 it is not clear and in reprints it
 #varies.  We usse w sub o (w_0).
-# - Total mineral content is sometimes notated S sub t and sometimes S sub T.  We use S sub t (S_t).
+# - Total mineral content is occasionally notated S sub t rather than S sub T (where?).
+#We use S sub T (S_T).
 #
 #Units:
 # The original equations used English units.  Units are indicated for function inputs and outputs.
@@ -390,27 +391,27 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 # The fuel load (w sub n) is mass per ground area of dry combustible fuel removing the
 #noncombustible mineral mass.
 #
-#Albini 1976 pg. 14?????
-#wn = wo(1 - St)
-#Or alt notation? w_n = w_o(1 - S_t)
+#Albini 1976 pg. 14:
+#wn = wo(1 - ST)
+#Or alt notation? w_n = w_o(1 - S_T)
 #
 #Input variables / parameters:
 #w_o (w sub o) = Oven dry fuel load (lb/ft^2).  This includes combustible and mineral fraction.
-#S_t (S sub t) = Total mineral content (fuel particle property: mineral mass / total dry mass,
+#S_T (S sub T) = Total mineral content (fuel particle property: mineral mass / total dry mass,
 #unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #
 #Output units: lb/ft^2
 #For heterogeneous fuel beds this is computed for each fuel catagory?
-NetFuelLoad_Albini <- function(w_o, S_t)
+NetFuelLoad_Albini <- function(w_o, S_T)
 {
-  w_n = w_o * (1 - S_t)
+  w_n = w_o * (1 - S_T)
   
   #Convert units????
   
   return(w_n)
 }
 
-#For hetogenous fuels the net fuel load for each fuel catagory (live/dead) is calculated using
+#For heterogeneous fuels the net fuel load for each fuel catagory (live/dead) is calculated using
 #weights.
 #
 #Input variables / parameters:
@@ -427,7 +428,7 @@ NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
   numFuelTypes = length(w_o_ij)
   
   #Calculate the net fuel load for each fuel class:
-  #Rothermel equation ?????? modified by Albini 1976 pg. 14:
+  #Rothermel equation 60 modified by Albini 1976 pg. 14:
   #(wn)ij = (wo)ij (1 – (ST)ij)
   w_n_ij = w_o_ij * (1 - S_T_ij)
   
@@ -854,7 +855,9 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
   I_R = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
   
   return(I_R)
-}#Propagating Flux Ratio:
+}
+
+#Propagating Flux Ratio:
 #The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
 #intensity that heats fuels adjacent to the fire front.
 #
@@ -954,7 +957,7 @@ HeatOfPreignition <- function(M_f)
 #Fuel particle properties: 
 #h = heat content of the fuel class (Btu/lb).
 #  A1l the 53 standard fuel models use 8,000 Btu/lb.
-#St (S sub t) = Total mineral content (fuel particle property: mineral mass / total dry mass,
+#ST (S sub T) = Total mineral content (fuel particle property: mineral mass / total dry mass,
 #  unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #Se (S sub e) = effective mineral content (fuel particle property: (mass minerals – mass silica) /
 #  total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
@@ -979,7 +982,7 @@ HeatOfPreignition <- function(M_f)
 #Returns: R = rate of spread in ft/min.
 #Was Albini1976_Spread().
 SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
-                                           S_t = 0.0555, S_e = 0.01,
+                                           S_T = 0.0555, S_e = 0.01,
                                            fuelParticleDensity = 32,#rho_p
                                            SAV, w_o, fuelBedDepth,#delta
                                            M_x, M_f, U, slopeSteepness,#tan ϕ
@@ -1006,7 +1009,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
   
   #Reaction intensity I_R:
   GammaPrime = OptimumReactionVelocity(packingRatio, SAV)
-  w_n = NetFuelLoad_Albini(w_o, S_t)
+  w_n = NetFuelLoad_Albini(w_o, S_T)
   eta_M = MoistureDampingCoefficient(M_f, M_x)
   eta_s = MineralDampingCoefficient(S_e)
   I_R = ReactionIntensityRothermel(GammaPrime, w_n, heatContent, eta_M, eta_s)
@@ -1060,12 +1063,12 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
 #Input variables / parameters:
 #  Some of the input variables differ from the homogenous fuels form in that they are vectors of
 #...
-#Changed: h, S_t, S_e    SAV
+#Changed: h, S_T, S_e    SAV
 #
 #Fuel particle properties: 
 #hij (h sub ij) = Heat content of the fuel types (Btu/lb).
 #  A1l the 53 standard fuel models use 8,000 Btu/lb.
-#(St)ij ((S sub t) sub ij) = Total mineral content (fuel particle property: mineral mass / total dry
+#(ST)ij ((S sub T) sub ij) = Total mineral content (fuel particle property: mineral mass / total dry
 #  mass, unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #(Se)ij ((S sub e) sub ij) = effective mineral content (fuel particle property: (mass minerals –
 #  mass silica) / total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
@@ -1091,7 +1094,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
 #
 #Returns: R = rate of spread in ft/min.
 #Was SpreadRateRothermelAlbini_Het().
-SpreadRateRothermelAlbini_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij = 0.01,
+SpreadRateRothermelAlbini_Het <- function(h_ij = 8000, S_T_ij = 0.0555, S_e_ij = 0.01,
                                           rho_p_ij = 32,
                                           SAV_ij,
                                           w_o_ij,
@@ -1111,7 +1114,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij =
   #For the heat content, total mineral content, effective mineral content, and fuel particle density
   #allow the value for all types to to set with a single value:
   h_ij = InitSpreadParam(h_ij, "h_ij", numFuelTypes)
-  S_t_ij = InitSpreadParam(S_t_ij, "S_t_ij", numFuelTypes)
+  S_T_ij = InitSpreadParam(S_T_ij, "S_T_ij", numFuelTypes)
   S_e_ij = InitSpreadParam(S_e_ij, "S_e_ij", numFuelTypes)
   rho_p_ij = InitSpreadParam(rho_p_ij, "rho_p_ij", numFuelTypes)
   
@@ -1135,7 +1138,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = 8000, S_t_ij = 0.0555, S_e_ij =
   
   #Reaction intensity:
   GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV)
-  w_n_i = NetFuelLoad_Albini_Het(w_o_ij, S_t_ij, weights$g_ij, liveDead)
+  w_n_i = NetFuelLoad_Albini_Het(w_o_ij, S_T_ij, weights$g_ij, liveDead)
   
   #Heat content by live/dead fuel catagory:
   h_i = LiveDeadHeatContent(h_ij, weights$f_ij, liveDead)
