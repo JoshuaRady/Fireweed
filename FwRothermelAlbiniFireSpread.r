@@ -1220,6 +1220,7 @@ InitSpreadParam <- function(paramVal, paramName, numFuelTypes)
   {
     stop(paste(paramName, "is an unxpected length."))
   }
+  return(paramVal)
 }
 
 #---------------------------------------------------------------------------------------------------
