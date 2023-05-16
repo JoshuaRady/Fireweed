@@ -990,7 +990,7 @@ HeatOfPreignition <- function(M_f)
 #
 #Environmental:
 #Mf (M sub f) = Fuel moisture content (water weight/dry fuel weight)
-#U = wind speed a midflame height (ft/min)
+#U = wind speed at midflame height (ft/min)
 #tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
 #  [For many applications this will need to be converted from degrees.]
 #
@@ -1103,7 +1103,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
 #
 #Environmental:
 #Mfij ((M sub f) sub i) = fuel moisture content for each fuel type (water weight/dry fuel weight)
-#U = wind speed a midflame height (ft/min)
+#U = wind speed at midflame height (ft/min)
 #tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
 #  [For many applications this will need to be converted from degrees.]
 #
@@ -1247,6 +1247,58 @@ InitSpreadParam <- function(paramVal, paramName, numFuelTypes)
 #Related Fire Property Equations:-------------------------------------------------------------------
 # These equations are not part of the Rothermel & Albini spread model per se but can be used with it
 #to calculate additional fire front properties.  See Andrews 2018 section 4 for more information.
+
+#Effective Wind Speed:
+#The effective wind speed combines the effect of wind and slope.  It was developed in:
+#Albini, Frank A.
+#Estimating wildfire behavior and effects.
+#Gen. Tech. Rep. INT-GTR-30. Ogden, UT: U.S. Department of Agriculture, Forest Service,
+#Intermountain Forest and Range Experiment Station. 92 p. 1976.
+#for use in nomograhs but is used by some contexts to calculate the wind limit.
+#
+#Input variables / parameters:
+#U = wind speed at midflame height (ft/min)
+#phi_w = the wind factor (dimensionless)
+#phi_s = the slope factor (dimensionless)
+#beta_bar = mean packing ratio (dimensionless ratio)
+#beta_op = optimum packing ratio (dimensionless ratio)
+#
+#Output: effective wind speed at midflame height (ft/min)
+#
+#Note: This is included for completeness.  It is not currently needed.
+EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
+                               #SAV, packingRatio, optPackingRatio, U)
+{
+  #C, B, & E copied directly from WindFactor().
+  
+  #C = unnamed term
+  #Rothermel 1972 equation 48,82:
+  #C = 7.47exp(-0.133σ^0.55)
+  C = 7.47 * exp(-0.133 * SAV^0.55)
+  
+  #B = unnamed term
+  #Rothermel 1972 equation 49,83:
+  #B = 0.02526σ^0.54
+  B = 0.02526 * SAV^0.54
+  
+  #E = unnamed term
+  #Rothermel 1972 equation 50,84:
+  #E = 0.715exp(-3.59×10^-4 σ)
+  E = 0.715 * exp(-3.59 * 10^-4 * SAV)
+  
+  #Effective wind factor:
+  #Albini 1976(b) pg. 90:
+  phi_E = phi_w * phi_s
+  
+  #The effective wind factor calculated as in WindFactor():
+  #ϕE = C * U_E^B (β/βop)^–E
+  
+  #Solve for the effective wind speed:
+  #U_E = [ϕE (β/βop)E/C]–B
+  U_E = ((phi_E * (beta_bar/beta_op)^E) / C )^B
+  
+  return(U_E)
+}
 
 #Residence Time:
 #The residence time is the how long it takes the fire flame front to pass over a point on the
