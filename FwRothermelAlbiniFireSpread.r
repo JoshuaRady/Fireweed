@@ -44,15 +44,21 @@
 #Greek letters in variable names:
 # Many variables use Greek characters.  In most cases these are translated using their English names
 #with the case indicating the case of the character, e.g. β -> Beta and σ -> sigma.  In a few cases
-#Greek variable names have been changed to abbreviations or descriptive names.  Greek is used in
-#the comments.
+#Greek variable names have been changed to abbreviations or descriptive names.  Greek is used when
+#the original equaitons are shown in the comments.
 #[See table of variables below.]
 #
 #Subscripts:
 # Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number of
 #variables have two levels of subscript, the second representing fuel type indexes (i and j, see
-#below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij) -> A_b_ij.
-#[Explain ij notation and k.]
+#fuel classes below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij)
+#-> A_b_ij.
+#
+#Diacritical marks:
+# In Rothermel 1972 some variables for the heterogeneous fuels equations are marked with either
+#bars to indicate a mean (across all fuel classes) or tildes for characteristic values of a fuel
+#catagory (live/dead).  Most reprints ignore these.  We have left them out in most cases although
+#a coulde variables of form x_bar are used.
 #
 #[Add variables table...]
         #(wo)ij ((w sub o) sub ij) = w_o_ij Array of oven dry fuel load for each fuel class (lb/ft^2).
@@ -62,9 +68,20 @@
 # - The surface-area-to-volume ratio for fuels is notated as σ (sigma) and abbreviated as sav or
 #SAV in different places in the papers.  We use SAV in the code.
 # - It is unclear if fuel loading is w0 or wo.  In Rothermel 1972 it is not clear and in reprints it
-#varies.  We usse w sub o (w_0).
+#varies.  We use w sub o (w_o).
 # - Total mineral content is occasionally notated S sub t rather than S sub T (where?).
 #We use S sub T (S_T).
+#
+#Fuel classes:
+# For heterogeneous fuels fuel types are distinguished with subscripts i = 1 to m categories
+#(live vs. dead) and j = 1 to n fuel size classes.  j = 1 for dead fuels and j = 2 for live fuels.
+#All the standard fuels have three dead fuel size classes and two live classes (herbaceous vs.
+#woody).  Therefore storiing fuel class properties in a matrix / 2D array would result in an
+#empty/undefined postion in the live row.  We avoid this by representing fuel properties in the code
+#as vectors.  Dead and live size classes are stored contiguously and we maintain a liveDead vector
+#that holds the live/dead status for each vector index.  Where the original paper operations operate
+#over indexes i and j we use index k, where k = 1 - (n + m), consistently to iterate over all
+#positions.
 #
 #Units:
 # The original equations used English units.  Units are indicated for function inputs and outputs.
