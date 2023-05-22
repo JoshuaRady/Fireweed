@@ -69,8 +69,8 @@
 #SAV in different places in the papers.  We use SAV in the code.
 # - It is unclear if fuel loading is w0 or wo.  In Rothermel 1972 it is not clear and in reprints it
 #varies.  We use w sub o (w_o).
-# - Total mineral content is occasionally notated S sub t rather than S sub T (where?).
-#We use S sub T (S_T).
+# - Total mineral content is occasionally notated S sub t rather than S sub T (e.g. Rothermel
+#1972, pg. 36, Table 1).  We use S sub T (S_T).
 #
 #Fuel classes:
 # For heterogeneous fuels fuel types are distinguished with subscripts i = 1 to m categories
