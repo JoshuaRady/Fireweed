@@ -239,40 +239,38 @@ OptimumPackingRatio <- function(SAV)
   return(optPackingRatio)
 }
 
-#Weighting Factors:-----
+#Weighting Factors:---------------------------------------------------------------------------------
 #The spread model uses weights in many of the calculations for heterogeneous fuels.  These need to
-#be calculated...
+#be calculated from the suface areas of the different fuel classes.  This function includes the
+#changes to Rothermel 1972 by Albini 1976.
 #
 #Input variables / parameters:
-#σ (SAVs) = An array of characteristic surface-area-to-volume ratios for the fuel classes
+#σij (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes
 #  (ft^2/ft^3).
-#w_oij (w sub o ij) = An array of fuel loadings for each fuel type (i: live vs. dead) and fuel
+#w_o_ij (w sub o sub ij) = An array of fuel loadings for each fuel type (i: live vs. dead) and fuel
 #  size class (j) (lb/ft^2).
-#     Rotethermel used w_o while Albini used w_oij.
 #(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3)
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) or fuel categories.
-#Need to know the live dead indexes!!!!!
 #
-#Output units: ...
+#Output units: unitless weighting factors
 #
-#Note: It makes sense to calculate these togeather and they only need to be calculated onces for a
+#Note: It makes sense to calculate these together and they only need to be calculated once for a
 #give spread rate scenario.  However, I'm not sure the best way the handle the outputs.  Would it
 #be better to put them in a global?
-#Calc_f_ij_Weights
-CalcWeightings <- function(SAV_ij, w_os, rho_p_ij, liveDead)
+CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
 {
-  #Add error checking...
+  #Add argument error checking...
   
   numFuelTypes = length(SAV_ij)#Types = sum of size classes in both categories.
   
-  #Calcualte the (mean) total surface area for each fuel component:
-  #Rothermel equation 53?:
+  #Calculate the (mean) total surface area for each fuel component:
+  #Rothermel equation 53:
   #Aij = (σ)ij (wo)ij ⁄(ρp)ij
-  A_ij = SAV_ij * w_os / rho_p_ij
+  A_ij = SAV_ij * w_o_ij / rho_p_ij
   
   #Mean total surface area by live / dead fuel categories:
-  #Rothermel equation 54?:
+  #Rothermel equation 54:
   #Ai = ΣjAij
   A_i = c(0,0)
   for (k in 1:numFuelTypes)
@@ -281,15 +279,14 @@ CalcWeightings <- function(SAV_ij, w_os, rho_p_ij, liveDead)
   }
   
   #Mean total surface area of the fuel:
-  #Rothermel equation 55?:
+  #Rothermel equation 55:
   #AT = ΣiAi
   A_T = sum(A_i)#Single scalar value.
   
   #f_ij fuel class weighting factor:
-  #Rothermel equation 56?:
+  #Rothermel equation 56:
   #fij = Aij/Ai
   
-  #f_ij = array(data = 0, dim = numFuelTypes)#A vector seems nicer.
   f_ij = vector(mode = "numeric", length = numFuelTypes)
   for (l in 1:numFuelTypes)
   {
@@ -303,21 +300,24 @@ CalcWeightings <- function(SAV_ij, w_os, rho_p_ij, liveDead)
   }
   
   #fi fuel category (live/dead) weighting factor:
-  #Rothermel equation 57?:
+  #Rothermel equation 57:
   #fi = Ai/AT
-  f_i = A_i / A_T#Array of 2.
+  f_i = A_i / A_T#Array/vector of 2.
   
   #g_ij weighting factor:
-  #The final set of weights was added in Albini 1976 to get arround a logical problem of using f_ij
+  #The final set of weights was added in Albini 1976 to get around a logical problem of using f_ij
   #for fuel loading.
   #Albini 1972 pg. 15:
-  #...
-  #The notation here is a bit confusing in my opinion.
+  #g_ij = Σ_(subclass to which j belongs) f_ij
+  #This notation is a bit dense (and potentially confusing).  We accomplish this in three steps:
+  #1. Determine the size subclass for each fuel type.
+  #2. Compute the total weight (from f_ij) in each subclass by live/dead catagory.
+  #3. Set g_ij equal the total weight for the corresponding size subclass.
   
   #What size subclass is each fuel type in?
-  #A better names is needed.  This is the subclass that each fuel type is in: subclassOfFuelType?
+  #A better name is needed.  This is the subclass that each fuel type is in: subclassOfFuelType? fuelSubclass
   subclass = array(data = 0, dim = numFuelTypes)
-  subclassTotal = array(data = 0, dim = 6)
+  #subclassTotal = array(data = 0, dim = 6)
   for (n in 1:numFuelTypes)
   {
     if (SAV_ij[n] >= 1200)
@@ -345,26 +345,61 @@ CalcWeightings <- function(SAV_ij, w_os, rho_p_ij, liveDead)
       subclass[n] = 6
     }
     #Bin the fuels type weights by subclass they belong to... 
-    subclassTotal[subclass[n]] = subclassTotal[subclass[n]] + f_ij[n]
+    #subclassTotal[subclass[n]] = subclassTotal[subclass[n]] + f_ij[n]
   }
   
   #Complete the weight calculation:
   
   #Assign the subclass weights to each size class.  Some may share the same weight.
-  g_ij = vector(mode = "numeric", length = numFuelTypes)
-  for (k in 1:numFuelTypes)#k reused...
+  g_ij = vector(mode = "numeric", length = numFuelTypes)#Implicitly intialized to 0.
+  # for (k in 1:numFuelTypes)#k reused...
+  # {
+  #   if (subclass[k] != 0)
+  #   {
+  #     g_ij[k] = subclassTotal[subclass[k]]
+  #   }
+  #   #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped to
+  #   #a size subclass.  In that case leave g_ij[k] = 0.
+  #   #A value of NA might be more logical but a 0 weight makes the math simpler.
+  # }
+  
+  #Revised:
+  for (i in 1:2)
   {
-    if (subclass[k] != 0)
+    #Calculate the total weight for each size subclass (bin them) for this live/dead catagory:
+    subclassTotal = array(data = 0, dim = 6)
+    catIndexes = which(liveDead == i)
+    
+    #The weight of the sixth and largest subclass is alway 0 so we skip it.
+    for (o in 1:5)
     {
-      g_ij[k] = subclassTotal[subclass[k]]
+      #Which fuel classes are in the current subclass?:
+      #Note: We need a C compatible version that doesn't use which().
+      inThisSubclass = which(subclass[catIndexes] == o)
+      
+      if (length(inThisSubclass > 0))
+      {
+        #Combine the weights of all classes in the this size subclass:
+        subclassTotal[o] = sum(f_ij[inThisSubclass])
+      }
     }
-    #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped to
-    #a size subclass.  In that case leave g_ij[k] = 0.
-    #A value of NA might be more logical but a 0 wieght makes the math simpler.
+    
+    #Assign the subclass weights to each size class.  Some may share the same weight:
+    for (j in catIndexes)
+    {
+      if (subclass[j] != 0)
+      {
+        g_ij[j] = subclassTotal[subclass[j]]
+      }
+      #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped to
+      #a size subclass.  In that case leave g_ij[k] = 0.
+      #A value of NA might be more logical but a 0 weight makes the math simpler.
+    }
   }
   
+  #Add return value error checking...
+  
   return(list(f_ij = f_ij, f_i = f_i, g_ij = g_ij))
-  #Or save in globals?
 }
 
 #Fuel Bed Surface-area-to-volume Ratio:----------
