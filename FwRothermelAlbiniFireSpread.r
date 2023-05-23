@@ -316,6 +316,9 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   
   #What size subclass is each fuel type in?
   #A better name is needed.  This is the subclass that each fuel type is in: subclassOfFuelType? fuelSubclass
+  #Note: This maps fuel types to size subclasses even when there is no fuel present (loading = 0).
+  #Also missing classes, i.e. classes where no SAV is provided, will not be mapped to a subclass.
+  #Both these conditions have to be handled below.
   subclass = array(data = 0, dim = numFuelTypes)
   #subclassTotal = array(data = 0, dim = 6)
   for (n in 1:numFuelTypes)
@@ -390,12 +393,12 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
     #Assign the subclass weights to each size class.  Some may share the same weight:
     for (j in catIndexes)
     {
-      if (subclass[j] != 0)
+      if (subclass[j] != 0 && w_o_ij[j] != 0)
       {
         g_ij[j] = subclassTotal[subclass[j]]
       }
-      #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped to
-      #a size subclass.  In that case leave g_ij[k] = 0.
+      #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
+      #to a size subclass.  In that case leave g_ij[k] = 0.
       #A value of NA might be more logical but a 0 weight makes the math simpler.
     }
   }
