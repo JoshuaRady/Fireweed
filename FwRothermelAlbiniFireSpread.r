@@ -328,19 +328,20 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
     {
       subclass[n] = 2
     }
-    else if (SAV_ij[n] >= 192)
+    else if (SAV_ij[n] >= 96)#192)
     {
       subclass[n] = 3
     }
-    else if (SAV_ij[n] >= 96)
+    else if (SAV_ij[n] >= 48)#96)
     {
       subclass[n] = 4
     }
-    else if (SAV_ij[n] >= 48)
+    else if (SAV_ij[n] >= 16)#48)
     {
       subclass[n] = 5
     }
-    else if (SAV_ij[n] >= 16)
+    #else if (SAV_ij[n] >= 16)
+    else#SAV_ij[n] < 16
     {
       subclass[n] = 6
     }
@@ -377,7 +378,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
       #Note: We need a C compatible version that doesn't use which().
       #inThisSubclass = which(subclass[catIndexes] == o)#This gives an order that may not match f_ij.
       inThisSubclass = which(subclass == o)#Live and dead.
-      inThisSubclass = inThisSubclass[inThisSubclass %in% catIndexes]#Just this catagory.
+      inThisSubclass = inThisSubclass[inThisSubclass %in% catIndexes]#Just this category.
       
       if (length(inThisSubclass > 0))
       {
