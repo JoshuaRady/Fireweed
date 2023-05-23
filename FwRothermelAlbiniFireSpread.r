@@ -375,7 +375,9 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
     {
       #Which fuel classes are in the current subclass?:
       #Note: We need a C compatible version that doesn't use which().
-      inThisSubclass = which(subclass[catIndexes] == o)
+      #inThisSubclass = which(subclass[catIndexes] == o)#This gives an order that may not match f_ij.
+      inThisSubclass = which(subclass == o)#Live and dead.
+      inThisSubclass = inThisSubclass[inThisSubclass %in% catIndexes]#Just this catagory.
       
       if (length(inThisSubclass > 0))
       {
