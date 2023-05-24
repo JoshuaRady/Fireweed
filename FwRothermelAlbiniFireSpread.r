@@ -260,7 +260,17 @@ OptimumPackingRatio <- function(SAV)
 #be better to put them in a global?
 CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
 {
-  #Add argument error checking...
+  #Validity checking:
+  #Are arguments the same length?
+  if (!all(sapply(list(w_o_ij, liveDead), length) == length(SAV_ij)))
+  {
+    stop("CalcWeightings() expects arguments of the same length.")
+  }
+  #A single value for rho_p_ij will be tolerated:
+  if (!(length(rho_p_ij) %in% c(1, length(SAV_ij))))
+  {
+    stop("rho_p_ij must be length 1 or the same length as the other arguments")
+  }
   
   numFuelTypes = length(SAV_ij)#Types = sum of size classes in both categories.
   
@@ -315,59 +325,40 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   #3. Set g_ij equal the total weight for the corresponding size subclass.
   
   #What size subclass is each fuel type in?
-  #A better name is needed.  This is the subclass that each fuel type is in: subclassOfFuelType? fuelSubclass
   #Note: This maps fuel types to size subclasses even when there is no fuel present (loading = 0).
   #Also missing classes, i.e. classes where no SAV is provided, will not be mapped to a subclass.
   #Both these conditions have to be handled below.
-  subclass = array(data = 0, dim = numFuelTypes)
-  #subclassTotal = array(data = 0, dim = 6)
+  subclass_ij = array(data = 0, dim = numFuelTypes)
   for (n in 1:numFuelTypes)
   {
     if (SAV_ij[n] >= 1200)
     {
-      subclass[n] = 1
+      subclass_ij[n] = 1
     }
     else if (SAV_ij[n] >= 192)
     {
-      subclass[n] = 2
+      subclass_ij[n] = 2
     }
-    else if (SAV_ij[n] >= 96)#192)
+    else if (SAV_ij[n] >= 96)
     {
-      subclass[n] = 3
+      subclass_ij[n] = 3
     }
-    else if (SAV_ij[n] >= 48)#96)
+    else if (SAV_ij[n] >= 48)
     {
-      subclass[n] = 4
+      subclass_ij[n] = 4
     }
-    else if (SAV_ij[n] >= 16)#48)
+    else if (SAV_ij[n] >= 16)
     {
-      subclass[n] = 5
+      subclass_ij[n] = 5
     }
-    #else if (SAV_ij[n] >= 16)
     else#SAV_ij[n] < 16
     {
-      subclass[n] = 6
+      subclass_ij[n] = 6
     }
-    #Bin the fuels type weights by subclass they belong to... 
-    #subclassTotal[subclass[n]] = subclassTotal[subclass[n]] + f_ij[n]
   }
   
-  #Complete the weight calculation:
-  
-  #Assign the subclass weights to each size class.  Some may share the same weight.
   g_ij = vector(mode = "numeric", length = numFuelTypes)#Implicitly intialized to 0.
-  # for (k in 1:numFuelTypes)#k reused...
-  # {
-  #   if (subclass[k] != 0)
-  #   {
-  #     g_ij[k] = subclassTotal[subclass[k]]
-  #   }
-  #   #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped to
-  #   #a size subclass.  In that case leave g_ij[k] = 0.
-  #   #A value of NA might be more logical but a 0 weight makes the math simpler.
-  # }
   
-  #Revised:
   for (i in 1:2)
   {
     #Calculate the total weight for each size subclass (bin them) for this live/dead catagory:
@@ -379,8 +370,8 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
     {
       #Which fuel classes are in the current subclass?:
       #Note: We need a C compatible version that doesn't use which().
-      #inThisSubclass = which(subclass[catIndexes] == o)#This gives an order that may not match f_ij.
-      inThisSubclass = which(subclass == o)#Live and dead.
+      #Also this indexing technique is a bit hard to follow.
+      inThisSubclass = which(subclass_ij == o)#Live and dead.
       inThisSubclass = inThisSubclass[inThisSubclass %in% catIndexes]#Just this category.
       
       if (length(inThisSubclass > 0))
@@ -393,12 +384,13 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
     #Assign the subclass weights to each size class.  Some may share the same weight:
     for (j in catIndexes)
     {
-      if (subclass[j] != 0 && w_o_ij[j] != 0)
-      {
-        g_ij[j] = subclassTotal[subclass[j]]
-      }
       #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
-      #to a size subclass.  In that case leave g_ij[k] = 0.
+      #to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes that
+      #have no fuel loading.
+      if (subclass_ij[j] != 0 && w_o_ij[j] != 0)
+      {
+        g_ij[j] = subclassTotal[subclass_ij[j]]
+      }
       #A value of NA might be more logical but a 0 weight makes the math simpler.
     }
   }
