@@ -1380,7 +1380,7 @@ HeatPerUnitArea <- function(I_R, t_r)
 #Where H = heat content of the fuel (Btu/lb), w = weight of "available" fuel (lb/ft^2), and R is the
 #fire rate of spread (ft/2)
 #Albini uses H_A as an approximation of H x W (Andrews 2018).  (Note: I can't find this in the text
-#of Albini 1976.  I may be in the code.)
+#of Albini 1976.  It may be in the code.)
 #
 #Input variables / parameters:
 #H_A = heat per unit area from the flame front (Btu/ft^2)
@@ -1389,7 +1389,7 @@ HeatPerUnitArea <- function(I_R, t_r)
 #Output units: Btu/ft/s
 ByramsFirelineIntensity <- function(H_A, R)
 {
-  I_B = H_A * R/60#Seccond / minute
+  I_B = H_A * R/60#Seconds / minute
   return(I_B)
 }
 
