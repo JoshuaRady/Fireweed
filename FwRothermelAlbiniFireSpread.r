@@ -321,19 +321,19 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #  size class (j) (lb/ft^2).
 #(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3)
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) or fuel categories.
+#  dead (1) or live (2) fuel category.
 #
 #Output units: unitless weighting factors
+#Input units cancel out.  No metric conversion needed.
 #
 #Note: It makes sense to calculate these together and they only need to be calculated once for a
 #give spread rate scenario.  However, I'm not sure the best way the handle the outputs.  Would it
 #be better to put them in a global?
-#UNIT CHECK NEEDED!!!!!
 CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
 {
   #Validity checking:
   #Are arguments the same length?
-  if (!all(sapply(list(w_o_ij, liveDead), length) == length(SAV_ij)))
+  if (SameLengths(SAV_ij, w_o_ij, liveDead))
   {
     stop("CalcWeightings() expects arguments of the same length.")
   }
@@ -456,8 +456,8 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
     for (j in catIndexes)
     {
       #If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
-      #to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes that
-      #have no fuel loading.
+      #to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes
+      #that have no fuel loading.
       if (subclass_ij[j] != 0 && w_o_ij[j] != 0)
       {
         g_ij[j] = subclassTotal[subclass_ij[j]]
@@ -466,29 +466,44 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
     }
   }
   
-  #Add return value error checking...
+  #Return value error checking:
+  if (sum(f_ij) != 1)
+  {
+    stop("f_ij does not sum to 1.")
+  }
+  if (sum(f_i) != 1)
+  {
+    stop("f_i does not sum to 1.")
+  }
+  if (sum(g_ij) != 1)
+  {
+    stop("g_ij does not sum to 1.")
+  }
   
   return(list(f_ij = f_ij, f_i = f_i, g_ij = g_ij))
 }
 
-#Fuel Bed Surface-area-to-volume Ratio:----------
+#Fuel Bed Surface-area-to-volume Ratio:-------------------------------------------------------------
 #  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.
 #
 #Input variables / parameters:
 #σ (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes
-#(ft^2/ft^3 or cm^2/cm^3).
+#(ft^2/ft^3 | cm^2/cm^3).
 #f_ij (f sub ij) = Weighting factors for each fuel type (dimensionless).
 #f_i (f sub i) = Weighting factors for each fuel live/dead category (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) or fuel categories.
+#  dead (1) or live (2) fuel category.
 #
-#Output units: ft^2/ft^3
-#UNIT CHECK NEEDED!!!!!
+#Output units: ft^2/ft^3 | cm^2/cm^3
+#The inputs carry the units.  No metric conversions are needed.
 FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 {
-  #Add error checking...
+  #Argument checking:
+  if (!SameLengths(SAV_ij, f_ij, f_i, liveDead))
+  {
+    stop("FuelBedSAV() expects arguments of the same length.")
+  }
   
-  #numFuelTypes = length(SAVs)
   numFuelTypes = length(SAV_ij)#Types = sum of size classes in both categories.
   
   #Characteristic live and dead SAVs:
@@ -501,7 +516,7 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
     SAV_i[liveDead[k]] = SAV_i[liveDead[k]] + (f_ij[k] * SAV_ij[k])
   }
   
-  #Sum the live and dead components to get the final value...
+  #Sum the live and dead components to get the final value:
   #Rothermel 1972 equation 71:
   #σ = Σi fiσi (~ over sigma and sigma sub i in original)
   fuelBedSAV = sum(f_i * SAV_i)
@@ -509,7 +524,7 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
   return(fuelBedSAV)
 }
 
-#Net Fuel Load:----------
+#Net Fuel Load:-------------------------------------------------------------------------------------
 # The fuel load (w sub n) is mass per ground area of dry combustible fuel removing the
 #noncombustible mineral mass.
 #
@@ -522,14 +537,11 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 #S_T (S sub T) = Total mineral content (fuel particle property: mineral mass / total dry mass,
 #unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #
-#Output units: lb/ft^2
-#For heterogeneous fuel beds this is computed for each fuel category?
-#UNIT CHECK NEEDED!!!!!
+#Output units: lb/ft^2 | kg/m^3
+#The inputs carry the units.  No metric conversions are needed.
 NetFuelLoad_Albini <- function(w_o, S_T)
 {
   w_n = w_o * (1 - S_T)
-  
-  #Convert units????
   
   return(w_n)
 }
@@ -543,11 +555,15 @@ NetFuelLoad_Albini <- function(w_o, S_T)
 #g_ij = Net fuel load weights (Albini 1976).
 #
 #Returns: w_n_i ((w sub o) sub i) = An 
-#Output units: lb/ft^2
-#UNIT CHECK NEEDED!!!!!
+#Output units: lb/ft^2 | kg/m^3
+#The inputs carry the units.  No metric conversions are needed.
 NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
 {
-  #Argument checking...
+  #Argument checking:
+  if (!SameLengths(w_o_ij, S_T_ij, g_ij, liveDead))
+  {
+    stop("NetFuelLoad_Albini_Het() expects arguments of the same length.")
+  }
   
   numFuelTypes = length(w_o_ij)
   
@@ -610,7 +626,7 @@ MoistureDampingCoefficient <- function(M_f, M_x)
 #  fuel weight).
 #f_i (f sub i) = Weighting factors for each fuel live/dead category.
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) or fuel categories.
+#  dead (1) or live (2) fuel category.
 #
 #Output units: Dimensionless coefficient (array length 2)
 #UNIT CHECK NEEDED!!!!!
@@ -650,7 +666,7 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 #(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #σij (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes.
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) or fuel categories.
+#  dead (1) or live (2) fuel category.
 #
 #Output units: fraction, water weight/dry fuel weight (M_x_2 / M_x_living)
 #LiveFuelMx <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
@@ -915,7 +931,7 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV)#, liveDead)
 #hij (h sub ij) = Heat content for live/dead fuel categories (btu/lb).
 #fij (f sub ij) = Weighting factors for each fuel type (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) or fuel categories.
+#  dead (1) or live (2) fuel category.
 #
 #Output units: btu/lb (technically what ever units are input, the same will come out!)
 #UNIT CHECK NEEDED!!!!!
@@ -1249,7 +1265,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
 #useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
 #
 #Returns: R = rate of spread in ft/min.
-#Was SpreadRateRothermelAlbini_Het().
+#Was SpreadRateAlbini1976_Het().
 #UNIT CHECK NEEDED!!!!!
 SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
                                           S_T_ij = 0.0555, S_e_ij = 0.01,
@@ -1411,6 +1427,36 @@ InitSpreadParam <- function(paramVal, paramName, numFuelTypes)
     stop(paste(paramName, "is an unxpected length."))
   }
   return(paramVal)
+}
+
+#This utility checks that the parameters (vectors) passed have the same length.
+#Adapted from code originally in in CalcWeightings().
+#
+#Alternatively we could return the length if true and  otherwise -1, but this seems less to create
+#more work in practice.  I C + = TRUE, 0 = FALSE, which could be more useful.
+#In the current usage we expect the arguments to be a mix of numeric and logical vectors.  We
+#could add checking for this.
+SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)#Was CheckLens().
+{
+  #Put the argments in a list removing NULL elements:
+  argList = list(arg1, arg2, arg3)
+  argList = argList[!sapply(argList, is.null)]
+  #This would work too for omitted arguments but would ignore any zero length vectors passed in:
+  #argList = argList[length(argList) != 0]
+  
+  #Are arguments the same length?
+  #theLen = length(arg1)
+  #if (!all(sapply(argList, length) == theLen))
+  if (!all(sapply(argList, length) == length(arg1)))
+  {
+    #return(theLen)
+    return(TRUE)
+  }
+  else
+  {
+    #return(-1)
+    return(FALSE)
+  }
 }
 
 #---------------------------------------------------------------------------------------------------
