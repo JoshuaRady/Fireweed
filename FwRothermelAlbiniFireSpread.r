@@ -100,9 +100,13 @@ ModelUnits = "English"#Default is English unit conversions have been added for a
 cmPerIn = 2.54
 cmPerFt = 30.48
 mPerFt = 0.3048
+ftPerM = 3.28084#1 / mPerFt
 
 #Mass:
 lbPerKg = 0.453592
+
+#Density:
+lbPerFtCuToKgPerMCu = 16.0185#lbPerKg * (ftPerM)^3, 16.01846337396
 
 #JPerBtu = 1055.06 or 1,054.35
 
@@ -193,7 +197,8 @@ MeanBulkDensity <- function(w_o_ij, fuelBedDepth)
 #ρp (rho sub p) = fuel particle density (density, originally lb/ft^3, metric kg/m^3)
 #  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #
-#Output units: Dimensionless ratio.  No metric conversion needed.
+#Output units: Dimensionless ratio.
+#Input units cancel out.  No metric conversion needed.
 PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_p)
 {
   return(fuelArrayBulkDensity / fuelParticleDensity)
@@ -208,17 +213,30 @@ PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_
 #The original notation includes from and to sum subscripts and bars over beta, rho, and w.
 #
 #Input variables / parameters:
-#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2 | kg/m^3).
-
+#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2 | kg/m^2).
+#δ (delta) = fuel bed depth (ft | m)
 #(ρp)ij ((rho sub p[bar]) sub ij) = fuel particle density for each fuel type (lb/ft^3 | kg/m^3)
 #  A1l the 53 standard fuel models use 32 lb/ft^3.
 #  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #δ (delta) = fuel bed depth (ft)
 #
 #Output units: Dimensionless ratio
-#UNIT CHECK NEEDED!!!!!
-MeanPackingRatio <- function(w_o_ij, fuelBedDepth, rho_p_ij = 32)#Order for defaults?
+#Input units cancel out.  Metric conversion only needed for default values.
+MeanPackingRatio <- function(w_o_ij, fuelBedDepth, rho_p_ij = NA, units = ModelUnits)#Order for defaults?
 {
+  if (is.na(rho_p_ij))
+  {
+    if (units == "English")
+    {
+      rho_p_ij = 32
+    }
+    elseif (units == "Metric")
+    {
+      rho_p_ij = 512.592#32 * lbPerFtCuToKgPerMCu
+    }
+    #Should make this into a function!
+  }
+  
   #Parameter checking:
   numLoadings = length(w_o_ij)
   numDensities = length(rho_p_ij)
@@ -254,19 +272,50 @@ MeanPackingRatio <- function(w_o_ij, fuelBedDepth, rho_p_ij = 32)#Order for defa
 #  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
 #Output units: Dimensionless ratio
-#UNIT CHECK NEEDED!!!!!
-OptimumPackingRatio <- function(SAV)
+OptimumPackingRatio <- function(SAV, units = ModelUnits)
 {
   if (units == "English")
   {
-    
+    optPackingRatio = 3.348 * SAV^-0.8189
   }
   else# if (units == "Metric")
   {
-    stop("Unimplemented!")
+    #Wilson 1980 gives:
+    #optPackingRatio = 0.219685 * SAV^-0.8189
+    #Tests show that this is pretty good but I was able to calculate a better conversion as follows:
+    
+    # SAV is in 1/ft so:
+    # SAVcm = SAVft * 1/cmPerFt
+    # and
+    # SAVft = SAVcm * cmPerFt
+    
+    #Solve:
+    # x = 3.348 * SAV^-0.8189
+    # x / 3.348 = SAV^-0.8189
+    # (x / 3.348)^(1/-0.8189) = SAV
+    # (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
+    # x / 3.348 = (SAVcm * cmPerFt)^-0.8189
+    # x / 3.348 = SAVcm^-0.8189 * cmPerFt^-0.8189
+    # x = SAVcm^-0.8189 * cmPerFt^-0.8189 * 3.348
+    # x = cmPerFt^-0.8189 * 3.348 * SAVcm^-0.8189
+    # x = 0.2039509 * SAVcm^-0.8189
+    
+    #Same thing:
+    # x = 3.348 * SAV^-0.8189
+    # x / 3.348 = SAV^-0.8189
+    # (x / 3.348)^(1/-0.8189) = SAV
+    # (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
+    # (x / 3.348)^(1/-0.8189) / cmPerFt = SAVcm
+    # (x^(1/-0.8189) / 3.348^(1/-0.8189)) / cmPerFt = SAVcm
+    # x^(1/-0.8189) / (3.348^(1/-0.8189) * cmPerFt) = SAVcm
+    # x^(1/-0.8189) = (3.348^(1/-0.8189) * cmPerFt) * SAVcm
+    # x = ((3.348^(1/-0.8189) * cmPerFt) * SAVcm)^-0.8189
+    # x = (3.348^(1/-0.8189) * cmPerFt)^-0.8189 * SAVcm^-0.8189
+    # x = 0.2039509 * SAVcm^-0.8189
+    
+    optPackingRatio = 0.2039509 * SAV^-0.8189
   }
   
-  optPackingRatio = 3.348 * (SAV)^-0.8189
   return(optPackingRatio)
 }
 
