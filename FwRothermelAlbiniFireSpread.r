@@ -219,29 +219,14 @@ PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_
 #
 #Input variables / parameters:
 #(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2 | kg/m^2).
-#δ (delta) = fuel bed depth (ft | m)
 #(ρp)ij ((rho sub p[bar]) sub ij) = fuel particle density for each fuel type (lb/ft^3 | kg/m^3)
-#  All the 53 standard fuel models use 32 lb/ft^3.
-#  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
-#δ (delta) = fuel bed depth (ft)
+#  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
+#δ (delta) = fuel bed depth (ft | m)
 #
 #Output units: Dimensionless ratio
 #Input units cancel out.  Metric conversion only needed for default values.
-MeanPackingRatio <- function(w_o_ij, fuelBedDepth, rho_p_ij = NA, units = ModelUnits)#Order for defaults?
+MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)
 {
-  if (is.na(rho_p_ij))
-  {
-    if (units == "English")
-    {
-      rho_p_ij = 32
-    }
-    elseif (units == "Metric")
-    {
-      rho_p_ij = 512.592#32 * lbPerFtCuToKgPerMCu
-    }
-    #Should make this into a function!
-  }
-  
   #Parameter checking:
   numLoadings = length(w_o_ij)
   numDensities = length(rho_p_ij)
@@ -1302,7 +1287,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   #Heat source (numerator) = IR𝜉(1 + 𝜙w + 𝜙s)
   
   #(The bulk density is not used to calculate the packing ratio in the heterogeneous form:)
-  meanPackingRatio = MeanPackingRatio(w_o_ij, fuelBedDepth, rho_p_ij)#AKA beta_bar
+  meanPackingRatio = MeanPackingRatio(w_o_ij, rho_p_ij, fuelBedDepth)#AKA beta_bar
   
   #For heterogeneous fuels we need to calculate the fuel bed level SAV:
   fuelBedSAV = FuelBedSAV(SAV_ij, weights$f_ij, weights$f_i, liveDead)
