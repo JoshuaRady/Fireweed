@@ -108,7 +108,12 @@ lbPerKg = 0.453592
 #Density:
 lbPerFtCuToKgPerMCu = 16.0185#lbPerKg * (ftPerM)^3, 16.01846337396
 
-#JPerBtu = 1055.06 or 1,054.35
+#JPerBtu = 1055.06 or 1,054.35 1.05506
+#The definition of a BTU can vary resulting in several different conversion factors.  Wilson 1980
+#seems to have used a value close to the themochemical value of 1.05435.  We will use that to be
+#consistent with his converted constant values.
+#The IT value of 1.05506 would be a reasonable alternative.
+kJPerBtu = 1.05435
 
 #Code:----------------------------------------------------------------------------------------------
 
@@ -216,7 +221,7 @@ PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_
 #(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2 | kg/m^2).
 #δ (delta) = fuel bed depth (ft | m)
 #(ρp)ij ((rho sub p[bar]) sub ij) = fuel particle density for each fuel type (lb/ft^3 | kg/m^3)
-#  A1l the 53 standard fuel models use 32 lb/ft^3.
+#  All the 53 standard fuel models use 32 lb/ft^3.
 #  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #δ (delta) = fuel bed depth (ft)
 #
@@ -740,7 +745,7 @@ MineralDampingCoefficient <- function(S_e)
 }
 
 #Mineral Damping Coefficient: (heterogeneous fuels):
-#  For heterogenous fuels the mineral damping coefficient is calculated for each fuel category
+#  For heterogeneous fuels the mineral damping coefficient is calculated for each fuel category
 #(live/dead).
 #
 #Input variables / parameters:
@@ -1094,7 +1099,7 @@ EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 #
 #For heterogeneous fuels this is calculated for each fuel type.  In R this is array compatible but
 #may need to be reworked in C++.
-HeatOfPreignition <- function(M_f)
+HeatOfPreignition <- function(M_f, units = ModelUnits)
 {
   if (units == "English")
   {
@@ -1102,7 +1107,7 @@ HeatOfPreignition <- function(M_f)
   }
   else# if (units == "Metric")
   {
-    #Use the units from Wilson 1980  Because of the different ways of defining a BTU this
+    #Use the units from Wilson 1980.  Because of the different ways of defining a BTU this
     #conversion can vary.  Based on this conversion Wilson was likely using the thermochemical
     #conversion which is ~1,054.35 J/Btu
     Qig = 581 + 2594 * M_f
@@ -1121,13 +1126,13 @@ HeatOfPreignition <- function(M_f)
 #
 #Fuel particle properties: 
 #h = heat content of the fuel class (Btu/lb).
-#  A1l the 53 standard fuel models use 8,000 Btu/lb.
+#  All the 53 standard fuel models use 8,000 Btu/lb.
 #ST (S sub T) = Total mineral content (fuel particle property: mineral mass / total dry mass,
 #  unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #Se (S sub e) = effective mineral content (fuel particle property: (mass minerals – mass silica) /
 #  total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
 #ρp (rho sub p) = fuel particle density (density, originally lb/ft^3)
-#  A1l the 53 standard fuel models use 32 lb/ft^3.
+#  All the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
 #σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
@@ -1147,9 +1152,9 @@ HeatOfPreignition <- function(M_f)
 #Returns: R = rate of spread in ft/min.
 #Was Albini1976_Spread().
 #UNIT CHECK NEEDED!!!!!
-SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
+SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
                                            S_T = 0.0555, S_e = 0.01,
-                                           fuelParticleDensity = 32,#rho_p
+                                           fuelParticleDensity = StdRho_p(),#rho_p
                                            SAV, w_o, fuelBedDepth,#delta
                                            M_x, M_f, U, slopeSteepness,#tan ϕ
                                            useWindLimit = TRUE)
@@ -1233,13 +1238,13 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
 #
 #Fuel particle properties: 
 #hij (h sub ij) = Heat content of the fuel types (Btu/lb).
-#  A1l the 53 standard fuel models use 8,000 Btu/lb.
+#  All the 53 standard fuel models use 8,000 Btu/lb.
 #(ST)ij ((S sub T) sub ij) = Total mineral content (fuel particle property: mineral mass / total dry
 #  mass, unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #(Se)ij ((S sub e) sub ij) = effective mineral content (fuel particle property: (mass minerals –
 #  mass silica) / total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
 #(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3)
-#  A1l the 53 standard fuel models use 32 lb/ft^3.
+#  All the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
 #σij (sigma sub ij) / SAV = Characteristic surface-area-to-volume ratios for each fuel type
@@ -1261,8 +1266,9 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = 8000,#h
 #Returns: R = rate of spread in ft/min.
 #Was SpreadRateRothermelAlbini_Het().
 #UNIT CHECK NEEDED!!!!!
-SpreadRateRothermelAlbini_Het <- function(h_ij = 8000, S_T_ij = 0.0555, S_e_ij = 0.01,
-                                          rho_p_ij = 32,
+SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
+                                          S_T_ij = 0.0555, S_e_ij = 0.01,
+                                          rho_p_ij = StdRho_p(),
                                           SAV_ij,
                                           w_o_ij,
                                           fuelBedDepth,#delta
@@ -1376,8 +1382,37 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = 8000, S_T_ij = 0.0555, S_e_ij =
   return(R)
 }
 
+#Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
+StdHeatContent  <- function()
+{
+  if (ModelUnits == "English")
+  {
+    h = 8000#Btu/lb
+  }
+  elseif (units == "Metric")
+  {
+    h = 8434.8#kJ/kg, (8000 * kJPerBtu)
+  }
+  return(h)
+}
+
+#Return the fuel particle density (rho_p) used in the 53 standard fuel models in the appropriate
+#units:
+StdRho_p <- function()#Or DefaultRho()?
+{
+  if (ModelUnits == "English")
+  {
+    rho_p = 32#lb/ft^3
+  }
+  elseif (units == "Metric")
+  {
+    rho_p = 512.592#kg/m^3, (32 * lbPerFtCuToKgPerMCu)
+  }
+  return(rho_p)
+}
+
 #This is a utility function to reduce code repetition in Albini1976_Spread_Het().  It checks the
-#length of the parameter value passed in, converts single values to and array, and reports invalid
+#length of the parameter value passed in, converts single values to an array, and reports invalid
 #lengths.
 #Could add type checking.
 InitSpreadParam <- function(paramVal, paramName, numFuelTypes)
