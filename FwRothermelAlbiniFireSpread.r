@@ -584,7 +584,7 @@ NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
   return(w_n_i)
 }
 
-#Damping Coefficients:-----
+#Damping Coefficients:------------------------------------------------------------------------------
 
 #Moisture Damping Coefficient:
 # This returns the extent to which fuel moisture reduces combustion for one fuel component.
@@ -594,7 +594,7 @@ NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
 #Mx (M sub x) = Moisture of extinction (fraction, water weight/dry fuel weight)
 #
 #Output units: Dimensionless coefficient
-#UNIT CHECK NEEDED!!!!!
+#Input units cancel out.  No metric conversion needed.
 MoistureDampingCoefficient <- function(M_f, M_x)
 {
   #Calculate the ratio of fuel moisture content to moisture of extinction:
@@ -629,9 +629,14 @@ MoistureDampingCoefficient <- function(M_f, M_x)
 #  dead (1) or live (2) fuel category.
 #
 #Output units: Dimensionless coefficient (array length 2)
-#UNIT CHECK NEEDED!!!!!
+#Input units cancel out.  No metric conversion needed.
 MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 {
+  if (!SameLengths(M_f_ij, M_x_i, f_ij, liveDead))
+  {
+    stop("MoistureDampingCoefficient_Het() expects arguments of the same length.")
+  }
+  
   numFuelTypes = length(M_f_ij)
   
   #Calculate the weighted moisture content for each fuel category:
@@ -662,7 +667,6 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 #(Mf)ij ((M sub f) sub ij) = Fuel moisture content for for each fuel type (fraction, water
 #  weight/dry fuel weight)
 #(Mx)1 ((M sub x) sub 1 = Dead fuel moisture of extinction (fraction, water weight/dry fuel weight).
-#w_o_ij ...
 #(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
 #σij (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes.
 #liveDead = An array indicating if each index in each of the other input variables represents a
@@ -670,7 +674,7 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 #
 #Output units: fraction, water weight/dry fuel weight (M_x_2 / M_x_living)
 #LiveFuelMx <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
-#UNIT CHECK NEEDED!!!!!
+#UNIT CHECK NEEDED!!!!! Probably needs conversion.
 LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
 {
   #Calculate dead:live loading ratio, notated W:
@@ -707,7 +711,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   
   M_f_dead = top / bottom
   
-  #Calcualte the live fuel moisture of extinction ((Mx)2):
+  #Calculate the live fuel moisture of extinction ((Mx)2):
   #Rothermel 1972 equation 88 with Albini 1976 pg. 16 modifications:
   #(Mx)2 = 2.9W[1 – Mf,dead⁄(Mx)1] - 0.226, (min = (Mx)1)
   M_x_2 = 2.9 * W * (1- M_f_dead / M_x_1) - 0.226
@@ -730,7 +734,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
 #  total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
 #
 #Output units: Dimensionless coefficient
-#UNIT CHECK NEEDED!!!!!
+#Unitless inputs and outputs.  No metric conversion needed.
 MineralDampingCoefficient <- function(S_e)
 {
   eta_s = 0.174 * S_e^-0.19
@@ -754,9 +758,14 @@ MineralDampingCoefficient <- function(S_e)
 #f_ij (f sub ij) = Weighting factors for each fuel type (dimensionless).
 #
 #Output units: Dimensionless coefficient (array of 2)
-#UNIT CHECK NEEDED!!!!!
+#Unitless inputs and outputs.  No metric conversion needed.
 MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
 {
+  if (!SameLengths(S_e_ij, f_ij, liveDead))
+  {
+    stop("MineralDampingCoefficient_Het() expects arguments of the same length.")
+  }
+  
   numFuelTypes = length(S_e_ij)#Types = sum of size classes in both categories.
   
   #Calculate the weighted effective mineral content for each fuel category:
@@ -1411,6 +1420,8 @@ StdRho_p <- function()#Or DefaultRho()?
   }
   return(rho_p)
 }
+
+#Utilities:-----------------------------------------------------------------------------------------
 
 #This is a utility function to reduce code repetition in Albini1976_Spread_Het().  It checks the
 #length of the parameter value passed in, converts single values to an array, and reports invalid
