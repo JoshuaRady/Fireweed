@@ -101,9 +101,14 @@ cmPerIn = 2.54
 cmPerFt = 30.48
 mPerFt = 0.3048
 ftPerM = 3.28084#1 / mPerFt
+#ftPerMi = 5280
+
+#Area:
+#ft2PerAcre = 43560
 
 #Mass:
 lbPerKg = 0.453592
+#lbsPerTon = 2000
 
 #Density:
 lbPerFtCuToKgPerMCu = 16.0185#lbPerKg * (ftPerM)^3, 16.01846337396
@@ -659,12 +664,13 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 }
 
 #Live Fuel Moisture of Extinction:
-#  The live fuel moisture of extinction is calculated from the dead fuel moisture of extinction and
-#in relation to the ratio of live to dead fuels.
-#MORE!!!!!
+#  The live fuel moisture of extinction determines if live fuels will burn and contribute to the
+#heat source term in the calculations.  The live fuel moisture of extinction is calculated from the
+#dead fuel moisture of extinction and in relation to the ratio of live to dead fuels. The value can
+#be quite variable from near zero to over 700 percent (see Andrews 2018 section 5.3.2.2).
 #
 #Input variables / parameters:
-#(Mf)ij ((M sub f) sub ij) = Fuel moisture content for for each fuel type (fraction, water
+#(Mf)ij ((M sub f) sub ij) = Fuel moisture content for each fuel type (fraction, water
 #  weight/dry fuel weight)
 #(Mx)1 ((M sub x) sub 1 = Dead fuel moisture of extinction (fraction, water weight/dry fuel weight).
 #(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
@@ -672,16 +678,27 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
-#Output units: fraction, water weight/dry fuel weight (M_x_2 / M_x_living)
-#LiveFuelMx <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
-#UNIT CHECK NEEDED!!!!! Probably needs conversion.
-LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
+#Output units: fraction, water weight/dry fuel weight
+LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead,
+                                         units = ModelUnits)
 {
+  if (!SameLengths(M_f_ij, w_o_ij, SAV_ij, liveDead))
+  {
+    stop("LiveFuelMoistureOfExtinction() expects arguments of the same length.")
+  }
+  
+  #Changing the equations is more complicated than changing the inputs.
+  if (units == "Metric")
+  {
+    w_o_ij = w_o_ij / lbPerFtCuToKgPerMCu
+    SAV_ij = SAV_ij * cmPerFt#1/cm to 1/ft
+  }
+  
   #Calculate dead:live loading ratio, notated W:
   #Albini 1976 pg. 16:
   #W = Σj(wo)1jexp(-138/σ1j) / Σj(wo)2jexp(-500/σ2j)
   #
-  #These sums could be done in a vector aware way but that we limit ourselves to C compatible code.
+  #These sums could be done in a vector aware way but here we limit ourselves to C compatible code.
   #The loops could also be combined with a live/dead conditional.
   liveSum = 0
   for (k in which(liveDead == 1))
@@ -695,7 +712,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
     deadSum = deadSum + w_o_ij[k] * exp(-500 / SAV_ij[k])
   }
   
-  W = liveSum / deadSum
+  W = liveSum / deadSum#Unitless ratio.
   
   #Calculate fine dead fuel moisture as:
   #Albini 1976 pg. 16:
@@ -709,12 +726,12 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
     bottom = bottom + common
   }
   
-  M_f_dead = top / bottom
+  M_f_dead = top / bottom#Moisture fraction / unitless.
   
   #Calculate the live fuel moisture of extinction ((Mx)2):
   #Rothermel 1972 equation 88 with Albini 1976 pg. 16 modifications:
   #(Mx)2 = 2.9W[1 – Mf,dead⁄(Mx)1] - 0.226, (min = (Mx)1)
-  M_x_2 = 2.9 * W * (1- M_f_dead / M_x_1) - 0.226
+  M_x_2 = 2.9 * W * (1 - M_f_dead / M_x_1) - 0.226
   
   if (M_x_2 < M_x_1)
   {
