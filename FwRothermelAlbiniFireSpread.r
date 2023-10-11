@@ -937,7 +937,7 @@ WindLimit <- function(U, I_R, units = ModelUnits)
 #of minerals and moisture.
 #Notation: Γ' (Gamma prime)
 #
-#  This version includes the Albini modification...
+#  This version includes the Albini 1976 modification.
 #
 #Input variables / parameters:
 #β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
@@ -946,8 +946,7 @@ WindLimit <- function(U, I_R, units = ModelUnits)
 #  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
 #Output units: min^1
-#UNIT CHECK NEEDED!!!!!
-OptimumReactionVelocity <- function(meanPackingRatio, SAV)
+OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
 {
   #Calculate the maximum reaction velocity (min^-1):
   #This is rate for moisture free fuel with mineral composition of alpha cellulose.
@@ -977,7 +976,9 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV)
   }
   else
   {
-    
+    A = 8.903291 * SAV^-0.7913
+    #Wilson 1980 uses:
+    #A = 8.9033 * SAV^-0.7913
   }
   
   #These are combined to produce the optimal reaction velocity (min^-1):
@@ -1073,30 +1074,6 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
   I_R = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
   
   return(I_R)
-}
-
-#Propagating Flux Ratio:
-#The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
-#intensity that heats fuels adjacent to the fire front.
-#
-#The equation is the same for Rothermel 1972 (eq. 42/76) and Albini 1976 (pg?????):
-#ξ = (192 + 0.2595σ)^-1 exp[(0.792 + 0.681σ^0.5)(β + 0.1)]
-#
-#Input variables / parameters:
-#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
-#  For heterogeneous fuels the mean packing ratio is passed in.
-#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
-#  For heterogeneous fuels the fuel bed level SAV is used.
-#
-#Output units: Dimensionless proportion
-#UNIT CHECK NEEDED!!!!!
-PropagatingFluxRatio <- function(packingRatio, SAV)
-{
-  xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
-  
-  #Convert units????
-  
-  return(xi)
 }
 
 #Propagating Flux Ratio:
