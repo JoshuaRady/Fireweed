@@ -103,6 +103,10 @@ mPerFt = 0.3048
 ftPerM = 3.28084#1 / mPerFt
 #ftPerMi = 5280
 
+#SAV is in ft^2/ft^3 = 1/ft or cm^2/cm^3 = 1/cm
+#Therefore units convert: ft^2/ft^3 * cmPerFt^2/cmPerFt^2 = 1/ft * 1/cmPerFt = 1/cm
+#So: SAVft * 1/cmPerFt = SAVft / cmPerFt = SAVcm
+
 #Area:
 #ft2PerAcre = 43560
 
@@ -815,8 +819,8 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
 #β = packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 #tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
 #
-#Output units: Dimensionless, no metric conversion required.
-#UNIT CHECK NEEDED!!!!!
+#Output units: Dimensionless adjustment factor
+#Inputs are fractions which do not change with units.  Mo metric conversion required.
 SlopeFactor <- function(packingRatio, slopeSteepness)
 {
   phi_s = 5.275 * packingRatio^-0.3 * slopeSteepness^2
@@ -838,23 +842,33 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 #Note: It is not possible to calculate if a wind limit is indicated internal to this function
 #and not all authors agree that a wind limit should be used.  U should be capped, if deemed
 #appropriate prior to passing it in to this function.
-#UNIT CHECK NEEDED!!!!!
-WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
+WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits)
 {
-  #C = unnamed term
-  #Rothermel 1972 equation 48,82:
-  #C = 7.47exp(-0.133σ^0.55)
-  C = 7.47 * exp(-0.133 * SAV^0.55)
-  
-  #B = unnamed term
-  #Rothermel 1972 equation 49,83:
-  #B = 0.02526σ^0.54
-  B = 0.02526 * SAV^0.54
-  
-  #E = unnamed term
-  #Rothermel 1972 equation 50,84:
-  #E = 0.715exp(-3.59×10^-4 σ)
-  E = 0.715 * exp(-3.59 * 10^-4 * SAV)
+  if (units == "English")
+  {
+    #C = unnamed term
+    #Rothermel 1972 equation 48,82:
+    #C = 7.47exp(-0.133σ^0.55)
+    C = 7.47 * exp(-0.133 * SAV^0.55)
+    
+    #B = unnamed term
+    #Rothermel 1972 equation 49,83:
+    #B = 0.02526σ^0.54
+    B = 0.02526 * SAV^0.54
+    
+    #E = unnamed term
+    #Rothermel 1972 equation 50,84:
+    #E = 0.715exp(-3.59×10^-4 σ)
+    E = 0.715 * exp(-0.000359 * SAV)
+  }
+  else
+  {
+    #These agree with Andrews 2018 except for the number of digits:
+    #Should significant digits be observed for the conversions here?
+    C = 7.47 * exp(-0.8710837 * SAVcm^0.55)#-0.133 * cmPerFt^0.55 = -0.8710837
+    B = 0.1598827 * SAVcm^0.54#0.02526 * cmPerFt^0.54 = 0.1598827
+    E = 0.715 * exp(-0.01094232 * SAV)#-0.000359 * cmPerFt = -0.01094232
+  }
   
   #Rothermel 1972 equation 47,79:
   #ϕw = CU^B(β/βop)^-E
@@ -866,7 +880,7 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
 #Wind limit:
 #  The "wind limit" or "maximum reliable wind" is used to limit the effect of wind on the fire
 #spread rate as wind speed gets high.  It caps the wind speed at a value that is a function of the
-#reaction intesity.
+#reaction intensity.
 #   There is not agreement on whether the wind limit should be used.  Albini chose to not use it,
 #but his code reports if the limit was reached (Albini 1976, pg 26).  More recent work finds the
 #original calculation to be flawed and presents an alternate formulation from (Andrews et. al 2013).
@@ -876,17 +890,25 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
 #the wind limit.
 #
 #Input variables / parameters:
-#U = wind speed at midflame height (ft/min)
-#IR (I sub R, I_R) = reaction intensity (Btu/ft^2/min)
+#U = wind speed at midflame height (ft/min | m/min)
+#IR (I sub R, I_R) = reaction intensity (Btu/ft^2/min | kj/m^2/min)
 #
-#Output units: adjusted wind speed (U) at midflame height (ft/min)
-#UNIT CHECK NEEDED!!!!!
-WindLimit <- function(U, I_R)
+#Output units: adjusted wind speed (U) at midflame height (ft/min | m/min)
+WindLimit <- function(U, I_R, units = ModelUnits)
 {
-  #Rothermel 1972 Equation 87:
-  if (U/I_R > 0.9)
+  if (units == "English")
   {
-    U = 0.9 * I_R
+    threshold = 0.9
+  }
+  else
+  {
+    threshold = 0.02417144
+  }
+  
+  #Rothermel 1972 Equation 87:
+  if (U/I_R > threshold)
+  {
+    U = threshold * I_R
     
     #Or Andrews et al. 2013 equation 21:
     #U = 96.8 * I_R^(1/3)
