@@ -947,20 +947,38 @@ WindLimit <- function(U, I_R, units = ModelUnits)
 #
 #Output units: min^1
 #UNIT CHECK NEEDED!!!!!
-OptimumReactionVelocity <- function(meanPackingRatio, SAV)#, liveDead)
+OptimumReactionVelocity <- function(meanPackingRatio, SAV)
 {
   #Calculate the maximum reaction velocity (min^-1):
-  #This is rate for moisture free fuel with mineral compostion of alpha cellulose.
+  #This is rate for moisture free fuel with mineral composition of alpha cellulose.
   #Rothermel 1972 equations 36,68:
   #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
-  GammaPrimeMax = SAV^1.5 / (495 + 0.0594 * SAV^1.5)
+  if (units = "English")
+  {
+    GammaPrimeMax = SAV^1.5 / (495 + 0.0594 * SAV^1.5)
+    #Or equivalently:
+    #GammaPrimeMax = 1 / (0.0594 * 495 / SAV^1.5)
+  }
+  else
+  {
+    GammaPrimeMax = 1 / (0.0594 + 2.941594 / SAV^1.5)
+    #Wilson 1980 uses:
+    #GammaPrimeMax = (0.0591 + 2.926 * SAVcm^-1.5)^-1 = 1 / (0.0591 + 2.926 / SAVcm^1.5)
+  }
   
   optPackingRatio = OptimumPackingRatio(SAV)
   
   #"Arbitrary" variable (no units?????):
   #Albini 1976 pg. 15????
   #A = 133σ^-0.7913
-  A = 133 * SAV^-0.7913
+  if (units = "English")
+  {
+    A = 133 * SAV^-0.7913
+  }
+  else
+  {
+    
+  }
   
   #These are combined to produce the optimal reaction velocity (min^-1):
   #Rothermel 1972 equation 38:
