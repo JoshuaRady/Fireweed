@@ -111,12 +111,11 @@ ftPerM = 3.28084#1 / mPerFt
 #ft2PerAcre = 43560
 
 #Mass:
-#lbPerKg = 0.453592#This is reversed!!!!!
 kgPerLb = 0.453592
 #lbsPerTon = 2000
 
 #Density:
-lbPerFtCuToKgPerMCu = 16.0185#lbPerKg * (ftPerM)^3, 16.01846337396
+lbPerFtCuToKgPerMCu = 16.0185#kgPerLb * (ftPerM)^3, 16.01846337396
 
 #JPerBtu = 1055.06 or 1,054.35
 #The definition of a BTU can vary resulting in several different conversion factors.  Wilson 1980
