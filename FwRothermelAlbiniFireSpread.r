@@ -111,16 +111,17 @@ ftPerM = 3.28084#1 / mPerFt
 #ft2PerAcre = 43560
 
 #Mass:
-lbPerKg = 0.453592
+#lbPerKg = 0.453592#This is reversed!!!!!
+kgPerLb = 0.453592
 #lbsPerTon = 2000
 
 #Density:
 lbPerFtCuToKgPerMCu = 16.0185#lbPerKg * (ftPerM)^3, 16.01846337396
 
-#JPerBtu = 1055.06 or 1,054.35 1.05506
+#JPerBtu = 1055.06 or 1,054.35
 #The definition of a BTU can vary resulting in several different conversion factors.  Wilson 1980
-#seems to have used a value close to the themochemical value of 1.05435.  We will use that to be
-#consistent with his converted constant values.
+#seems to have used a value close to the themochemical value of 1.05435 J/BTU, based on his heat of
+#preignition conversion.  We will use that to be consistent with his converted constant values.
 #The IT value of 1.05506 would be a reasonable alternative.
 kJPerBtu = 1.05435
 
@@ -1094,7 +1095,7 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#Reac
 #Output units: Dimensionless proportion
 PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 {
-  if (units = "English")
+  if (units == "English")
   {
     xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
   }
@@ -1112,9 +1113,10 @@ PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 
 #Effective Heating Number:
 #  This represents the proportion of a fuel type that is heated to ignition temperature in advance
-#of the fire front.  It is a function of SAV.
-#  I think of this as the fine fuels will be brought fully to combustion while for a large stick
-#only surface would be dried and heated to burn. ?????
+#of the fire front.  It is a function of SAV.  For example, with the same heating fine fuels might
+#be brought fully to combustion while for a large stick only surface would be dried and heated to
+#burn.
+# This function is only used in the homogeneous fuel calculations.
 #
 #Rothermel 1972 equation 14
 #ε = exp(-138/σ)
@@ -1131,13 +1133,11 @@ EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
   }
   else# if (units == "Metric")
   {
-    #-138 * cmPerFt = -4.527559.  Wilson 1980 uses −4.528.
-    epsilon = exp(-4.527559/SAV)
+    epsilon = exp(-4.527559/SAV)#-138 * cmPerFt = -4.527559.  Wilson 1980 uses −4.528.
   }
   
   return(epsilon)
 }
-#For heterogeneous fuels... ?????
 
 #Heat Of Preignition:
 #
@@ -1159,11 +1159,12 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
   }
   else# if (units == "Metric")
   {
-    #Use the units from Wilson 1980.  Because of the different ways of defining a BTU this
-    #conversion can vary.  Based on this conversion Wilson was likely using the thermochemical
-    #conversion which is ~1,054.35 J/Btu
-    Qig = 581 + 2594 * M_f
+    Qig = 581.1114 + 2594.081 * M_f#Constants * kJPerBtu / kgPerLb
+    #Wilson 1980 uses:
+    #Qig = 581 + 2594 * M_f
+    #This implies Wilson was using the thermochemical BTU conversion which is ~1,054.35 J/BTU.
   }
+  
   return(Qig)
 }
 
