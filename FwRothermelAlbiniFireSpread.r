@@ -1066,6 +1066,11 @@ ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)
 #Inputs carry units.  No unit conversions are needed.
 ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#ReactionIntensityAlbini()?
 {
+  if (!SameLengths(w_n_i, h_i, eta_M_i, eta_s_i))
+  {
+    stop("ReactionIntensity_Het() expects arguments of the same length.")
+  }
+  
   #Rothermel equation 58 modified by Albini 1976 pg. 17:
   #IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
   I_R = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
