@@ -945,14 +945,14 @@ WindLimit <- function(U, I_R, units = ModelUnits)
 #σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
 #  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
-#Output units: min^1
+#Output units: min^-1
 OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
 {
   #Calculate the maximum reaction velocity (min^-1):
   #This is rate for moisture free fuel with mineral composition of alpha cellulose.
   #Rothermel 1972 equations 36,68:
   #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
-  if (units = "English")
+  if (units == "English")
   {
     GammaPrimeMax = SAV^1.5 / (495 + 0.0594 * SAV^1.5)
     #Or equivalently:
@@ -970,7 +970,7 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
   #"Arbitrary" variable (no units?????):
   #Albini 1976 pg. 15????
   #A = 133σ^-0.7913
-  if (units = "English")
+  if (units == "English")
   {
     A = 133 * SAV^-0.7913
   }
@@ -1000,15 +1000,21 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
-#Output units: btu/lb (technically what ever units are input, the same will come out!)
-#UNIT CHECK NEEDED!!!!!
+#Output units: btu/lb | kJ/kg
+#Whatever units are input, the same will come out.  No unit conversions needed.
 LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
 {
   numFuelTypes = length(f_ij)
   
+  if (!SameLengths(h_ij, f_ij, liveDead))
+  {
+    stop("LiveDeadHeatContent() expects arguments of the same length.")
+  }
+  
   #Rothermel 1972 equation 61:
   #hi = Σj fij hij
-  h_i = c(0,0)
+  #h_i = c(0,0)#Works but assumes at least two fuel types.
+  h_i = vector(mode = "numeric", length = length(h_ij))
   for (k in 1:numFuelTypes)
   {
     h_i[liveDead[k]] = h_i[liveDead[k]] + f_ij[k] * h_ij[k]
@@ -1018,56 +1024,47 @@ LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
 }
 
 #Reaction Intensity:
-# The reaction intensity (IR / I sub R) is the total energy released by the fire front in 
-#Btu/ft^2-min ... Btu/ft^2/min #in all forms (radiation, conduction, and convection).
-#  This it not the same as fireline intensity.
-#
-#IR (I sub R) / I_R
-#Units Btu/ft^2/min or kW/m^2/min kW/min/m^2
+#  The reaction intensity (IR / I sub R) is the total energy released by the fire front in 
+#Btu/ft^2/min in all forms (radiation, conduction, and convection).
+#  This it not the same as fireline intensity!
 
-#Reaction Intensity Rothermel homogeneous fuel:
+#Reaction Intensity, Rothermel version for homogeneous fuels:
 #
-#Rothermel equation ##?:
+#Rothermel equation 27:
 #IR = Γ'wnhηMηs
 #or: I_R = Γ' x w_n x h x η_M x η_s
 #
 #Input variables / parameters:
-#Γ' (Gamma prime) = optimum reaction velocity
-#wn (w sub n) = net fuel load (for a single fuel component...)
-#h = heat content of the fuel class (Btu/lb)
-#ηM (eta sub M) = moisture damping coefficient
-#ηs (eta sub s) = mineral damping coefficient
+#Γ' (Gamma prime) = optimum reaction velocity (min^-1)
+#wn (w sub n) = net fuel load for a single fuel component (lb/ft^2 | kg/m^2)
+#h = heat content of the fuel class (Btu/lb | kJ/kg)
+#ηM (eta sub M) = moisture damping coefficient (unitless)
+#ηs (eta sub s) = mineral damping coefficient (unitless)
 #
-#Output units: Btu/ft^2/min
+#Output units: Btu/ft^2/min | kJ/m^2/min
+#Inputs carry units.  No unit conversions are needed.
 #
 #Are these the best parameters?
-#UNIT CHECK NEEDED!!!!!
+#function(GammaPrime, w_n, h, M_f, M_x, Se)?
 ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)
 {
-  #I_R = optimumReactionVelocity * w_n * h * η_M * η_s
-  #I_R = GammaPrime * w_n * h * η_M * η_s
   I_R = GammaPrime * w_n * h * eta_M * eta_s
   
   return(I_R)
 }
-#function(GammaPrime, w_n, h, M_f, M_x, Se)
 
 #Reaction Intensity for Heterogeneous Fuels:
 #
 #Input variables / parameters:
-#Γ' (Gamma prime) = optimum reaction velocity
-#(wn)i ((w sub n) sub i) = net fuel load for live/dead fuel categories (UNITS!!!!!).
-#hi (h sub i) = Heat content for live/dead fuel categories.
-#(ηM)i ((eta sub M) sub i) = Moisture damping coefficient for live/dead fuel categories
-#(UNITS!!!!!).
-#(ηs)i ((eta sub s) sub i) = mineral damping coefficient for live/dead fuel categories (UNITS!!!!!).
-
-#Some representation of the fuel array...
+#Γ' (Gamma prime) = optimum reaction velocity (min^-1)
+#(wn)i ((w sub n) sub i) = net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2)
+#hi (h sub i) = Heat content for live/dead fuel (Btu/lb | kJ/kg)
+#(ηM)i ((eta sub M) sub i) = Moisture damping coefficient for live/dead fuel categories (unitless)
+#(ηs)i ((eta sub s) sub i) = mineral damping coefficient for live/dead fuel categories (unitless)
 #
-#Output units: Btu/ft^2/min
-#ReactionIntensityAlbini <- function()
-#UNIT CHECK NEEDED!!!!!
-ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
+#Output units: Btu/ft^2/min | kJ/m^2/min
+#Inputs carry units.  No unit conversions are needed.
+ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#ReactionIntensityAlbini()?
 {
   #Rothermel equation 58 modified by Albini 1976 pg. 17:
   #IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
@@ -1080,22 +1077,28 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
 #The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
 #intensity that heats fuels adjacent to the fire front.
 #
-#The equation is the same for Rothermel 1972 (eq. 42/76) and Albini 1976 (pg?????):
+#The equation is the same for Rothermel 1972 (eq. 42/76) and Albini 1976 (pg. 4):
 #ξ = (192 + 0.2595σ)^-1 exp[(0.792 + 0.681σ^0.5)(β + 0.1)]
 #
 #Input variables / parameters:
 #β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 #  For heterogeneous fuels the mean packing ratio is passed in.
-#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
+#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
 #  For heterogeneous fuels the fuel bed level SAV is used.
 #
 #Output units: Dimensionless proportion
-#UNIT CHECK NEEDED!!!!!
-PropagatingFluxRatio <- function(packingRatio, SAV)
+PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 {
-  xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
-  
-  #Convert units????
+  if (units = "English")
+  {
+    xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
+  }
+  else
+  {
+    xi = (192 + 7.90956 * SAV)^-1 * exp((0.792 + 3.759712 * SAV^0.5) * (packingRatio + 0.1))
+    #Wilson 1980 uses:
+    #xi = (192 + 7.9095 * SAV)^-1 * exp((0.792 + 3.7597 * SAV^0.5) * (packingRatio + 0.1))
+  }
   
   return(xi)
 }
