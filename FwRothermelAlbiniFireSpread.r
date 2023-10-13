@@ -1587,10 +1587,10 @@ SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)#Was CheckLens().
 
 #Effective Wind Speed:
 #The effective wind speed combines the effect of wind and slope.  It was developed in:
-#Albini, Frank A.
-#Estimating wildfire behavior and effects.
-#Gen. Tech. Rep. INT-GTR-30. Ogden, UT: U.S. Department of Agriculture, Forest Service,
-#Intermountain Forest and Range Experiment Station. 92 p. 1976.
+# Albini, Frank A.
+# Estimating wildfire behavior and effects.
+# Gen. Tech. Rep. INT-GTR-30. Ogden, UT: U.S. Department of Agriculture, Forest Service,
+# Intermountain Forest and Range Experiment Station. 92 p. 1976.
 #for use in nomograhs but is used by some contexts to calculate the wind limit.
 #
 #Input variables / parameters:
@@ -1628,7 +1628,7 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
 
 #Residence Time:
 #The residence time is the how long it takes the fire flame front to pass over a point on the
-#ground.  This only considers the flame front and not the residual burning and smoldering. Th
+#ground.  This only considers the flame front and not the residual burning and smoldering. The
 #calculation is from:
 # Anderson, Hal E.
 # Heat transfer and fire spread.
@@ -1639,15 +1639,23 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
 #This can be used to help calculate energy transfer to soil.
 #
 #Input variables / parameters:
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
 #
 #Output units: minutes
-#UNIT CHECK NEEDED!!!!!
-ResidenceTime <- function(SAV)#ResidenceTimeAnderson
+ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 {
+  if (units = "English")
+  {
+    theSAV = SAV
+  }
+  else
+  {
+    theSAV = SAV * cmPerFt
+  }
+  
   #The original equation predicts the residence time as 8 times the fuel diameter in inches.
-  #We use the Rotheremel relationship between diameter and SAV, d = 48/SAV:
-  t_r = 384 / SAV
+  #We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
+  t_r = 384 / theSAV
   return(t_r)
 }
 
