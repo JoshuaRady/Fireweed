@@ -89,7 +89,9 @@
 #___________________________________________________________________________________________________
 
 #Globals:-------------------------------------------------------------------------------------------
+#UnitClasses = c("English", "Metric")?
 ModelUnits = "English"#Default is English unit conversions have been added for all functions.
+#This should not be set directly.  Use SetModelUnits().  If R allowed this would be kept private.
 
 #Unit Conversion Factors:---------------------------------------------------------------------------
 #A few of these conversion factors are commented out because I made them but have not really used
@@ -125,6 +127,19 @@ lbPerFtCuToKgPerMCu = 16.0185#kgPerLb * (ftPerM)^3, 16.01846337396
 kJPerBtu = 1.05435
 
 #Code:----------------------------------------------------------------------------------------------
+
+#Set the units for the current calculatins:
+SetModelUnits <- function(units)
+{
+  if (!(units %in% c("English", "Metric")))
+  {
+    stop("Invalid unit type.")
+  }
+  else
+  {
+    ModelUnits <<- units
+  }
+}
 
 #Bulk Density:--------------------------------------------------------------------------------------
 #  The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
@@ -1169,7 +1184,7 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 
 #Spread Rate Calculations:--------------------------------------------------------------------------
 
-#Albini 1976 modified Rothermel spread model [for homogeneous fuels]:
+#Albini 1976 modified Rothermel spread model for homogeneous fuels:
 #  Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
 #
 #Input variables / parameters:
@@ -1203,7 +1218,7 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #useWindLimit = Use the wind limit calculation or not.
 #
 #Optional Parameters:
-#
+#unit = Specify the class of units for the inputs.
 #debug = Print calculation component values.  This may be removed in the future.
 #
 #Returns: R = rate of spread in ft/min | m/min.
@@ -1213,8 +1228,14 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
                                            SAV, w_o, fuelBedDepth,#delta
                                            M_x, M_f, U, slopeSteepness,#tan ϕ
                                            useWindLimit = TRUE,
+                                           units = NULL,
                                            debug = FALSE)
 {
+  if (!is.null(units))
+  {
+    SetModelUnits(units)
+  }
+  
   #Up front calculations:
   #The bulk density is needed to calculate the packing ratio and therefore is used in the numerator
   #and denominator.
@@ -1223,7 +1244,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   packingRatio = PackingRatio(rho_b, fuelParticleDensity)
   optPackingRatio = OptimumPackingRatio(SAV)
   
-  #The heat source (numerator) term represents the heat flux from the fire front to the fuel in
+  #The heat source term (numerator) represents the heat flux from the fire front to the fuel in
   #front of it:
   #Numerator of Rothermel 1972 equation 52:
   #IR𝜉(1 + 𝜙w + 𝜙s)
@@ -1247,7 +1268,8 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   
   phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U)
   
-  #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3 | kJ/m^3:
+  #The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
+  #kJ/m^3:
   #Denominator of Rothermel 1972 equation 52:
   #ρbεQig
   
@@ -1312,12 +1334,12 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
 #useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
 #
 #Optional Parameters:
-#
+#unit = Specify the class of units for the inputs.
 #debug = Print calculation component values.  This may be removed in the future.
 #
 #Returns: R = rate of spread in ft/min | m/min.
 #
-#Note: This function takes a lot of argments.  These parameters could be combined into fuel model
+#Note: This function takes a lot of arguments.  These parameters could be combined into fuel model
 #and environment objects.  Maintaining this generic interface will still need to be retained for
 #full flexibility of use.
 SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
@@ -1331,8 +1353,14 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
                                           U, slopeSteepness,#tan ϕ
                                           liveDead = c(1,1,1,2,2),#Standard fuel model 5 classes.
                                           useWindLimit = FALSE,
+                                          units = NULL,
                                           debug = FALSE)
 {
+  if (!is.null(units))
+  {
+    SetModelUnits(units)
+  }
+  
   #Parameter checking and processing:
   if (!SameLengths(SAV_ij, w_o_ij, M_f_ij))
   {
@@ -1356,7 +1384,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   #Calculate the weights:
   weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   
-  #The heat source (numerator) term represents the heat flux from the fire front to the fuel in
+  #The heat source term (numerator) represents the heat flux from the fire front to the fuel in
   #front of it:
   #Numerator of Rothermel 1972 equation 75:
   #IR𝜉(1 + 𝜙w + 𝜙s)
@@ -1399,7 +1427,8 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   
   phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U)
   
-  #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3:
+  #The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
+  #kJ/m^3:
   #The heat sink term is calculated using weights without calculating epsilon explicitly.
   #Rothermel equation 77:
   #ρbεQig = ρb Σi fi Σj fij[exp(-138/σij)](Qig)ij
