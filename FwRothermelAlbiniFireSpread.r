@@ -857,7 +857,25 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 #Note: It is not possible to calculate if a wind limit is indicated internal to this function
 #and not all authors agree that a wind limit should be used.  U should be capped, if deemed
 #appropriate prior to passing it in to this function.
-WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits)
+WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
+{
+  C = WindFactorC(SAV)
+  B = WindFactorB(SAV)
+  E = WindFactorE(SAV)
+  
+  #Rothermel 1972 equation 47,79:
+  #ϕw = CU^B(β/βop)^-E
+  phi_w = C * U^B * (packingRatio / optPackingRatio)^-E
+  
+  return(phi_w)
+}
+
+#The following three functions represent the equations internal to the calculation of the wind
+#factor.  They have been broken out because they are also used in EffectiveWindSpeed().
+#The metric conversions agree with Andrews 2018 except for the number of digits:
+#Should significant digits be observed for the conversions here?
+
+WindFactorC <- function(SAV, units = ModelUnits)
 {
   if (units == "English")
   {
@@ -865,12 +883,34 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits
     #Rothermel 1972 equation 48,82:
     #C = 7.47exp(-0.133σ^0.55)
     C = 7.47 * exp(-0.133 * SAV^0.55)
-    
+  }
+  else
+  {
+    C = 7.47 * exp(-0.8710837 * SAVcm^0.55)#-0.133 * cmPerFt^0.55 = -0.8710837
+  }
+  return(C)
+}
+
+WindFactorB <- function(SAV, units = ModelUnits)
+{
+  if (units == "English")
+  {
     #B = unnamed term
     #Rothermel 1972 equation 49,83:
     #B = 0.02526σ^0.54
     B = 0.02526 * SAV^0.54
-    
+  }
+  else
+  {
+    B = 0.1598827 * SAVcm^0.54#0.02526 * cmPerFt^0.54 = 0.1598827
+  }
+  return(B)
+}
+
+WindFactorE <- function(SAV, units = ModelUnits)
+{
+  if (units == "English")
+  {
     #E = unnamed term
     #Rothermel 1972 equation 50,84:
     #E = 0.715exp(-3.59×10^-4 σ)
@@ -878,18 +918,9 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits
   }
   else
   {
-    #These agree with Andrews 2018 except for the number of digits:
-    #Should significant digits be observed for the conversions here?
-    C = 7.47 * exp(-0.8710837 * SAVcm^0.55)#-0.133 * cmPerFt^0.55 = -0.8710837
-    B = 0.1598827 * SAVcm^0.54#0.02526 * cmPerFt^0.54 = 0.1598827
     E = 0.715 * exp(-0.01094232 * SAV)#-0.000359 * cmPerFt = -0.01094232
   }
-  
-  #Rothermel 1972 equation 47,79:
-  #ϕw = CU^B(β/βop)^-E
-  phi_w = C * U^B * (packingRatio / optPackingRatio)^-E
-  
-  return(phi_w)
+  return(E)
 }
 
 #Wind limit:
@@ -1136,7 +1167,7 @@ PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 #ε = exp(-138/σ)
 #
 #Input variables / parameters:
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
 #
 #Units: Dimensionless.
 EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
@@ -1563,35 +1594,23 @@ SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)#Was CheckLens().
 #for use in nomograhs but is used by some contexts to calculate the wind limit.
 #
 #Input variables / parameters:
-#U = wind speed at midflame height (ft/min)
+#U = wind speed at midflame height (ft/min | m/min)
 #phi_w = the wind factor (dimensionless)
 #phi_s = the slope factor (dimensionless)
 #beta_bar = mean packing ratio (dimensionless ratio)
 #beta_op = optimum packing ratio (dimensionless ratio)
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
 #
-#Output: effective wind speed at midflame height (ft/min)
+#Output: effective wind speed at midflame height (ft/min | m/min)
+#The functions called handle the units so no conversions need to be done here.
 #
 #Note: This is included for completeness.  It is not currently used by any other functions.
-#UNIT CHECK NEEDED!!!!!
 EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
                                #SAV, packingRatio, optPackingRatio, U)
 {
-  #C, B, & E copied directly from WindFactor().
-  
-  #C = unnamed term
-  #Rothermel 1972 equation 48,82:
-  #C = 7.47exp(-0.133σ^0.55)
-  C = 7.47 * exp(-0.133 * SAV^0.55)
-  
-  #B = unnamed term
-  #Rothermel 1972 equation 49,83:
-  #B = 0.02526σ^0.54
-  B = 0.02526 * SAV^0.54
-  
-  #E = unnamed term
-  #Rothermel 1972 equation 50,84:
-  #E = 0.715exp(-3.59×10^-4 σ)
-  E = 0.715 * exp(-3.59 * 10^-4 * SAV)
+  C = WindFactorC(SAV)
+  B = WindFactorB(SAV)
+  E = WindFactorE(SAV)
   
   #Effective wind factor:
   #Albini 1976(b) pg. 90:
@@ -1601,8 +1620,8 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
   #ϕE = C * U_E^B (β/βop)^–E
   
   #Solve for the effective wind speed:
-  #U_E = [ϕE (β/βop)E/C]–B
-  U_E = ((phi_E * (beta_bar/beta_op)^E) / C )^B
+  #U_E = [ϕE (β/βop)E/C]^–B
+  U_E = ((phi_E * (beta_bar/beta_op)^E) / C )^-B
   
   return(U_E)
 }
