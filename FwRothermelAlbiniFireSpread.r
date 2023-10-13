@@ -57,7 +57,7 @@
 #Diacritical marks:
 # In Rothermel 1972 some variables for the heterogeneous fuels equations are marked with either
 #bars to indicate a mean (across all fuel classes) or tildes for characteristic values of a fuel
-#catagory (live/dead).  Most reprints ignore these.  We have left them out in most cases although
+#category (live/dead).  Most reprints ignore these.  We have left them out in most cases although
 #a coulde variables of form x_bar are used.
 #
 #[Add variables table...]
@@ -401,7 +401,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   #g_ij = Σ_(subclass to which j belongs) f_ij
   #This notation is a bit dense (and potentially confusing).  We accomplish this in three steps:
   #1. Determine the size subclass for each fuel type.
-  #2. Compute the total weight (from f_ij) in each subclass by live/dead catagory.
+  #2. Compute the total weight (from f_ij) in each subclass by live/dead category.
   #3. Set g_ij equal the total weight for the corresponding size subclass.
   
   #What size subclass is each fuel type in?
@@ -441,7 +441,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   
   for (i in 1:2)
   {
-    #Calculate the total weight for each size subclass (bin them) for this live/dead catagory:
+    #Calculate the total weight for each size subclass (bin them) for this live/dead category:
     subclassTotal = array(data = 0, dim = 6)
     catIndexes = which(liveDead == i)
     
@@ -555,7 +555,7 @@ NetFuelLoad_Albini <- function(w_o, S_T)
   return(w_n)
 }
 
-#For heterogeneous fuels the net fuel load for each fuel catagory (live/dead) is calculated using
+#For heterogeneous fuels the net fuel load for each fuel category (live/dead) is calculated using
 #weights.
 #
 #Input variables / parameters:
@@ -625,7 +625,7 @@ MoistureDampingCoefficient <- function(M_f, M_x)
 }
 
 #Moisture Damping Coefficient (heterogeneous fuels):
-#  For heterogenous fuel beds the moisture damping coefficient is calculated for each fuel category
+#  For heterogeneous fuel beds the moisture damping coefficient is calculated for each fuel category
 #(live/dead).
 #
 #Input variables / parameters:
@@ -657,7 +657,7 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
     M_f_i[liveDead[k]] = M_f_i[liveDead[k]] + (f_ij[k] * M_f_ij[k])
   }
   
-  #Calculate the moisture damping coefficient for each fuel catagory:
+  #Calculate the moisture damping coefficient for each fuel category:
   #Rothermel 1972 equations 64,65:
   #(ηM)i = 1 – 2.59(rM)i + 5.11(rM)i2 – 3.52(rM)i3 (max = 1)
   eta_m_i = c(0,0)
@@ -797,7 +797,7 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
     S_e_i[liveDead[k]] = S_e_i[liveDead[k]] + (f_ij[k] * S_e_ij[k])
   }
   
-  #Caculate the mineral damping coefficient for each fuel catagory:
+  #Caculate the mineral damping coefficient for each fuel category:
   #(ηs)i = 0.174(Se)i^–0.19 (max = 1)
   eta_s_i = c(0,0)
   eta_s_i[1] = MineralDampingCoefficient(S_e_i[1])
@@ -1190,7 +1190,7 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
 #w_o (w sub o) = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral
 #fractions.
-#     Sometimes expressed as ton/acre?????
+#     Sometimes expressed as ton/acre (move to central documentation?).
 #δ (delta) = fuel bed depth (ft | m)
 #Mx (M sub x) = Moisture of extinction (fraction, water weight/dry fuel weight)
 #
@@ -1202,13 +1202,18 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #
 #useWindLimit = Use the wind limit calculation or not.
 #
+#Optional Parameters:
+#
+#debug = Print calculation component values.  This may be removed in the future.
+#
 #Returns: R = rate of spread in ft/min | m/min.
 SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
                                            S_T = 0.0555, S_e = 0.01,
                                            fuelParticleDensity = StdRho_p(),#rho_p
                                            SAV, w_o, fuelBedDepth,#delta
                                            M_x, M_f, U, slopeSteepness,#tan ϕ
-                                           useWindLimit = TRUE)
+                                           useWindLimit = TRUE,
+                                           debug = FALSE)
 {
   #Up front calculations:
   #The bulk density is needed to calculate the packing ratio and therefore is used in the numerator
@@ -1242,71 +1247,79 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   
   phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U)
   
-  #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3:
+  #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3 | kJ/m^3:
   #Denominator of Rothermel 1972 equation 52:
   #ρbεQig
   
   epsilon = EffectiveHeatingNumber(SAV)
   Qig = HeatOfPreignition(M_f)
   
-  #For debugging:
-  # print(paste("GammaPrime =", GammaPrime))
-  # print(paste("w_n =", w_n))
-  # print(paste("h =", heatContent))
-  # print(paste("eta_M =", eta_M))
-  # print(paste("eta_s =", eta_s))
-  # print(paste("I_R =", I_R))
-  # print(paste("rho_b =", rho_b))
-  # print(paste("epsilon =", epsilon))
-  # print(paste("Qig =", Qig))
-  # print(paste("Heat sink = ", rho_b * epsilon * Qig))
-  
   #Full spread calculation for homogeneous fuels:
   #Rothermel 1972 equation 52:
   #Rate of spread = heat source / heat sink
   #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ρbεQig
   R = (I_R * xi * (1 + phi_s + phi_w)) / (rho_b * epsilon * Qig)
+  
+  #For debugging:
+  if (debug)
+  {
+    print(paste("GammaPrime =", GammaPrime))
+    print(paste("w_n =", w_n))
+    print(paste("h =", heatContent))
+    print(paste("eta_M =", eta_M))
+    print(paste("eta_s =", eta_s))
+    print(paste("I_R =", I_R))
+    print(paste("rho_b =", rho_b))
+    print(paste("epsilon =", epsilon))
+    print(paste("Qig =", Qig))
+    print(paste("Heat sink = ", rho_b * epsilon * Qig))
+  }
+  
+  return(R)
 }
 
-#Albini 1976 modified Rothermel spread model for heterogenous fuels:
-#These parameters should be converted to some object representing a fire behavior fuel mode.
-#RAFBFM is a mouthful!
-
-#Input variables / parameters:
-#  Some of the input variables differ from the homogenous fuels form in that they are vectors of
-#...
-#Changed: h, S_T, S_e    SAV
+#Albini 1976 modified Rothermel spread model for heterogeneous fuels:
+#
+##Input variables / parameters:
+#  Some of the input variables differ from the homogeneous fuels form in that they are vectors
+#rather than scalars.
 #
 #Fuel particle properties: 
-#hij (h sub ij) = Heat content of the fuel types (Btu/lb).
+#hij (h sub ij) = Heat content of the fuel types (Btu/lb | kJ/kg).
 #  All the 53 standard fuel models use 8,000 Btu/lb.
 #(ST)ij ((S sub T) sub ij) = Total mineral content (fuel particle property: mineral mass / total dry
 #  mass, unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #(Se)ij ((S sub e) sub ij) = effective mineral content (fuel particle property: (mass minerals –
 #  mass silica) / total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
-#(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3)
+#(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3 | kg/m^3)
 #  All the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
 #σij (sigma sub ij) / SAV = Characteristic surface-area-to-volume ratios for each fuel type
-#(ft^2/ft^3 or cm^2/cm^3).
-#woij ((w sub o) sub ij) = Oven dry fuel load for each fuel type (lb/ft^2).
+#(ft^2/ft^3 | cm^2/cm^3).
+#woij ((w sub o) sub ij) = Oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 #     Sometimes expressed as ton/acre?????
-#δ (delta) = fuel bed depth (ft)
+#δ (delta) = fuel bed depth (ft | m)
 #(Mx)1 ((M sub x) sub 1) = Dead fuel moisture of extinction (fraction, water weight/dry fuel
 #  weight).
 #
 #Environmental:
 #Mfij ((M sub f) sub i) = fuel moisture content for each fuel type (water weight/dry fuel weight)
-#U = wind speed at midflame height (ft/min)
+#U = wind speed at midflame height (ft/min | m/min)
 #tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
 #  [For many applications this will need to be converted from degrees.]
 #
 #useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
 #
-#Returns: R = rate of spread in ft/min.
-#Was SpreadRateAlbini1976_Het().
-#UNIT CHECK NEEDED!!!!!
+#Optional Parameters:
+#
+#debug = Print calculation component values.  This may be removed in the future.
+#
+#Returns: R = rate of spread in ft/min | m/min.
+#
+#Note: This function takes a lot of argments.  These parameters could be combined into fuel model
+#and environment objects.  Maintaining this generic interface will still need to be retained for
+#full flexibility of use.
 SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
                                           S_T_ij = 0.0555, S_e_ij = 0.01,
                                           rho_p_ij = StdRho_p(),
@@ -1317,10 +1330,16 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
                                           M_f_ij,
                                           U, slopeSteepness,#tan ϕ
                                           liveDead = c(1,1,1,2,2),#Standard fuel model 5 classes.
-                                          useWindLimit = FALSE)
+                                          useWindLimit = FALSE,
+                                          debug = FALSE)
 {
+  #Parameter checking and processing:
+  if (!SameLengths(SAV_ij, w_o_ij, M_f_ij))
+  {
+    stop("SpreadRateRothermelAlbini_Het() expects arguments SAV_ij, w_o_ij, M_f_ij to be of the same length.")
+  }
+  
   numFuelTypes = length(SAV_ij)
-  #Add checking for parameters (input lengths, etc.)...
   
   #Truncate liveDead to match the number of classes provided.  This may assume too much!:
   liveDead = liveDead[1:numFuelTypes]
@@ -1332,17 +1351,17 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   S_e_ij = InitSpreadParam(S_e_ij, "S_e_ij", numFuelTypes)
   rho_p_ij = InitSpreadParam(rho_p_ij, "rho_p_ij", numFuelTypes)
   
-  #Terms used in numerator and denominator:_______
+  #Terms used in numerator and denominator:
   
   #Calculate the weights:
   weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   
   #The heat source (numerator) term represents the heat flux from the fire front to the fuel in
   #front of it:
-  #I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔)
-  #Heat source (numerator) = IR𝜉(1 + 𝜙w + 𝜙s)
+  #Numerator of Rothermel 1972 equation 75:
+  #IR𝜉(1 + 𝜙w + 𝜙s)
   
-  #(The bulk density is not used to calculate the packing ratio in the heterogeneous form:)
+  #Note: The bulk density is not used to calculate the packing ratio in the heterogeneous form:
   meanPackingRatio = MeanPackingRatio(w_o_ij, rho_p_ij, fuelBedDepth)#AKA beta_bar
   
   #For heterogeneous fuels we need to calculate the fuel bed level SAV:
@@ -1354,7 +1373,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV)
   w_n_i = NetFuelLoad_Albini_Het(w_o_ij, S_T_ij, weights$g_ij, liveDead)
   
-  #Heat content by live/dead fuel catagory:
+  #Heat content by live/dead fuel category:
   h_i = LiveDeadHeatContent(h_ij, weights$f_ij, liveDead)
   
   #The live fuel moisture of extinction must be calculated:
@@ -1362,7 +1381,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   M_x_i[1] = M_x_1
   M_x_i[2] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
   
-  #Damping coefficents:
+  #Damping coefficients:
   eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights$f_ij, liveDead)
   eta_s_i = MineralDampingCoefficient_Het(S_e_ij, weights$f_ij, liveDead)
   
@@ -1381,8 +1400,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U)
   
   #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3:
-  #ρbεQig
-  #The heat sink term is calculated with weights without calculating epsilon explicitly...
+  #The heat sink term is calculated using weights without calculating epsilon explicitly.
   #Rothermel equation 77:
   #ρbεQig = ρb Σi fi Σj fij[exp(-138/σij)](Qig)ij
   
@@ -1398,25 +1416,26 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
       weights$f_ij[k] * exp(-138 / SAV_ij[k]) * Q_ig_ij[k]
   }
   
-  #Weight and sum by live/dead category:
+  #Weigh and sum by live/dead category:
   heatSink = rho_b_bar * sum(weights$f_i * heatSink_i)
   
-  #For debugging:
-  # print(paste("Weights", weights))
-  # print(paste("GammaPrime =", GammaPrime))
-  # print(paste("w_n_i =", w_n_i))
-  # print(paste("h_i =", h_i))
-  # print(paste("eta_M_i =", eta_M_i))
-  # print(paste("eta_s_i =", eta_s_i))
-  # print(paste("I_R =", I_R))
-  # print(paste("rho_b_bar =", rho_b_bar))
-  # print(paste("Q_ig_ij =", Q_ig_ij))
-  # print(paste("Heat sink =", heatSink))
+  if (debug)
+  {
+    print(paste("Weights", weights))
+    print(paste("GammaPrime =", GammaPrime))
+    print(paste("w_n_i =", w_n_i))
+    print(paste("h_i =", h_i))
+    print(paste("eta_M_i =", eta_M_i))
+    print(paste("eta_s_i =", eta_s_i))
+    print(paste("I_R =", I_R))
+    print(paste("rho_b_bar =", rho_b_bar))
+    print(paste("Q_ig_ij =", Q_ig_ij))
+    print(paste("Heat sink =", heatSink))
+  }
   
   #Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
+  #Rothermel 1972 equation 75:
   #Rate of spread = heat source / heat sink
-  #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ρbεQig
-  #Without italics:
   #R = I_Rξ(1 + φw + φs) / ρbεQig
   R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink
   
