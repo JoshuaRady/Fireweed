@@ -1177,33 +1177,32 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #characteristics, 4 fuel array characteristics, and three environmental.
 #
 #Fuel particle properties: 
-#h = heat content of the fuel class (Btu/lb).
+#h = heat content of the fuel class (Btu/lb | kJ/kg).
 #  All the 53 standard fuel models use 8,000 Btu/lb.
 #ST (S sub T) = Total mineral content (fuel particle property: mineral mass / total dry mass,
 #  unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
 #Se (S sub e) = effective mineral content (fuel particle property: (mass minerals – mass silica) /
 #  total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
-#ρp (rho sub p) = fuel particle density (density, originally lb/ft^3)
+#ρp (rho sub p) = fuel particle density (lb/ft^3 | kg/m^3)
 #  All the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
 #σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
-#w_o (w sub o) = Oven dry fuel load (lb/ft^2).  This includes combustible and mineral fractions.
+#w_o (w sub o) = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral
+#fractions.
 #     Sometimes expressed as ton/acre?????
-#δ (delta) = fuel bed depth (ft)
+#δ (delta) = fuel bed depth (ft | m)
 #Mx (M sub x) = Moisture of extinction (fraction, water weight/dry fuel weight)
 #
 #Environmental:
 #Mf (M sub f) = Fuel moisture content (water weight/dry fuel weight)
-#U = wind speed at midflame height (ft/min)
+#U = wind speed at midflame height (ft/min | m/min)
 #tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
 #  [For many applications this will need to be converted from degrees.]
 #
 #useWindLimit = Use the wind limit calculation or not.
 #
-#Returns: R = rate of spread in ft/min.
-#Was Albini1976_Spread().
-#UNIT CHECK NEEDED!!!!!
+#Returns: R = rate of spread in ft/min | m/min.
 SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
                                            S_T = 0.0555, S_e = 0.01,
                                            fuelParticleDensity = StdRho_p(),#rho_p
@@ -1211,16 +1210,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
                                            M_x, M_f, U, slopeSteepness,#tan ϕ
                                            useWindLimit = TRUE)
 {
-  #Rate of spread = heat source / heat sink
-  
-  #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ...
-  
-  #The heat source (numerator) term represents the heat flux from the fire front to the fuel in
-  #front of it:
-  #I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔)
-  
-  #I_Rxi = no wind, no slope propigating flux
-  
+  #Up front calculations:
   #The bulk density is needed to calculate the packing ratio and therefore is used in the numerator
   #and denominator.
   rho_b = BulkDensity(w_o, fuelBedDepth)
@@ -1228,7 +1218,10 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   packingRatio = PackingRatio(rho_b, fuelParticleDensity)
   optPackingRatio = OptimumPackingRatio(SAV)
   
-  #Heat source (numerator) = IR𝜉(1 + 𝜙w + 𝜙s)
+  #The heat source (numerator) term represents the heat flux from the fire front to the fuel in
+  #front of it:
+  #Numerator of Rothermel 1972 equation 52:
+  #IR𝜉(1 + 𝜙w + 𝜙s)
   
   #Reaction intensity I_R:
   GammaPrime = OptimumReactionVelocity(packingRatio, SAV)
@@ -1244,19 +1237,13 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   #Apply wind limit check:
   if (useWindLimit)
   {
-    if (U/I_R > 0.9)
-    {
-      U = 0.9 * I_R
-      
-      #Or Andrews et al. 2013... ?????
-      #U = 96.8 * I_R^(1/3)
-    }
+    U = WindLimit(U, I_R)
   }
   
   phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U)
   
-  
   #The heat sink (denominator) represents the energy required to ignite the fuel in Btu/ft^3:
+  #Denominator of Rothermel 1972 equation 52:
   #ρbεQig
   
   epsilon = EffectiveHeatingNumber(SAV)
@@ -1275,6 +1262,8 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   # print(paste("Heat sink = ", rho_b * epsilon * Qig))
   
   #Full spread calculation for homogeneous fuels:
+  #Rothermel 1972 equation 52:
+  #Rate of spread = heat source / heat sink
   #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ρbεQig
   R = (I_R * xi * (1 + phi_s + phi_w)) / (rho_b * epsilon * Qig)
 }
@@ -1434,6 +1423,8 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   return(R)
 }
 
+#Utilities:-----------------------------------------------------------------------------------------
+
 #Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
 StdHeatContent  <- function()
 {
@@ -1462,8 +1453,6 @@ StdRho_p <- function()#Or DefaultRho()?
   }
   return(rho_p)
 }
-
-#Utilities:-----------------------------------------------------------------------------------------
 
 #This is a utility function to reduce code repetition in Albini1976_Spread_Het().  It checks the
 #length of the parameter value passed in, converts single values to an array, and reports invalid
