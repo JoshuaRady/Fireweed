@@ -1669,7 +1669,7 @@ ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 #Output units: Btu/ft^2 | kJ/m^2
 HeatPerUnitArea <- function(I_R, t_r, units = ModelUnits)
 {
-  if (units = "English")
+  if (units == "English")
   {
     #Andrews 2018 section 4.3:
     H_A = I_R * t_r
