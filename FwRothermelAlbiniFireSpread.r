@@ -1646,16 +1646,15 @@ ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 {
   if (units == "English")
   {
-    theSAV = SAV
+    #The original equation predicts the residence time as 8 times the fuel diameter in inches.
+    #We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
+    t_r = 384 / SAV
   }
   else
   {
-    theSAV = SAV * cmPerFt
+    t_r = 12.59843 / SAV#384 / cmPerFt = 12.59843
   }
   
-  #The original equation predicts the residence time as 8 times the fuel diameter in inches.
-  #We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
-  t_r = 384 / theSAV
   return(t_r)
 }
 
