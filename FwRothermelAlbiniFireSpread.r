@@ -128,7 +128,7 @@ kJPerBtu = 1.05435
 
 #Code:----------------------------------------------------------------------------------------------
 
-#Set the units for the current calculatins:
+#Set the units for the current calculations:
 SetModelUnits <- function(units)
 {
   if (!(units %in% c("English", "Metric")))
@@ -1653,6 +1653,8 @@ ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
   else
   {
     t_r = 12.59843 / SAV#384 / cmPerFt = 12.59843
+    #Wilson 1980 & Andrews 2018 use 12.6 in the alternative formulation of Byram's fireline 
+    #intensity.  See ByramsFirelineIntensity().
   }
   
   return(t_r)
@@ -1710,16 +1712,30 @@ ByramsFirelineIntensity <- function(H_A, R)
 
 #Flame Length:
 #  Calculate the flame length (not height) of the flame front.
-#The equation is from Brown and Davis 1973, page 175 (per Andrews 2018, I haven't been able to get
-#book yet.)
+#The equation is from Byram 1959 (equation 3.4) with notation from Brown and Davis 1973, page 175
+#(per Andrews 2018, as I haven't been able to access the book yet.)
 #
 #Input variables / parameters:
-#I_B = Byram's fireline intensity (Btu/ft/s)
+#I_B = Byram's fireline intensity (Btu/ft/s | kW/m)
 #
-#Output units: ft
-#UNIT CHECK NEEDED!!!!!
-FlameLength <- function(I_B)
+#Output units: ft | m
+ByramsFlameLength <- function(I_B, units = ModelUnits)#Was FlameLength().
 {
-  F_B = 0.45 * I_B^0.46
-  return(F_B)
+  if (units == "English")
+  {
+    F_B = 0.45 * I_B^0.46
+  }
+  else
+  {
+    #My conversion:
+    F_B = 0.2312105 * I_B^0.46
+    
+    #Note: Andrews 2018 gives F_B = 0.0775 * I_B_m^0.4, which comes from the errata of Wilson 1980.
+    #I can't reproduce this.  My conversion is similar to the original value in Wilson 1980:
+    #L_f = 0.237 * I_B_m^0.46
+    #I think my conversion is correct but it requires further testing.
+    warning("The metric version of ByramsFlameLength() requires verification.")
+  }
+  
+  return(F_B)#L_f in Wilson 1980.
 }
