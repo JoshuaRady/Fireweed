@@ -1683,22 +1683,28 @@ HeatPerUnitArea <- function(I_R, t_r, units = ModelUnits)
 }
 
 #Byram’s Fireline Intensity:
-#  Byram 1959 defines fireline intensity as:
+#  Byram 1959 defines fireline intensity as (equation 3.3):
 #I_B = HwR
-#Where H = heat content of the fuel (Btu/lb), w = weight of "available" fuel (lb/ft^2), and R is the
-#fire rate of spread (ft/2)
+#Where:
+#  H = heat content of the fuel (Btu/lb | kJ/kg)
+#  w = weight of "available" fuel (lb/ft^2 | kg/m^2)
+#  R = fire rate of spread (ft/s | m/s)
 #Albini uses H_A as an approximation of H x W (Andrews 2018).  (Note: I can't find this in the text
 #of Albini 1976.  It may be in the code.)
 #
 #Input variables / parameters:
-#H_A = heat per unit area from the flame front (Btu/ft^2)
-#R = fire front rate of spread (ft/min)
+#H_A = heat per unit area from the flame front (Btu/ft^2 | kJ/m^2)
+#R = fire front rate of spread (ft/min | m/min)
 #
-#Output units: Btu/ft/s
-#UNIT CHECK NEEDED!!!!!
+#Output units: Btu/ft/s | kW/m
+#The inputs carry the units.  No unit conversion is required.
+#
+#Andrews 2018 also presents the alternate formulation:
+#I_B = (384/σ)I_R * R
+#This is the same as ByramsFirelineIntensity(HeatPerUnitArea(I_R, ResidenceTime(SAV)), R).
 ByramsFirelineIntensity <- function(H_A, R)
 {
-  I_B = H_A * R/60#Seconds / minute
+  I_B = H_A * R / 60#Seconds / minute
   return(I_B)
 }
 
