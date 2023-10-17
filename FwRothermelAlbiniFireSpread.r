@@ -1644,7 +1644,7 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
 #Output units: minutes
 ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 {
-  if (units = "English")
+  if (units == "English")
   {
     theSAV = SAV
   }
