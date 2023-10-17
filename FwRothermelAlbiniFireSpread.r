@@ -84,13 +84,15 @@
 #positions.
 #
 #Units:
-# The original equations used English units.  Units are indicated for function inputs and outputs.
-#SI units will be added later.
+# The original equations used United States customary units.  Units are indicated for function
+#inputs and outputs.  Metric/SI conversions have been added as needed.
 #___________________________________________________________________________________________________
 
 #Globals:-------------------------------------------------------------------------------------------
-#UnitClasses = c("English", "Metric")?
-ModelUnits = "English"#Default is English unit conversions have been added for all functions.
+#UnitClasses = c("USCU", "Metric")?
+#I 
+ModelUnits = "USCU"#The default is United States customary units.  Conversions have been added for
+#all functions that need them.
 #This should not be set directly.  Use SetModelUnits().  If R allowed this would be kept private.
 
 #Unit Conversion Factors:---------------------------------------------------------------------------
@@ -98,7 +100,7 @@ ModelUnits = "English"#Default is English unit conversions have been added for a
 #them yet.
 #It might be better to have a interface of some sort to request conversion factors from.
 
-#Length: (exact)
+#Length: (exact per international yard and pound act)
 cmPerIn = 2.54
 cmPerFt = 30.48
 mPerFt = 0.3048
@@ -131,7 +133,7 @@ kJPerBtu = 1.05435
 #Set the units for the current calculations:
 SetModelUnits <- function(units)
 {
-  if (!(units %in% c("English", "Metric")))
+  if (!(units %in% c("USCU", "Metric")))
   {
     stop("Invalid unit type.")
   }
@@ -288,7 +290,7 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)
 #Output units: Dimensionless ratio
 OptimumPackingRatio <- function(SAV, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     optPackingRatio = 3.348 * SAV^-0.8189
   }
@@ -877,7 +879,7 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
 
 WindFactorC <- function(SAV, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     #C = unnamed term
     #Rothermel 1972 equation 48,82:
@@ -893,7 +895,7 @@ WindFactorC <- function(SAV, units = ModelUnits)
 
 WindFactorB <- function(SAV, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     #B = unnamed term
     #Rothermel 1972 equation 49,83:
@@ -909,7 +911,7 @@ WindFactorB <- function(SAV, units = ModelUnits)
 
 WindFactorE <- function(SAV, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     #E = unnamed term
     #Rothermel 1972 equation 50,84:
@@ -942,7 +944,7 @@ WindFactorE <- function(SAV, units = ModelUnits)
 #Output units: adjusted wind speed (U) at midflame height (ft/min | m/min)
 WindLimit <- function(U, I_R, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     threshold = 0.9
   }
@@ -998,7 +1000,7 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
   #This is rate for moisture free fuel with mineral composition of alpha cellulose.
   #Rothermel 1972 equations 36,68:
   #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
-  if (units == "English")
+  if (units == "USCU")
   {
     GammaPrimeMax = SAV^1.5 / (495 + 0.0594 * SAV^1.5)
     #Or equivalently:
@@ -1016,7 +1018,7 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
   #"Arbitrary" variable (no units?????):
   #Albini 1976 pg. 15????
   #A = 133σ^-0.7913
-  if (units == "English")
+  if (units == "USCU")
   {
     A = 133 * SAV^-0.7913
   }
@@ -1140,7 +1142,7 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#Reac
 #Output units: Dimensionless proportion
 PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
   }
@@ -1172,7 +1174,7 @@ PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 #Units: Dimensionless.
 EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     epsilon = exp(-138/SAV)
   }
@@ -1198,7 +1200,7 @@ EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 #may need to be reworked in C++.
 HeatOfPreignition <- function(M_f, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     Qig = 250 + 1116 * M_f
   }
@@ -1507,11 +1509,11 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
 #Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
 StdHeatContent  <- function()
 {
-  if (ModelUnits == "English")
+  if (ModelUnits == "USCU")
   {
     h = 8000#Btu/lb
   }
-  elseif (units == "Metric")
+  else#if (units == "Metric")
   {
     h = 8434.8#kJ/kg, (8000 * kJPerBtu)
   }
@@ -1522,11 +1524,11 @@ StdHeatContent  <- function()
 #units:
 StdRho_p <- function()#Or DefaultRho()?
 {
-  if (ModelUnits == "English")
+  if (ModelUnits == "USCU")
   {
     rho_p = 32#lb/ft^3
   }
-  elseif (units == "Metric")
+  else#if (units == "Metric")
   {
     rho_p = 512.592#kg/m^3, (32 * lbPerFtCuToKgPerMCu)
   }
@@ -1644,7 +1646,7 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
 #Output units: minutes
 ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     #The original equation predicts the residence time as 8 times the fuel diameter in inches.
     #We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
@@ -1670,7 +1672,7 @@ ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 #Output units: Btu/ft^2 | kJ/m^2
 HeatPerUnitArea <- function(I_R, t_r, units = ModelUnits)
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     #Andrews 2018 section 4.3:
     H_A = I_R * t_r
@@ -1721,7 +1723,7 @@ ByramsFirelineIntensity <- function(H_A, R)
 #Output units: ft | m
 ByramsFlameLength <- function(I_B, units = ModelUnits)#Was FlameLength().
 {
-  if (units == "English")
+  if (units == "USCU")
   {
     F_B = 0.45 * I_B^0.46
   }
