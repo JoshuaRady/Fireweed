@@ -23,7 +23,7 @@
 #Experiment Station. 40 p. 1972
 #
 #Computer-based models of wildland fire behavior: a user's manual.
-#Albini, F. A.
+#Frank A. Albini.
 #Intermountain Forest and Range Experiment Station, Forest Service, U.S. Department of Agriculture.
 #1976.
 # This paper documents the changes that Albini made to the eqations of Rothermel 1972 as well as
@@ -31,36 +31,50 @@
 #FIREMOD, the name of the spread rate routine).  The code here was developed directly from the
 #equations in the paper.  I have not been able to find the FORTRAN code itself.
 #
-#Andrews, Patricia L., Miguel G. Cruz, and Richard C. Rothermel.
+#Patricia L. Andrews, Miguel G. Cruz, and Richard C. Rothermel.
 #Examination of the wind speed limit function in the Rothermel surface fire spread model.
 #International Journal of Wildland Fire 22(7): 959-69, 2013. http://dx.doi.org/10.1071/WF12122
 # This review summarizes and contextualizes the equations of Rothermel and Albini as well as
 #related work and was an important reference for preparing this code.
 #
+#Ralph Wilson.
+#Reformulation of forest fire spread equations in SI units.
+#Research Note INT-292.  U.S. Department of Agriculture, Forest Service, Intermountain Range and
+#Forest Experiment Station. Ogden, UT. 5 pg., 1980. https://doi.org/10.2737/INT-RN-292
+# This report provides SI conversions of some of the spread and related equations.  These were used
+#to check the conversions performed here.
+#
 #Notation:------------------------------------------------------------------------------------------
-# The equations contain mathematical notation and variables with characters that cannot be directly
-#represented in R/C++.  To represent the variables the following translations were used.
+# The equations from these paper contain mathematical notation and variables with characters that
+#cannot be directly represented in R/C++.  To represent the variables the following translations
+#were used.
 #
 #Greek letters in variable names:
-# Many variables use Greek characters.  In most cases these are translated using their English names
-#with the case indicating the case of the character, e.g. β -> Beta and σ -> sigma.  In a few cases
-#Greek variable names have been changed to abbreviations or descriptive names.  Greek is used when
-#the original equaitons are shown in the comments.
-#[See table of variables below.]
+# Many model variables use Greek characters.  In most cases these are translated in the code using
+#their English phonetic names with the case indicating the case of the character, e.g. β -> Beta and
+#σ -> sigma.  In a few cases Greek variable names have been changed to abbreviations or descriptive
+#names.  Greek is used where the original equations are shown in the comments.
+#[See table of variables below.?????]
 #
 #Subscripts:
 # Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number of
 #variables have two levels of subscript, the second representing fuel type indexes (i and j, see
 #fuel classes below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij)
 #-> A_b_ij.
+#Note: This notation is used throughout the code but is not fully consistent in comments yet.
 #
 #Diacritical marks:
 # In Rothermel 1972 some variables for the heterogeneous fuels equations are marked with either
 #bars to indicate a mean (across all fuel classes) or tildes for characteristic values of a fuel
 #category (live/dead).  Most reprints ignore these.  We have left them out in most cases although
-#a coulde variables of form x_bar are used.
+#a couple variables of the form x_bar are used.
 #
 #[Add variables table...]
+#[Since there are a common set of variables it could be useful to list them all here.  However,
+# they are already listed for each function below.  Making a variable list in separate document
+# might be preferable since we could overcome the formatting limitations of plain text, i.e via
+# LATEX, and refer to it from here.  The parameters descriptions below could be simplified by
+# moving some out to this document.]
         #(wo)ij ((w sub o) sub ij) = w_o_ij Array of oven dry fuel load for each fuel class (lb/ft^2).
 #
 #
@@ -85,7 +99,8 @@
 #
 #Units:
 # The original equations used United States customary units.  Units are indicated for function
-#inputs and outputs.  Metric/SI conversions have been added as needed.
+#inputs and outputs.  Metric/SI conversions have been added as needed.  See below for constants and
+#and fucntions used to manage units in the code.
 #___________________________________________________________________________________________________
 
 #Globals:-------------------------------------------------------------------------------------------
