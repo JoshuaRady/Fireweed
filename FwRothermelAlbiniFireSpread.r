@@ -44,6 +44,11 @@
 # This report provides SI conversions of some of the spread and related equations.  These were used
 #to check the conversions performed here.
 #
+#George M. Byram.
+#Combustion of forest fuels.
+#In Forest fire: control and use. Davis, K. P. editor. Pages 61-89. New York, NY: McGraw-Hill. 1959.
+#  This chapter defines Byram's fireline intensity and Byram's equaiton for flame length.
+#
 #Notation:------------------------------------------------------------------------------------------
 # The equations from these paper contain mathematical notation and variables with characters that
 #cannot be directly represented in R/C++.  To represent the variables the following translations
