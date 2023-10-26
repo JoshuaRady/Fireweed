@@ -1749,14 +1749,9 @@ ByramsFlameLength <- function(I_B, units = ModelUnits)#Was FlameLength().
   }
   else
   {
-    #My conversion:
-    F_B = 0.2312105 * I_B^0.46
-    
-    #Note: Andrews 2018 gives F_B = 0.0775 * I_B_m^0.4, which comes from the errata of Wilson 1980.
-    #I can't reproduce this.  My conversion is similar to the original value in Wilson 1980:
-    #L_f = 0.237 * I_B_m^0.46
-    #I think my conversion is correct but it requires further testing.
-    warning("The metric version of ByramsFlameLength() requires verification.")
+    F_B = 0.07749992 * I_B^0.46
+    #The errata of Wilson 1980 and Andrews 2018 give 0.0775 * I_B_m^0.46, with Wilson using L_f
+    #instead of F_B.
   }
   
   return(F_B)#L_f in Wilson 1980.
