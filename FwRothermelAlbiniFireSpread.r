@@ -269,9 +269,9 @@ PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_
 #  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #δ (delta) = fuel bed depth (ft | m)
 #
-#Output units: Dimensionless ratio
-#Input units cancel out.  Metric conversion only needed for default values.
-MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)
+#Output units: Dimensionless ratio (scalar)
+#Input units cancel out.
+MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)#Note: Argument order has changed!
 {
   #Parameter checking:
   numLoadings = length(w_o_ij)
@@ -288,6 +288,14 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)
     {
       stop("The number of fuel loadings and particle densities do not match.")
     }
+  }
+  
+  #Confirm delta is a scalar:
+  if (length(fuelBedDepth) != 1)
+  {
+    #This can be caused if the arguments are out of order.
+    stop("A single fuelbed depth must be provided.")
+    #Add value checking? > 0, < ?
   }
   
   #Calculate w_o / rho_p for each fuel element:
