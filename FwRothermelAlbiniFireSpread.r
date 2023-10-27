@@ -379,7 +379,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
 {
   #Validity checking:
   #Are arguments the same length?
-  if (SameLengths(SAV_ij, w_o_ij, liveDead))
+  if (!SameLengths(SAV_ij, w_o_ij, liveDead))
   {
     stop("CalcWeightings() expects arguments of the same length.")
   }
@@ -545,7 +545,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
 FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 {
   #Argument checking:
-  if (!SameLengths(SAV_ij, f_ij, f_i, liveDead))
+  if (!SameLengths(SAV_ij, f_ij, liveDead))
   {
     stop("FuelBedSAV() expects arguments of the same length.")
   }
@@ -670,7 +670,7 @@ MoistureDampingCoefficient <- function(M_f, M_x)
 #  weight/dry fuel weight)
 #(Mx)i ((M sub x) sub i = Moisture of extinction each fuel category (fraction, water weight/dry
 #  fuel weight).
-#f_i (f sub i) = Weighting factors for each fuel live/dead category.
+#f_ij (f sub ij) = Weighting factors for each fuel type (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
@@ -678,7 +678,7 @@ MoistureDampingCoefficient <- function(M_f, M_x)
 #Input units cancel out.  No metric conversion needed.
 MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 {
-  if (!SameLengths(M_f_ij, M_x_i, f_ij, liveDead))
+  if (!SameLengths(M_f_ij, f_ij, liveDead))
   {
     stop("MoistureDampingCoefficient_Het() expects arguments of the same length.")
   }
@@ -1060,7 +1060,7 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
 
 #Live / Dead Heat Content:
 #  Calculate the weighted (low?) heat content of the live / dead fuel categories.
-#Only used by reaction intensity calculation?????
+#Only used by reaction intensity calculation.
 #
 #Input variables / parameters:
 #hij (h sub ij) = Heat content for live/dead fuel categories (btu/lb).
@@ -1081,8 +1081,7 @@ LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
   
   #Rothermel 1972 equation 61:
   #hi = Σj fij hij
-  #h_i = c(0,0)#Works but assumes at least two fuel types.
-  h_i = vector(mode = "numeric", length = length(h_ij))
+  h_i = c(0,0)#Could this cause issues if only live or dead fuel is present?
   for (k in 1:numFuelTypes)
   {
     h_i[liveDead[k]] = h_i[liveDead[k]] + f_ij[k] * h_ij[k]
@@ -1572,27 +1571,26 @@ InitSpreadParam <- function(paramVal, paramName, numFuelTypes)
   return(paramVal)
 }
 
-#This utility checks that the parameters (vectors) passed have the same length.
+#This utility checks that the parameters (vectors) passed have the same length.  Between 2 and 4
+#arguments are accepted.
 #Adapted from code originally in in CalcWeightings().
 #
-#Alternatively we could return the length if true and  otherwise -1, but this seems less to create
-#more work in practice.  I C + = TRUE, 0 = FALSE, which could be more useful.
+#Alternatively we could return the length if true and  otherwise -1, but this seems likely to create
+#more work in practice.  In C positive = TRUE, 0 = FALSE, which could be more useful.
 #In the current usage we expect the arguments to be a mix of numeric and logical vectors.  We
 #could add checking for this.
-SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)#Was CheckLens().
+SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
 {
   #Put the argments in a list removing NULL elements:
-  argList = list(arg1, arg2, arg3)
+  argList = list(arg1, arg2, arg3, arg4)
   argList = argList[!sapply(argList, is.null)]
   #This would work too for omitted arguments but would ignore any zero length vectors passed in:
   #argList = argList[length(argList) != 0]
   
   #Are arguments the same length?
-  #theLen = length(arg1)
-  #if (!all(sapply(argList, length) == theLen))
-  if (!all(sapply(argList, length) == length(arg1)))
+  if (all(sapply(argList, length) == length(arg1)))
   {
-    #return(theLen)
+    #return(length(arg1))
     return(TRUE)
   }
   else
