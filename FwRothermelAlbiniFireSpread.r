@@ -1024,6 +1024,16 @@ WindLimit <- function(U, I_R, units = ModelUnits)
 #Output units: min^-1
 OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
 {
+  #Confirm the parameter values are scalars:
+  if (length(meanPackingRatio) != 1)
+  {
+    stop("meanPackingRatio should be scalar.")
+  }
+  if (length(SAV) != 1)
+  {
+    stop("A single SAV value is expected. Use the fuelbed SAV for heterogeneous fuels.")
+  }
+  
   #Calculate the maximum reaction velocity (min^-1):
   #This is rate for moisture free fuel with mineral composition of alpha cellulose.
   #Rothermel 1972 equations 36,68:
