@@ -1051,10 +1051,10 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
     #GammaPrimeMax = (0.0591 + 2.926 * SAVcm^-1.5)^-1 = 1 / (0.0591 + 2.926 / SAVcm^1.5)
   }
   
-  optPackingRatio = OptimumPackingRatio(SAV)
+  optPackingRatio = OptimumPackingRatio(SAV, units)
   
-  #"Arbitrary" variable (no units?????):
-  #Albini 1976 pg. 15????
+  #"Arbitrary" variable:
+  #Albini 1976 pg. 15:
   #A = 133σ^-0.7913
   if (units == "USCU")
   {
