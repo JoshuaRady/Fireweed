@@ -887,11 +887,11 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 #Note: It is not possible to calculate if a wind limit is indicated internal to this function
 #and not all authors agree that a wind limit should be used.  U should be capped, if deemed
 #appropriate prior to passing it in to this function.
-WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
+WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits)
 {
-  C = WindFactorC(SAV)
-  B = WindFactorB(SAV)
-  E = WindFactorE(SAV)
+  C = WindFactorC(SAV, units)
+  B = WindFactorB(SAV, units)
+  E = WindFactorE(SAV, units)
   
   #Rothermel 1972 equation 47,79:
   #ϕw = CU^B(β/βop)^-E
@@ -902,8 +902,10 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U)
 
 #The following three functions represent the equations internal to the calculation of the wind
 #factor.  They have been broken out because they are also used in EffectiveWindSpeed().
-#The metric conversions agree with Andrews 2018 except for the number of digits:
+#The metric conversions agree with Andrews 2018 except for the number of digits.
 #Should significant digits be observed for the conversions here?
+#Having a default for units argument is probably unnecessary since these will probably never be
+#called directly.
 
 WindFactorC <- function(SAV, units = ModelUnits)
 {
@@ -1336,7 +1338,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
     U = WindLimit(U, I_R)
   }
   
-  phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U)
+  phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U, units)
   
   #The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
   #kJ/m^3:
@@ -1495,7 +1497,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
     U = WindLimit(U, I_R)
   }
   
-  phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U)
+  phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units)
   
   #The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
   #kJ/m^3:
@@ -1643,12 +1645,12 @@ SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
 #The functions called handle the units so no conversions need to be done here.
 #
 #Note: This is included for completeness.  It is not currently used by any other functions.
-EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV)#Order?
+EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV, units = ModelUnits)#Order?
                                #SAV, packingRatio, optPackingRatio, U)
 {
-  C = WindFactorC(SAV)
-  B = WindFactorB(SAV)
-  E = WindFactorE(SAV)
+  C = WindFactorC(SAV, units)
+  B = WindFactorB(SAV, units)
+  E = WindFactorE(SAV, units)
   
   #Effective wind factor:
   #Albini 1976(b) pg. 90:
