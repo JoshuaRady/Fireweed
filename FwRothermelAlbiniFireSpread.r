@@ -1241,17 +1241,17 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 {
   if (units == "USCU")
   {
-    Qig = 250 + 1116 * M_f
+    Q_ig = 250 + 1116 * M_f
   }
   else# if (units == "Metric")
   {
-    Qig = 581.1114 + 2594.081 * M_f#Constants * kJPerBtu / kgPerLb
+    Q_ig = 581.1114 + 2594.081 * M_f#Constants * kJPerBtu / kgPerLb
     #Wilson 1980 uses:
     #Qig = 581 + 2594 * M_f
     #This implies Wilson was using the thermochemical BTU conversion which is ~1,054.35 J/BTU.
   }
   
-  return(Qig)
+  return(Q_ig)
 }
 
 #Spread Rate Calculations:--------------------------------------------------------------------------
@@ -1346,13 +1346,13 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   #ρbεQig
   
   epsilon = EffectiveHeatingNumber(SAV)
-  Qig = HeatOfPreignition(M_f)
+  Q_ig = HeatOfPreignition(M_f)
   
   #Full spread calculation for homogeneous fuels:
   #Rothermel 1972 equation 52:
   #Rate of spread = heat source / heat sink
   #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ρbεQig
-  R = (I_R * xi * (1 + phi_s + phi_w)) / (rho_b * epsilon * Qig)
+  R = (I_R * xi * (1 + phi_s + phi_w)) / (rho_b * epsilon * Q_ig)
   
   #For debugging:
   if (debug)
@@ -1365,8 +1365,8 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
     print(paste("I_R =", I_R))
     print(paste("rho_b =", rho_b))
     print(paste("epsilon =", epsilon))
-    print(paste("Qig =", Qig))
-    print(paste("Heat sink = ", rho_b * epsilon * Qig))
+    print(paste("Qig =", Q_ig))
+    print(paste("Heat sink = ", rho_b * epsilon * Q_ig))
   }
   
   return(R)
