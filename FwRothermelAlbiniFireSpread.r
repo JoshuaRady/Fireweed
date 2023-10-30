@@ -651,6 +651,20 @@ NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
 #Input units cancel out.  No metric conversion needed.
 MoistureDampingCoefficient <- function(M_f, M_x)
 {
+  #Parameter checking:
+  if (!SameLengths(M_f, M_x, 1))
+  {
+    stop("Expect single value for M_f and M_x. Use MoistureDampingCoefficient_Het() for heterogeneous fuels.")
+  }
+  if (!ValidRatio(M_f))
+  {
+    stop("Fuel moisture content must be from 0-1.")
+  }
+  if (!ValidRatio(M_x))
+  {
+    stop("Moisture of extintion must be from 0-1.")
+  }
+  
   #Calculate the ratio of fuel moisture content to moisture of extinction:
   #Rothermel 1972 equation 29?,65:
   #rM = Mf/Mx (max = 1.0)
@@ -689,6 +703,14 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   if (!SameLengths(M_f_ij, f_ij, liveDead))
   {
     stop("MoistureDampingCoefficient_Het() expects arguments of the same length.")
+  }
+  if (!ValidRatio(M_f_ij))
+  {
+    stop("Fuel moisture content must be from 0-1.")
+  }
+  if (!ValidRatio(M_x_i))
+  {
+    stop("Moisture of extintion must be from 0-1.")
   }
   
   numFuelTypes = length(M_f_ij)
@@ -734,6 +756,14 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   if (!SameLengths(M_f_ij, w_o_ij, SAV_ij, liveDead))
   {
     stop("LiveFuelMoistureOfExtinction() expects arguments of the same length.")
+  }
+  if (!ValidRatio(M_f_ij))
+  {
+    stop("Fuel moisture content must be from 0-1.")
+  }
+  if (!ValidRatio(M_x_1))
+  {
+    stop("Moisture of extintion must be from 0-1.")
   }
   
   #Changing the equations is more complicated than changing the inputs.
@@ -803,6 +833,12 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
 #Unitless inputs and outputs.  No metric conversion needed.
 MineralDampingCoefficient <- function(S_e)
 {
+  #Parameter checking:
+  if (!ValidRatio(S_e))
+  {
+    stop("Fuel moisture content must be from 0-1.")
+  }
+  
   eta_s = 0.174 * S_e^-0.19
   
   if (eta_s < 1.0)
@@ -827,9 +863,14 @@ MineralDampingCoefficient <- function(S_e)
 #Unitless inputs and outputs.  No metric conversion needed.
 MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
 {
+  #Parameter checking:
   if (!SameLengths(S_e_ij, f_ij, liveDead))
   {
     stop("MineralDampingCoefficient_Het() expects arguments of the same length.")
+  }
+  if (!ValidRatio(S_e_ij))
+  {
+    stop("Fuel moisture content must be from 0-1.")
   }
   
   numFuelTypes = length(S_e_ij)#Types = sum of size classes in both categories.
@@ -1235,10 +1276,16 @@ EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 #
 #Output units: btu/lb or kJ/kg
 #
-#For heterogeneous fuels this is calculated for each fuel type.  In R this is array compatible but
-#may need to be reworked in C++.
+#For heterogeneous fuels this is calculated for each fuel type.
+#In R this is array compatible but will need to be reworked in C++.
 HeatOfPreignition <- function(M_f, units = ModelUnits)
 {
+  #Validity checking:
+  if (!ValidRatio(M_f))
+  {
+    stop("Fuel moisture content (M_F) must be from 0-1.")
+  }
+  
   if (units == "USCU")
   {
     Q_ig = 250 + 1116 * M_f
@@ -1618,6 +1665,29 @@ SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
     #return(-1)
     return(FALSE)
   }
+}
+
+#This utility checks that a value falls in a valid range.
+#
+#R array aware.
+InRange <- function(value, low = 0, high = 1)
+{
+  if (any(value < low) || any(value > high))
+  {
+    return(FALSE)
+  }
+  else
+  {
+    return(TRUE)
+  }
+}
+
+#Check if a value is from 0 to 1.
+#
+#R array aware.
+ValidRatio <- function(value)
+{
+  return(InRange(value, low = 0, high = 1))
 }
 
 #---------------------------------------------------------------------------------------------------
