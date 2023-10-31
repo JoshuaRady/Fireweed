@@ -533,23 +533,33 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   }
   
   #Return value error checking:
-  if (sum(f_ij[liveDead == 1]) != 1)
+  #Note: if (sum(X) != 1) for these comparisons can fail due to small floating point differences
+  #when we resemble the weights.  all.equal is the right solution for R near equality but is not
+  #portable.
+  #if (sum(f_ij[liveDead == 1]) != 1)
+  if (!isTRUE(all.equal(sum(f_ij[liveDead == 1]), 1)))
   {
     stop("f_ij dead fuels do not sum to 1.")
   }
-  if (!(sum(f_ij[liveDead == 2]) %in% c(0,1)))
+  #if (!(sum(f_ij[liveDead == 2]) %in% c(0,1)))
+  if (!(isTRUE(all.equal(sum(f_ij[liveDead == 2]), 0)) ||
+        isTRUE(all.equal(sum(f_ij[liveDead == 2]), 1))))
   {
     stop("Invalid f_ij weights for dead fuels.")
   }
-  if (sum(f_i) != 1)
+  #if (sum(f_i) != 1)
+  if (!isTRUE(all.equal(sum(f_i), 1)))
   {
     stop("f_i does not sum to 1.")
   }
-  if (sum(g_ij[liveDead == 1]) != 1)
+  #if (sum(g_ij[liveDead == 1]) != 1)
+  if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
   {
     stop("g_ij dead fuels do not sum to 1.")
   }
-  if (!(sum(g_ij[liveDead == 2]) %in% c(0,1)))
+  #if (!(sum(g_ij[liveDead == 2]) %in% c(0,1)))
+  if (!(isTRUE(all.equal(sum(g_ij[liveDead == 2]), 0)) ||
+        isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1))))
   {
     stop("Invalid g_ij weights for dead fuels.")
   }
