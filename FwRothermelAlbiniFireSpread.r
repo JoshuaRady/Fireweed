@@ -365,7 +365,7 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 
 #Weighting Factors:---------------------------------------------------------------------------------
 #The spread model uses weights in many of the calculations for heterogeneous fuels.  These need to
-#be calculated from the suface areas of the different fuel classes.  This function includes the
+#be calculated from the surface areas of the different fuel classes.  This function includes the
 #changes to Rothermel 1972 by Albini 1976.
 #
 #Input variables / parameters:
@@ -521,17 +521,25 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   }
   
   #Return value error checking:
-  if (sum(f_ij) != 1)
+  if (sum(f_ij[liveDead == 1]) != 1)
   {
-    stop("f_ij does not sum to 1.")
+    stop("f_ij dead fuels do not sum to 1.")
+  }
+  if (!(sum(f_ij[liveDead == 2]) %in% c(0,1)))
+  {
+    stop("Invalid f_ij weights for dead fuels.")
   }
   if (sum(f_i) != 1)
   {
     stop("f_i does not sum to 1.")
   }
-  if (sum(g_ij) != 1)
+  if (sum(g_ij[liveDead == 1]) != 1)
   {
-    stop("g_ij does not sum to 1.")
+    stop("g_ij dead fuels do not sum to 1.")
+  }
+  if (!(sum(g_ij[liveDead == 2]) %in% c(0,1)))
+  {
+    stop("Invalid g_ij weights for dead fuels.")
   }
   
   return(list(f_ij = f_ij, f_i = f_i, g_ij = g_ij))
