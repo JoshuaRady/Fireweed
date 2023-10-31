@@ -1004,6 +1004,17 @@ WindFactorE <- function(SAV, units = ModelUnits)
   return(E)
 }
 
+#In the discussion of the wind factor in Andrews 2018 the equation is simplified to AU^B, combining
+#the multiplicative terms into a single factor A.  This function is provided to return this value
+#for verificaiton purposes and is not currently needed to compute model outputs.
+WindFactorA <- function(SAV, packingRatio, optPackingRatio, units = ModelUnits)
+{
+  C = WindFactorC(SAV, units)
+  E = WindFactorE(SAV, units)
+  A = C * (packingRatio / optPackingRatio)^-E
+  return(A)
+}
+
 #Wind limit:
 #  The "wind limit" or "maximum reliable wind" is used to limit the effect of wind on the fire
 #spread rate as wind speed gets high.  It caps the wind speed at a value that is a function of the
