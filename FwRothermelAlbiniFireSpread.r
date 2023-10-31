@@ -378,12 +378,12 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #  dead (1) or live (2) fuel category.
 #
 #Output units: unitless weighting factors
-#Input units cancel out.  No metric conversion needed.
+#Input units cancel out for calculations.  Metric conversion only needed for SAV sorting.
 #
 #Note: It makes sense to calculate these together and they only need to be calculated once for a
 #give spread rate scenario.  However, I'm not sure the best way the handle the outputs.  Would it
 #be better to put them in a global?
-CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
+CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnits)
 {
   #Validity checking:
   #Are arguments the same length?
@@ -453,26 +453,38 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead)
   #Note: This maps fuel types to size subclasses even when there is no fuel present (loading = 0).
   #Also missing classes, i.e. classes where no SAV is provided, will not be mapped to a subclass.
   #Both these conditions have to be handled below.
+  
+  #The size subclass ranges are defined by SAV so the units do matter here:
+  if (units == "Metric")
+  {
+    unitFactor = 1 / cmPerFt
+  }
+  else
+  {
+    unitFactor = 1
+  }
+  #Alternatively we could use an array of ranges edges with the appropriate units.
+  
   subclass_ij = array(data = 0, dim = numFuelTypes)
   for (n in 1:numFuelTypes)
   {
-    if (SAV_ij[n] >= 1200)
+    if (SAV_ij[n] >= 1200 * unitFactor)
     {
       subclass_ij[n] = 1
     }
-    else if (SAV_ij[n] >= 192)
+    else if (SAV_ij[n] >= 192 * unitFactor)
     {
       subclass_ij[n] = 2
     }
-    else if (SAV_ij[n] >= 96)
+    else if (SAV_ij[n] >= 96 * unitFactor)
     {
       subclass_ij[n] = 3
     }
-    else if (SAV_ij[n] >= 48)
+    else if (SAV_ij[n] >= 48 * unitFactor)
     {
       subclass_ij[n] = 4
     }
-    else if (SAV_ij[n] >= 16)
+    else if (SAV_ij[n] >= 16 * unitFactor)
     {
       subclass_ij[n] = 5
     }
@@ -1520,7 +1532,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   #Terms used in numerator and denominator:
   
   #Calculate the weights:
-  weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead)
+  weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units)
   
   #The heat source term (numerator) represents the heat flux from the fire front to the fuel in
   #front of it:
