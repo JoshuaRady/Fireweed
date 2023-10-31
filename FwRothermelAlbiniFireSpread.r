@@ -967,7 +967,7 @@ WindFactorC <- function(SAV, units = ModelUnits)
   }
   else
   {
-    C = 7.47 * exp(-0.8710837 * SAVcm^0.55)#-0.133 * cmPerFt^0.55 = -0.8710837
+    C = 7.47 * exp(-0.8710837 * SAV^0.55)#-0.133 * cmPerFt^0.55 = -0.8710837
   }
   return(C)
 }
@@ -983,7 +983,7 @@ WindFactorB <- function(SAV, units = ModelUnits)
   }
   else
   {
-    B = 0.1598827 * SAVcm^0.54#0.02526 * cmPerFt^0.54 = 0.1598827
+    B = 0.1598827 * SAV^0.54#0.02526 * cmPerFt^0.54 = 0.1598827
   }
   return(B)
 }
