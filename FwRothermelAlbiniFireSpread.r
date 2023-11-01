@@ -568,7 +568,8 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
 }
 
 #Fuel Bed Surface-area-to-volume Ratio:-------------------------------------------------------------
-#  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.
+#  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.  This is frequently
+#referred to as the characteristic SAV.  It is a weighted average of the fuel component SAVs.
 #
 #Input variables / parameters:
 #σ (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes
@@ -594,7 +595,7 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
   #Rothermel 1972 equation 72:
   #σi = Σj fijσij (~ over sigma sub i and bar over sigma sub ij in original)
   
-  SAV_i = c(0,0)#Or sigma_i?
+  SAV_i = c(0,0)
   for (k in 1:numFuelTypes)
   {
     SAV_i[liveDead[k]] = SAV_i[liveDead[k]] + (f_ij[k] * SAV_ij[k])
