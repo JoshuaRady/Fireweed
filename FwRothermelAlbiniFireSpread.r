@@ -1635,9 +1635,9 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
 #Utilities:-----------------------------------------------------------------------------------------
 
 #Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
-StdHeatContent  <- function()
+StdHeatContent  <- function(units = ModelUnits)
 {
-  if (ModelUnits == "USCU")
+  if (units == "USCU")
   {
     h = 8000#Btu/lb
   }
@@ -1650,9 +1650,9 @@ StdHeatContent  <- function()
 
 #Return the fuel particle density (rho_p) used in the 53 standard fuel models in the appropriate
 #units:
-StdRho_p <- function()#Or DefaultRho()?
+StdRho_p <- function(units = ModelUnits)
 {
-  if (ModelUnits == "USCU")
+  if (units == "USCU")
   {
     rho_p = 32#lb/ft^3
   }
