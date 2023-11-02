@@ -1420,28 +1420,28 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   rho_b = BulkDensity(w_o, fuelBedDepth)
   
   packingRatio = PackingRatio(rho_b, fuelParticleDensity)
-  optPackingRatio = OptimumPackingRatio(SAV)
+  optPackingRatio = OptimumPackingRatio(SAV, units)
   
   #The heat source term (numerator) represents the heat flux from the fire front to the fuel in
-  #front of it:
+  #front of it (AKA propagating flux) in BTU/min/ft^2 | kW/m^2:
   #Numerator of Rothermel 1972 equation 52:
   #IR𝜉(1 + 𝜙w + 𝜙s)
   
   #Reaction intensity I_R:
-  GammaPrime = OptimumReactionVelocity(packingRatio, SAV)
+  GammaPrime = OptimumReactionVelocity(packingRatio, SAV, units)
   w_n = NetFuelLoad_Albini(w_o, S_T)
   eta_M = MoistureDampingCoefficient(M_f, M_x)
   eta_s = MineralDampingCoefficient(S_e)
   I_R = ReactionIntensityRothermel(GammaPrime, w_n, heatContent, eta_M, eta_s)
   
   #Other terms:
-  xi = PropagatingFluxRatio(packingRatio, SAV)
+  xi = PropagatingFluxRatio(packingRatio, SAV, units)
   phi_s = SlopeFactor(packingRatio, slopeSteepness)
   
   #Apply wind limit check:
   if (useWindLimit)
   {
-    U = WindLimit(U, I_R)
+    U = WindLimit(U, I_R, units)
   }
   
   phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U, units)
@@ -1451,14 +1451,14 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   #Denominator of Rothermel 1972 equation 52:
   #ρbεQig
   
-  epsilon = EffectiveHeatingNumber(SAV)
-  Q_ig = HeatOfPreignition(M_f)
+  epsilon = EffectiveHeatingNumber(SAV, units)
+  Q_ig = HeatOfPreignition(M_f, units)
   
   #Full spread calculation for homogeneous fuels:
   #Rothermel 1972 equation 52:
   #Rate of spread = heat source / heat sink
-  #R = I_R𝝃(1 + 𝝓_𝒘 + 𝝓_𝒔) / ρbεQig
-  R = (I_R * xi * (1 + phi_s + phi_w)) / (rho_b * epsilon * Q_ig)
+  #R = I_R𝝃(1 + 𝜙w + 𝜙s) / ρbεQig
+  R = (I_R * xi * (1 + phi_w + phi_s)) / (rho_b * epsilon * Q_ig)
   
   #For debugging:
   if (debug)
