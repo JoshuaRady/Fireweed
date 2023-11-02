@@ -1664,7 +1664,7 @@ StdHeatContent  <- function(units = ModelUnits)
   }
   else#if (units == "Metric")
   {
-    h = 8434.8#kJ/kg, (8000 * kJPerBtu)
+    h = 18595.57#kJ/kg, 8000 * kJPerBtu / kgPerLb
   }
   return(h)
 }
