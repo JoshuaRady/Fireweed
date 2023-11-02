@@ -949,10 +949,10 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 #(propagating flux ratio specifically).  Same for homegenous and heterogeneous fuels.
 #
 #Input variables / parameters:
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3) 
+#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3) 
 #β = packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 #βop = optimum packing ratio (Note: optimum packing ratio is a function of SAV)
-#U = wind speed at midflame height (ft/min)
+#U = wind speed at midflame height (ft/min | m/min)
 #
 #Output units: Dimensionless
 #
@@ -965,9 +965,18 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits
   B = WindFactorB(SAV, units)
   E = WindFactorE(SAV, units)
   
-  #Rothermel 1972 equation 47,79:
-  #ϕw = CU^B(β/βop)^-E
-  phi_w = C * U^B * (packingRatio / optPackingRatio)^-E
+  if (units == "USCU")
+  {
+    #Rothermel 1972 equation 47,79:
+    #ϕw = CU^B(β/βop)^-E
+    phi_w = C * U^B * (packingRatio / optPackingRatio)^-E
+  }
+  else
+  {
+    phi_w = C * (ftPerM * U)^B * (packingRatio / optPackingRatio)^-E
+    #Wilson 1980 uses:
+    #phi_w = C * (0.3048 * U)^B * (packingRatio / optPackingRatio)^-E
+  }
   
   return(phi_w)
 }
@@ -991,6 +1000,8 @@ WindFactorC <- function(SAV, units = ModelUnits)
   else
   {
     C = 7.47 * exp(-0.8710837 * SAV^0.55)#-0.133 * cmPerFt^0.55 = -0.8710837
+    #Wilson 1980 uses:
+    #C = 7.47 * exp(-0.8711 * SAV^0.55)
   }
   return(C)
 }
@@ -1007,6 +1018,8 @@ WindFactorB <- function(SAV, units = ModelUnits)
   else
   {
     B = 0.1598827 * SAV^0.54#0.02526 * cmPerFt^0.54 = 0.1598827
+    #Wilson 1980 uses:
+    #B = 0.15988 * SAV^0.54
   }
   return(B)
 }
@@ -1023,13 +1036,17 @@ WindFactorE <- function(SAV, units = ModelUnits)
   else
   {
     E = 0.715 * exp(-0.01094232 * SAV)#-0.000359 * cmPerFt = -0.01094232
+    #Wilson 1980 uses:
+    #E = 0.715 * exp(-0.01094 * SAV)
   }
   return(E)
 }
 
 #In the discussion of the wind factor in Andrews 2018 the equation is simplified to AU^B, combining
 #the multiplicative terms into a single factor A.  This function is provided to return this value
-#for verificaiton purposes and is not currently needed to compute model outputs.
+#for verification purposes and is not currently needed to compute model outputs.
+#Note: This currently does not include the unit conversion of U when U is metric in A.  Since A is
+#used for diagnostic purposes that seems the correct approach.
 WindFactorA <- function(SAV, packingRatio, optPackingRatio, units = ModelUnits)
 {
   C = WindFactorC(SAV, units)
