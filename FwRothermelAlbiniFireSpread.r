@@ -822,24 +822,29 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   #These sums could be done in a vector aware way but here we limit ourselves to C compatible code.
   #The loops could also be combined with a live/dead conditional.
   liveSum = 0
-  for (k in which(liveDead == 1))
+  for (k in which(liveDead == 2))
   {
     liveSum = liveSum + w_o_ij[k] * exp(-138 / SAV_ij[k])
   }
   
   deadSum = 0
-  for (k in which(liveDead == 2))
+  for (k in which(liveDead == 1))
   {
     deadSum = deadSum + w_o_ij[k] * exp(-500 / SAV_ij[k])
   }
+  
+  #If the loading for the live fuel categories are all 0 or live categories are missing liveSum will
+  #be zero.  The ratio W will be therefore also be zero.  This in turn will result in M_x_2 = M_x_1.
+  #While not conceptual meaningful this has no has no mathematical consequence downstream.  Forcing
+  #the value to NA or 0 would cause mathematical problems downstream..
   
   W = liveSum / deadSum#Unitless ratio.
   
   #Calculate fine dead fuel moisture as:
   #Albini 1976 pg. 16:
   #Mf,dead = Σj(Mf)1j(wo)1jexp(–138/σ1j) / Σj(wo)1jexp(–138/σ1j)
-  top = 0#Better names
-  bottom = 0
+  top = 0#The numerator sum.
+  bottom = 0#The denominator sum.
   for (k in which(liveDead == 1))
   {
     common = w_o_ij[k] * exp(-138 / SAV_ij[k])
