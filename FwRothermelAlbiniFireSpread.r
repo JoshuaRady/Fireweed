@@ -1646,25 +1646,43 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   #Weigh and sum by live/dead category:
   heatSink = rho_b_bar * sum(weights$f_i * heatSink_i)
   
-  if (debug)
-  {
-    print(paste("Weights", weights))
-    print(paste("GammaPrime =", GammaPrime))
-    print(paste("w_n_i =", w_n_i))
-    print(paste("h_i =", h_i))
-    print(paste("eta_M_i =", eta_M_i))
-    print(paste("eta_s_i =", eta_s_i))
-    print(paste("I_R =", I_R))
-    print(paste("rho_b_bar =", rho_b_bar))
-    print(paste("Q_ig_ij =", Q_ig_ij))
-    print(paste("Heat sink =", heatSink))
-  }
-  
   #Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
   #Rothermel 1972 equation 75:
   #Rate of spread = heat source / heat sink
   #R = I_Rξ(1 + φw + φs) / ρbεQig
   R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink
+  
+  #For debugging:
+  if (debug)
+  {
+    print("----------")
+    #print(paste("Weights", weights))
+    #print(paste("Weights f_ij", weights$f_ij))
+    print(paste("Weights f_ij =", paste(weights$f_ij, collapse = ", ")))
+    #print(paste("Weights f_i", weights$f_i))
+    print(paste("Weights f_i =", paste(weights$f_i, collapse = ", ")))
+    #print(paste("Weights g_ij", weights$g_ij))
+    print(paste("Weights g_ij =", paste(weights$g_ij, collapse = ", ")))
+    
+    
+    print(paste("GammaPrime =", GammaPrime))
+    #print(paste("w_n_i =", w_n_i))
+    print(paste("w_n_i =", paste(w_n_i, collapse = ", ")))
+    #print(paste("h_i =", h_i))
+    print(paste("h_i =", paste(h_i, collapse = ", ")))
+    #print(paste("eta_M_i =", eta_M_i))
+    #print(paste("eta_s_i =", eta_s_i))
+    print(paste("eta_M_i =", paste(eta_M_i, collapse = ", ")))
+    print(paste("eta_s_i =", paste(eta_s_i, collapse = ", ")))
+    
+    print(paste("I_R =", I_R))
+    print(paste("Heat source =", I_R * xi * (1 + phi_s + phi_w)))
+    
+    print(paste("rho_b_bar =", rho_b_bar))
+    #print(paste("Q_ig_ij =", Q_ig_ij))
+    print(paste("Q_ig_ij =", paste(Q_ig_ij, collapse = ", ")))
+    print(paste("Heat sink =", heatSink))
+  }
   
   return(R)
 }
