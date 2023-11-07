@@ -687,9 +687,10 @@ MoistureDampingCoefficient <- function(M_f, M_x)
   {
     stop("Expect single values for M_f and M_x. Use MoistureDampingCoefficient_Het() for heterogeneous fuels.")
   }
-  if (!ValidRatio(M_f))
+  #Moisture content can well exceed 1 for live fuels (at least to 300%):
+  if (!InRange(M_f, 0, 3.5))
   {
-    stop("Fuel moisture content must be from 0-1.")
+    stop("Suspect moisture content (M_f).")
   }
   #See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
   if (!InRange(M_x, 0, 8))
@@ -736,9 +737,9 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   {
     stop("MoistureDampingCoefficient_Het() expects arguments of the same length.")
   }
-  if (!ValidRatio(M_f_ij))
+  if (!InRange(M_f_ij, 0, 3.5))
   {
-    stop("Fuel moisture content must be from 0-1.")
+    stop("Suspect moisture content (M_f_ij).")
   }
   #Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
   #though higher might be possible so we add a little wiggle room:
@@ -797,9 +798,9 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   {
     stop("LiveFuelMoistureOfExtinction() expects arguments of the same length.")
   }
-  if (!ValidRatio(M_f_ij))
+  if (!InRange(M_f_ij, 0, 3.5))
   {
-    stop("Fuel moisture content must be from 0-1.")
+    stop("Suspect moisture content (M_f_ij).")
   }
   # if (!ValidRatio(M_x_1))
   # {
@@ -1349,9 +1350,9 @@ EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 HeatOfPreignition <- function(M_f, units = ModelUnits)
 {
   #Validity checking:
-  if (!ValidRatio(M_f))
+  if (!InRange(M_f, 0, 3.5))
   {
-    stop("Fuel moisture content (M_F) must be from 0-1.")
+    stop("Suspect moisture content (M_f).")
   }
   
   if (units == "USCU")
