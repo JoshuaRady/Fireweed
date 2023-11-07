@@ -745,13 +745,13 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   #though higher might be possible so we add a little wiggle room:
   if (!InRange(M_x_i[1], 0, 0.5))
   {
-    stop("Invalid live fuel moisture of extinction.")
+    stop("Invalid dead fuel moisture of extinction.")
   }
   #Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
   #is not physiologic:
   if (!InRange(M_x_i[2], 0, 8))
   {
-    stop("Suspect dead fuel moisture of extinction.")
+    stop("Suspect live fuel moisture of extinction.")
   }
   
   numFuelTypes = length(M_f_ij)
@@ -802,10 +802,10 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   {
     stop("Suspect moisture content (M_f_ij).")
   }
-  # if (!ValidRatio(M_x_1))
-  # {
-  #   stop("Moisture of extinction must be from 0-1.")
-  # }
+  if (!InRange(M_x_1, 0, 0.5))
+  {
+    stop("Invalid dead fuel moisture of extinction.")
+  }
   
   #Changing the equations is more complicated than changing the inputs.
   if (units == "Metric")
