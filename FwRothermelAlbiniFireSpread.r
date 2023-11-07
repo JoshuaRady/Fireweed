@@ -875,7 +875,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
 MineralDampingCoefficient <- function(S_e)
 {
   #Parameter checking:
-  if (!ValidRatio(S_e))
+  if (!ValidProportion(S_e))
   {
     stop("Fuel moisture content must be from 0-1.")
   }
@@ -909,7 +909,7 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
   {
     stop("MineralDampingCoefficient_Het() expects arguments of the same length.")
   }
-  if (!ValidRatio(S_e_ij))
+  if (!ValidProportion(S_e_ij))
   {
     stop("Fuel moisture content must be from 0-1.")
   }
@@ -1755,10 +1755,10 @@ InRange <- function(value, low = 0, high = 1)
   }
 }
 
-#Check if a value is from 0 to 1.
+#Check if a value is from 0 to 1. Proportion
 #
 #R array aware.
-ValidRatio <- function(value)
+ValidProportion <- function(value)
 {
   return(InRange(value, low = 0, high = 1))
 }
