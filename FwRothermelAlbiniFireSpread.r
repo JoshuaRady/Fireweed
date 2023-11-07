@@ -877,7 +877,7 @@ MineralDampingCoefficient <- function(S_e)
   #Parameter checking:
   if (!ValidProportion(S_e))
   {
-    stop("Fuel moisture content must be from 0-1.")
+    stop("Effective mineral content must be from 0-1.")
   }
   
   eta_s = 0.174 * S_e^-0.19
@@ -911,7 +911,7 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
   }
   if (!ValidProportion(S_e_ij))
   {
-    stop("Fuel moisture content must be from 0-1.")
+    stop("Effective mineral content must be from 0-1.")
   }
   
   numFuelTypes = length(S_e_ij)#Types = sum of size classes in both categories.
