@@ -699,7 +699,8 @@ MoistureDampingCoefficient <- function(M_f, M_x)
   }
   
   #Calculate the ratio of fuel moisture content to moisture of extinction:
-  #Rothermel 1972 equation 29?,65:
+  #Rothermel 1972 equation 29,65 with maximum added in Albini 1976:
+  #Note: This uses the notation of Andrews 2018, the original is a bit different.
   #rM = Mf/Mx (max = 1.0)
   r_M = M_f/M_x
   
@@ -864,7 +865,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
 #Mineral Damping Coefficient:
 #
 #Albini 1976 pg. 14 adds a maximum to Rothermel 1972 equation 30/62:
-#𝜂s = 0.174Se^-0.19 (max = 1.0)
+#ηs = 0.174Se^-0.19 (max = 1.0)
 #
 #Input variables / parameters:
 #Se (S sub e) = effective mineral content (fuel particle property: (mass minerals – mass silica) /
