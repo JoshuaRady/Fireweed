@@ -685,15 +685,16 @@ MoistureDampingCoefficient <- function(M_f, M_x)
   #Parameter checking:
   if (!SameLengths(M_f, M_x, 1))
   {
-    stop("Expect single value for M_f and M_x. Use MoistureDampingCoefficient_Het() for heterogeneous fuels.")
+    stop("Expect single values for M_f and M_x. Use MoistureDampingCoefficient_Het() for heterogeneous fuels.")
   }
   if (!ValidRatio(M_f))
   {
     stop("Fuel moisture content must be from 0-1.")
   }
-  if (!ValidRatio(M_x))
+  #See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
+  if (!InRange(M_x_i, 0, 8))
   {
-    stop("Moisture of extintion must be from 0-1.")
+    stop("Suspect moisture of extinction.")
   }
   
   #Calculate the ratio of fuel moisture content to moisture of extinction:
@@ -739,9 +740,17 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   {
     stop("Fuel moisture content must be from 0-1.")
   }
-  if (!ValidRatio(M_x_i))
+  #Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
+  #though higher might be possible so we add a little wiggle room:
+  if (!InRange(M_x_i[1], 0, 0.5))
   {
-    stop("Moisture of extintion must be from 0-1.")
+    stop("Invalid live fuel moisture of extinction.")
+  }
+  #Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
+  #is not physiologic:
+  if (!InRange(M_x_i[2], 0, 8))
+  {
+    stop("Suspect dead fuel moisture of extinction.")
   }
   
   numFuelTypes = length(M_f_ij)
@@ -792,10 +801,10 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   {
     stop("Fuel moisture content must be from 0-1.")
   }
-  if (!ValidRatio(M_x_1))
-  {
-    stop("Moisture of extintion must be from 0-1.")
-  }
+  # if (!ValidRatio(M_x_1))
+  # {
+  #   stop("Moisture of extinction must be from 0-1.")
+  # }
   
   #Changing the equations is more complicated than changing the inputs.
   if (units == "Metric")
