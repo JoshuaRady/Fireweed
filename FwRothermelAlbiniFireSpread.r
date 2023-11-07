@@ -692,7 +692,7 @@ MoistureDampingCoefficient <- function(M_f, M_x)
     stop("Fuel moisture content must be from 0-1.")
   }
   #See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
-  if (!InRange(M_x_i, 0, 8))
+  if (!InRange(M_x, 0, 8))
   {
     stop("Suspect moisture of extinction.")
   }
