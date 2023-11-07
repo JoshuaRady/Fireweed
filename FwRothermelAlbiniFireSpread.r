@@ -1640,8 +1640,17 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   heatSink_i = c(0,0)
   for (k in 1:numFuelTypes)
   {
+    if (units == "USCU")
+    {
+      savConst= -138
+    }
+    else
+    {
+      savConst = -4.527559
+    }
+    
     heatSink_i[liveDead[k]] = heatSink_i[liveDead[k]] +
-      weights$f_ij[k] * exp(-138 / SAV_ij[k]) * Q_ig_ij[k]
+      weights$f_ij[k] * exp(savConst / SAV_ij[k]) * Q_ig_ij[k]
   }
   
   #Weigh and sum by live/dead category:
