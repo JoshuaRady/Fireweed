@@ -45,6 +45,12 @@
 #  This report provides SI conversions of some of the spread and related equations.  These were used
 #to check the conversions performed here.
 #
+#Anderson, Hal E.
+#Heat transfer and fire spread.
+#Res. Pap. INT-69. Ogden, UT: U.S. Department of Agriculture, Forest Service, Intermountain Forest
+#and Range Experiment Station. 20 p. 1969.
+#  This report is the source of the residency time calculation used here.
+#
 #George M. Byram.
 #Combustion of forest fuels.
 #In Forest fire: control and use. Davis, K. P. editor. Pages 61-89. New York, NY: McGraw-Hill. 1959.
@@ -63,8 +69,8 @@
 #[See table of variables below.?????]
 #
 #Subscripts:
-#  Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number of
-#variables have two levels of subscript, the second representing fuel type indexes (i and j, see
+#  Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number
+#of variables have two levels of subscript, the second representing fuel type indexes (i and j, see
 #fuel classes below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij)
 #-> A_b_ij.
 #Note: This notation is used throughout the code but is not fully consistent in comments yet.
@@ -75,22 +81,21 @@
 #category (live/dead).  Most reprints ignore these.  We have left them out in most cases although
 #a couple variables of the form x_bar are used.
 #
-#[Add variables table...]
-#[Since there are a common set of variables it could be useful to list them all here.  However,
-# they are already listed for each function below.  Making a variable list in separate document
-# might be preferable since we could overcome the formatting limitations of plain text, i.e via
-# LATEX, and refer to it from here.  The parameters descriptions below could be simplified by
-# moving some out to this document.]
-        #(wo)ij ((w sub o) sub ij) = w_o_ij Array of oven dry fuel load for each fuel class (lb/ft^2).
-#
+#  For further information consult the accompanying variable notation cross-reference document.
+#This contains all the input parameters and variables, many of which are common to multiple
+#functions.
 #
 #Variable notes:
 # - The surface-area-to-volume ratio for fuels is notated as σ (sigma) and abbreviated as sav or
 #SAV in different places in the papers.  We use SAV in the code.
 # - It is unclear if fuel loading is w0 or wo.  In Rothermel 1972 it is not clear and in reprints it
 #varies.  We use w sub o (w_o).
+# - Fuel load is specified as lb/ft^2 in the equations but most table of values use tons/acre.
+#Conversion needs to be done prior to passing in the data.
 # - Total mineral content is occasionally notated S sub t rather than S sub T (e.g. Rothermel
 #1972, pg. 36, Table 1).  We use S sub T (S_T).
+# - Slope steepness is notated as tan ϕ in the original model.  We use slopeSteepness instead.
+#Slope steepness is a fraction, not degrees.
 #
 #Fuel classes:--------------------------------------------------------------------------------------
 #  Heterogeneous fuels fuel types are distinguished with subscripts i = 1 to m categories
@@ -172,9 +177,8 @@ SetModelUnits <- function(units)
 #ρb = w_o/δ
 #
 #Input variables / parameters:
-#w_o (w sub o) = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral
-#fractions.
-#δ (delta) = fuel bed depth (ft or m)
+#w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
+#fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 #
 #Output units: lb/ft^3 | kg/m^3
 #The inputs carry the units.  No metric conversions are needed.
@@ -196,10 +200,8 @@ BulkDensity <- function(w_o, fuelBedDepth)
 #The original notation includes from and to sum subscripts and bars over rho and w.
 #
 #Input variables / parameters:
-#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2 | kg/m^2).
-#  This function could also be written to take something like an array of fuel model objects.  It
-#is not clear yet what would be most useful.
-#δ (delta) = fuel bed depth (ft | m)
+#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+#fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 #
 #Output units: lb/ft^3 | kg/m^3
 #The inputs carry the units.  No metric conversions are needed.
@@ -238,26 +240,26 @@ MeanBulkDensity <- function(w_o_ij, fuelBedDepth)
 }
 
 #Packing Ratio:-------------------------------------------------------------------------------------
-# The packing ratio is the fraction of the (surface) fuel bed volume occupied by fuel, aka
+# The packing ratio (beta) is the fraction of the (surface) fuel bed volume occupied by fuel, aka
 #compactness.
 #
 #Rothermel 1972 equation 31:
 #β = ρb/ρp
 #
 #Input variables / parameters:
-#ρb (rho sub b) = fuel array bulk density (density, originally lb/ft^3, metric kg/m^3)
-#ρp (rho sub p) = fuel particle density (density, originally lb/ft^3, metric kg/m^3)
-#  For standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
+#rho_b = Fuel array bulk density (lb/ft^3 | kg/m^3).
+#rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
+#  Forthe 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #
 #Output units: Dimensionless ratio.
 #Input units cancel out.  No metric conversion needed.
-PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_p)
+PackingRatio <- function(rho_b, rho_p)
 {
-  return(fuelArrayBulkDensity / fuelParticleDensity)
+  return(rho_b / rho_p)
 }
 
 #Mean Packing Ratio:
-#For heterogeneous fuelbeds the mean packing ratio must be calculated.
+#For heterogeneous fuelbeds the mean packing ratio (beta_bar) must be calculated.
 #
 #Rothermel 1972 equation 74:
 #β = 1/δ Σi Σj (wo)ij/(ρp)ij
@@ -265,10 +267,10 @@ PackingRatio <- function(fuelArrayBulkDensity, fuelParticleDensity)#(rho_b, rho_
 #The original notation includes from and to sum subscripts and bars over beta, rho, and w.
 #
 #Input variables / parameters:
-#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2 | kg/m^2).
-#(ρp)ij ((rho sub p[bar]) sub ij) = fuel particle density for each fuel type (lb/ft^3 | kg/m^3)
+#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+#rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 #  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
-#δ (delta) = fuel bed depth (ft | m)
+#fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 #
 #Output units: Dimensionless ratio (scalar)
 #Input units cancel out.
@@ -302,8 +304,8 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)#Note: Argument orde
   #Calculate w_o / rho_p for each fuel element:
   x = w_o_ij / rho_p_ij
   
-  beta_bar = sum(x) / fuelBedDepth#Mean packing ratio
-  return(beta_bar)
+  meanPackingRatio = sum(x) / fuelBedDepth#AKA beta_bar
+  return(meanPackingRatio)
 }
 
 #Optimum Packing Ratio:
@@ -313,7 +315,7 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)#Note: Argument orde
 #βop = 3.348(σ)^-0.8189
 #
 #Input variables / parameters:
-#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 #  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
 #Output units: Dimensionless ratio
@@ -370,11 +372,10 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #changes to Rothermel 1972 by Albini 1976.
 #
 #Input variables / parameters:
-#σij (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes
-#  (ft^2/ft^3).
-#w_o_ij (w sub o sub ij) = An array of fuel loadings for each fuel type (i: live vs. dead) and fuel
-#  size class (j) (lb/ft^2).
-#(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3)
+#SAV_ij =	An array of characteristic surface-area-to-volume ratios for the fuel classes
+#  (ft^2/ft^3 | cm^2/cm^3).
+#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+#rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
@@ -383,7 +384,7 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #
 #Note: It makes sense to calculate these together and they only need to be calculated once for a
 #give spread rate scenario.  However, I'm not sure the best way the handle the outputs.  Would it
-#be better to put them in a global?
+#be better to put them in a global? ?????
 CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnits)
 {
   #Validity checking:
@@ -573,10 +574,10 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
 #referred to as the characteristic SAV.  It is a weighted average of the fuel component SAVs.
 #
 #Input variables / parameters:
-#σ (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes
-#(ft^2/ft^3 | cm^2/cm^3).
-#f_ij (f sub ij) = Weighting factors for each fuel type (dimensionless).
-#f_i (f sub i) = Weighting factors for each fuel live/dead category (dimensionless).
+#SAV_ij =	An array of characteristic surface-area-to-volume ratios for the fuel classes
+#  (ft^2/ft^3 | cm^2/cm^3).
+#f_ij = Weighting factors for each fuel type (dimensionless).
+#f_i = Weighting factors for each fuel live/dead category (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
@@ -616,12 +617,12 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 #
 #Albini 1976 pg. 14:
 #wn = wo(1 - ST)
-#Or alt notation? w_n = w_o(1 - S_T)
+#Or alt notation? w_n = w_o(1 - S_T) ?????
 #
 #Input variables / parameters:
-#w_o (w sub o) = Oven dry fuel load (lb/ft^2).  This includes combustible and mineral fraction.
-#S_T (S sub T) = Total mineral content (fuel particle property: mineral mass / total dry mass,
-#unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
+#w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
+#S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
+#  For all standard fuel models this is 5.55% (0.0555).
 #
 #Output units: lb/ft^2 | kg/m^3
 #The inputs carry the units.  No metric conversions are needed.
@@ -636,8 +637,8 @@ NetFuelLoad_Albini <- function(w_o, S_T)
 #weights.
 #
 #Input variables / parameters:
-#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
-#(ST)ij ((S sub T) sub ij) = Array of total mineral content for each fuel class (unitless fraction).
+#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+#S_T_ij = An array of total mineral content for each fuel type (unitless fraction).
 #g_ij = Net fuel load weights (Albini 1976).
 #
 #Returns: w_n_i ((w sub o) sub i) = An 
@@ -676,8 +677,8 @@ NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
 # This returns the extent to which fuel moisture reduces combustion for one fuel component.
 #
 #Input variables / parameters:
-#Mf (M sub f) = Fuel moisture content (fraction, water weight/dry fuel weight)
-#Mx (M sub x) = Moisture of extinction (fraction, water weight/dry fuel weight)
+#M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
+#M_x = Moisture of extinction (fraction: water weight/dry fuel weight).
 #
 #Output units: Dimensionless coefficient
 #Input units cancel out.  No metric conversion needed.
@@ -723,11 +724,9 @@ MoistureDampingCoefficient <- function(M_f, M_x)
 #(live/dead).
 #
 #Input variables / parameters:
-#(Mf)ij ((M sub f) sub ij) = Fuel moisture content for for each fuel type (fraction, water
-#  weight/dry fuel weight)
-#(Mx)i ((M sub x) sub i = Moisture of extinction each fuel category (fraction, water weight/dry
-#  fuel weight).
-#f_ij (f sub ij) = Weighting factors for each fuel type (dimensionless).
+#M_f_ij = Fuel moisture content for for each fuel type (fraction: water weight/dry fuel weight).
+#M_x_i = Moisture of extinction each fuel category (fraction: water weight/dry fuel weight).
+#f_ij = Weighting factors for each fuel type (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
@@ -784,11 +783,11 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 #be quite variable from near zero to over 700 percent (see Andrews 2018 section 5.3.2.2).
 #
 #Input variables / parameters:
-#(Mf)ij ((M sub f) sub ij) = Fuel moisture content for each fuel type (fraction, water
-#  weight/dry fuel weight)
-#(Mx)1 ((M sub x) sub 1 = Dead fuel moisture of extinction (fraction, water weight/dry fuel weight).
-#(wo)ij ((w sub o) sub ij) = Array of oven dry fuel load for each fuel class (lb/ft^2).
-#σij (SAV_ij) = An array of characteristic surface-area-to-volume ratios for the fuel classes.
+#M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+#M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
+#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+#SAV_ij =	An array of characteristic surface-area-to-volume ratios for the fuel classes
+#  (ft^2/ft^3 | cm^2/cm^3).
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
@@ -874,8 +873,8 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
 #ηs = 0.174Se^-0.19 (max = 1.0)
 #
 #Input variables / parameters:
-#Se (S sub e) = effective mineral content (fuel particle property: (mass minerals – mass silica) /
-#  total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
+#S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
+#  For all standard fuel models this is 1% (0.01).
 #
 #Output units: Dimensionless coefficient
 #Unitless inputs and outputs.  No metric conversion needed.
@@ -904,8 +903,9 @@ MineralDampingCoefficient <- function(S_e)
 #(live/dead).
 #
 #Input variables / parameters:
-#(Se)i ((S sub e) sub ij) = effective mineral content for each fuel category.
-#f_ij (f sub ij) = Weighting factors for each fuel type (dimensionless).
+#S_e_ij = Effective mineral content for each fuel type (unitless fraction:
+#  (mineral mass – mass silica) / total dry mass).
+#f_ij = Weighting factors for each fuel type (dimensionless).
 #
 #Output units: Dimensionless coefficient (array of 2)
 #Unitless inputs and outputs.  No metric conversion needed.
@@ -944,14 +944,16 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
 
 #Slope factor:
 #Dimensionless multiplier that accounts for the effect of slope on spread behavior.  Same for
-#homegenous and heterogeneous fuels.
+#homogeneous and heterogeneous fuels.
 #
 #Rothermel 1972 equation 51,80:
 #ϕs (phi sub s) = 5.275β^-0.3(tan ϕ)^2
 #
 #Input variables / parameters:
-#β = packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
-#tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
+#packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
+#  (dimensionless).
+#slopeSteepness = Slope steepness maximum (unitless fraction: vertical rise / horizontal distance).
+#  AKA tan ϕ.
 #
 #Output units: Dimensionless adjustment factor
 #Inputs are fractions which do not change with units.  Mo metric conversion required.
@@ -966,10 +968,12 @@ SlopeFactor <- function(packingRatio, slopeSteepness)
 #(propagating flux ratio specifically).  Same for homegenous and heterogeneous fuels.
 #
 #Input variables / parameters:
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3) 
-#β = packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
-#βop = optimum packing ratio (Note: optimum packing ratio is a function of SAV)
-#U = wind speed at midflame height (ft/min | m/min)
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+#packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
+#  (dimensionless).
+#optPackingRatio = Optimum packing ratio (dimensionless).
+#   Note: optimum packing ratio is a function of SAV.
+#U = Wind speed at midflame height (ft/min | m/min).
 #
 #Output units: Dimensionless
 #
@@ -1085,8 +1089,8 @@ WindFactorA <- function(SAV, packingRatio, optPackingRatio, units = ModelUnits)
 #the wind limit.
 #
 #Input variables / parameters:
-#U = wind speed at midflame height (ft/min | m/min)
-#IR (I sub R, I_R) = reaction intensity (Btu/ft^2/min | kj/m^2/min)
+#U = Wind speed at midflame height (ft/min | m/min).
+#I_R = Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
 #
 #Output units: adjusted wind speed (U) at midflame height (ft/min | m/min)
 WindLimit <- function(U, I_R, units = ModelUnits)
@@ -1135,18 +1139,19 @@ WindLimit <- function(U, I_R, units = ModelUnits)
 #  This version includes the Albini 1976 modification.
 #
 #Input variables / parameters:
-#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
-#  For heterogeneous fuels the mean packing ratio is passed in.  (see PackingRatio()?????
-#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
+#β = (Mean) Packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
+#packingRatio = (Mean) Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
+#  (dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 #  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 #
 #Output units: min^-1
-OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
+OptimumReactionVelocity <- function(packingRatio, SAV, units = ModelUnits)
 {
   #Confirm the parameter values are scalars:
-  if (length(meanPackingRatio) != 1)
+  if (length(packingRatio) != 1)
   {
-    stop("meanPackingRatio should be scalar.")
+    stop("packingRatio should be scalar.")
   }
   if (length(SAV) != 1)
   {
@@ -1189,8 +1194,8 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
   #These are combined to produce the optimal reaction velocity (min^-1):
   #Rothermel 1972 equation 38:
   #Γ' = Γ'max(β/βop)^A exp[A(1 - β/βop)]
-  GammaPrime = GammaPrimeMax * (meanPackingRatio/optPackingRatio)^A  *
-    exp(A * (1 - meanPackingRatio/optPackingRatio))
+  GammaPrime = GammaPrimeMax * (packingRatio/optPackingRatio)^A  *
+    exp(A * (1 - packingRatio/optPackingRatio))
   
   return(GammaPrime)
 }
@@ -1200,8 +1205,8 @@ OptimumReactionVelocity <- function(meanPackingRatio, SAV, units = ModelUnits)
 #Only used by reaction intensity calculation.
 #
 #Input variables / parameters:
-#hij (h sub ij) = Heat content for live/dead fuel categories (btu/lb).
-#fij (f sub ij) = Weighting factors for each fuel type (dimensionless).
+#h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
+#f_ij = Weighting factors for each fuel type (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead (1) or live (2) fuel category.
 #
@@ -1239,18 +1244,18 @@ LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
 #or: I_R = Γ' x w_n x h x η_M x η_s
 #
 #Input variables / parameters:
-#Γ' (Gamma prime) = optimum reaction velocity (min^-1)
-#wn (w sub n) = net fuel load for a single fuel component (lb/ft^2 | kg/m^2)
-#h = heat content of the fuel class (Btu/lb | kJ/kg)
-#ηM (eta sub M) = moisture damping coefficient (unitless)
-#ηs (eta sub s) = mineral damping coefficient (unitless)
+#GammaPrime = Optimum reaction velocity (min^-1).
+#w_n = Net fuel load for a single fuel component (lb/ft^2 | kg/m^2).
+#h = Heat content of the fuel type (Btu/lb | kJ/kg).
+#eta_M = Moisture damping coefficient (unitless).
+#eta_s = Mineral damping coefficient (unitless).
 #
 #Output units: Btu/ft^2/min | kJ/m^2/min
 #Inputs carry units.  No unit conversions are needed.
 #
 #Are these the best parameters?
 #function(GammaPrime, w_n, h, M_f, M_x, Se)?
-ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)
+ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)#Name??????
 {
   I_R = GammaPrime * w_n * h * eta_M * eta_s
   
@@ -1260,15 +1265,15 @@ ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)
 #Reaction Intensity for Heterogeneous Fuels:
 #
 #Input variables / parameters:
-#Γ' (Gamma prime) = optimum reaction velocity (min^-1)
-#(wn)i ((w sub n) sub i) = net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2)
-#hi (h sub i) = Heat content for live/dead fuel (Btu/lb | kJ/kg)
-#(ηM)i ((eta sub M) sub i) = Moisture damping coefficient for live/dead fuel categories (unitless)
-#(ηs)i ((eta sub s) sub i) = mineral damping coefficient for live/dead fuel categories (unitless)
+#GammaPrime = Optimum reaction velocity (min^-1).
+#w_n_i = Net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2).
+#h_i = Heat content for live/dead fuel (Btu/lb | kJ/kg).
+#eta_M_i = Moisture damping coefficient for live/dead fuel categories (unitless).
+#eta_s_i = Mineral damping coefficient for live/dead fuel categories (unitless).
 #
 #Output units: Btu/ft^2/min | kJ/m^2/min
 #Inputs carry units.  No unit conversions are needed.
-ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#ReactionIntensityAlbini()?
+ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#ReactionIntensityAlbini()?????
 {
   if (!SameLengths(w_n_i, h_i, eta_M_i, eta_s_i))
   {
@@ -1290,9 +1295,9 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#Reac
 #ξ = (192 + 0.2595σ)^-1 exp[(0.792 + 0.681σ^0.5)(β + 0.1)]
 #
 #Input variables / parameters:
-#β = (mean) packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
-#  For heterogeneous fuels the mean packing ratio is passed in.
-#σ (SAV) = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
+#packingRatio = (Mean) Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
+#  (dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 #  For heterogeneous fuels the fuel bed level SAV is used.
 #
 #Output units: Dimensionless proportion
@@ -1325,7 +1330,7 @@ PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 #ε = exp(-138/σ)
 #
 #Input variables / parameters:
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 #
 #Units: Dimensionless.
 EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
@@ -1348,7 +1353,7 @@ EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 #Qig = 250 + 1,116Mf
 #
 #Input variables / parameters:
-#Mf (M sub f) = Fuel moisture content (water weight/dry fuel weight)
+#M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
 #
 #Output units: btu/lb or kJ/kg
 #
@@ -1387,28 +1392,26 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #characteristics, 4 fuel array characteristics, and three environmental.
 #
 #Fuel particle properties: 
-#h = heat content of the fuel class (Btu/lb | kJ/kg).
+#h = Heat content of the fuel type (Btu/lb | kJ/kg).
 #  All the 53 standard fuel models use 8,000 Btu/lb.
-#ST (S sub T) = Total mineral content (fuel particle property: mineral mass / total dry mass,
-#  unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
-#Se (S sub e) = effective mineral content (fuel particle property: (mass minerals – mass silica) /
-#  total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
-#ρp (rho sub p) = fuel particle density (lb/ft^3 | kg/m^3)
+#S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
+#  For all standard fuel models this is 5.55% (0.0555).
+#S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
+#  For all standard fuel models this is 1% (0.01).
+#rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
 #  All the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 or cm^2/cm^3)
-#w_o (w sub o) = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral
-#fractions.
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+#w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
 #     Sometimes expressed as ton/acre (move to central documentation?).
-#δ (delta) = fuel bed depth (ft | m)
-#Mx (M sub x) = Moisture of extinction (fraction, water weight/dry fuel weight)
+#fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+#M_x = Moisture of extinction (fraction: water weight/dry fuel weight).
 #
 #Environmental:
-#Mf (M sub f) = Fuel moisture content (water weight/dry fuel weight)
-#U = wind speed at midflame height (ft/min | m/min)
-#tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
-#  [For many applications this will need to be converted from degrees.]
+#M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
+#U = Wind speed at midflame height (ft/min | m/min).
+#slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
 #
 #useWindLimit = Use the wind limit calculation or not.
 #
@@ -1419,9 +1422,9 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #Returns: R = rate of spread in ft/min | m/min.
 SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
                                            S_T = 0.0555, S_e = 0.01,
-                                           fuelParticleDensity = StdRho_p(),#rho_p
-                                           SAV, w_o, fuelBedDepth,#delta
-                                           M_x, M_f, U, slopeSteepness,#tan ϕ
+                                           rho_p = StdRho_p(),
+                                           SAV, w_o, fuelBedDepth,
+                                           M_x, M_f, U, slopeSteepness,
                                            useWindLimit = TRUE,
                                            units = NULL,
                                            debug = FALSE)
@@ -1436,7 +1439,7 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   #and denominator.
   rho_b = BulkDensity(w_o, fuelBedDepth)
   
-  packingRatio = PackingRatio(rho_b, fuelParticleDensity)
+  packingRatio = PackingRatio(rho_b, rho_p)
   optPackingRatio = OptimumPackingRatio(SAV, units)
   
   #The heat source term (numerator) represents the heat flux from the fire front to the fuel in
@@ -1507,34 +1510,31 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
 #rather than scalars.
 #
 #Fuel particle properties: 
-#hij (h sub ij) = Heat content of the fuel types (Btu/lb | kJ/kg).
+#h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
 #  All the 53 standard fuel models use 8,000 Btu/lb.
-#(ST)ij ((S sub T) sub ij) = Total mineral content (fuel particle property: mineral mass / total dry
-#  mass, unitless fraction).  For all standard fuel models this is 5.55% (0.0555).
-#(Se)ij ((S sub e) sub ij) = effective mineral content (fuel particle property: (mass minerals –
-#  mass silica) / total dry mass, unitless fraction).  For all standard fuel models this is 1% (0.01).
-#(ρp)ij ((rho sub p) sub ij) = fuel particle density for each fuel type (lb/ft^3 | kg/m^3)
+#S_T_ij = An array of total mineral content for each fuel type (unitless fraction).
+#  For all standard fuel models this is 5.55% (0.0555).
+#S_e_ij = Effective mineral content for each fuel type (unitless fraction:
+#  (mineral mass – mass silica) / total dry mass).  For all standard fuel models this is 1% (0.01).
+#rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 #  All the 53 standard fuel models use 32 lb/ft^3.
 #
 #Fuel array:
-#σij (sigma sub ij) / SAV = Characteristic surface-area-to-volume ratios for each fuel type
-#(ft^2/ft^3 | cm^2/cm^3).
-#woij ((w sub o) sub ij) = Oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
-#     Sometimes expressed as ton/acre?????
-#δ (delta) = fuel bed depth (ft | m)
-#(Mx)1 ((M sub x) sub 1) = Dead fuel moisture of extinction (fraction, water weight/dry fuel
-#  weight).
+#SAV_ij =	An array of characteristic surface-area-to-volume ratios for the fuel classes
+#  (ft^2/ft^3 | cm^2/cm^3).
+#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+#fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+#M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 #
 #Environmental:
-#Mfij ((M sub f) sub i) = fuel moisture content for each fuel type (water weight/dry fuel weight)
-#U = wind speed at midflame height (ft/min | m/min)
-#tan ϕ = slope steepness, maximum (fraction: vertical rise / horizontal distance, unitless)
-#  [For many applications this will need to be converted from degrees.]
+#M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+#U = Wind speed at midflame height (ft/min | m/min).
+#slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
 #
 #useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
 #
 #Optional Parameters:
-#unit = Specify the class of units for the inputs.
+#units = Specify the class of units for the inputs.
 #debug = Print calculation component values.  This may be removed in the future.
 #
 #Returns: R = rate of spread in ft/min | m/min.
@@ -1547,10 +1547,10 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
                                           rho_p_ij = StdRho_p(),
                                           SAV_ij,
                                           w_o_ij,
-                                          fuelBedDepth,#delta
+                                          fuelBedDepth,
                                           M_x_1,
                                           M_f_ij,
-                                          U, slopeSteepness,#tan ϕ
+                                          U, slopeSteepness,
                                           liveDead = c(1,1,1,2,2),#Standard fuel model 5 classes.
                                           useWindLimit = FALSE,
                                           units = NULL,
@@ -1799,19 +1799,20 @@ ValidProportion <- function(value)
 #for use in nomograhs but is used by some contexts to calculate the wind limit.
 #
 #Input variables / parameters:
-#U = wind speed at midflame height (ft/min | m/min)
-#phi_w = the wind factor (dimensionless)
-#phi_s = the slope factor (dimensionless)
-#beta_bar = mean packing ratio (dimensionless ratio)
-#beta_op = optimum packing ratio (dimensionless ratio)
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
+#U = Wind speed at midflame height (ft/min | m/min).
+#phi_w = The wind factor (dimensionless).
+#phi_s = The slope factor (dimensionless).
+#meanPackingRatio = Mean packing ratio (beta_bar) (dimensionless ratio).
+#optPackingRatio = Optimum packing ratio (dimensionless).
+#   Note: optimum packing ratio is a function of SAV.
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 #
 #Output: effective wind speed at midflame height (ft/min | m/min)
 #The functions called handle the units so no conversions need to be done here.
 #
 #Note: This is included for completeness.  It is not currently used by any other functions.
-EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV, units = ModelUnits)#Order?
-                               #SAV, packingRatio, optPackingRatio, U)
+EffectiveWindSpeed <- function(U, phi_w, phi_s, meanPackingRatio, optPackingRatio, SAV,
+                               units = ModelUnits)
 {
   C = WindFactorC(SAV, units)
   B = WindFactorB(SAV, units)
@@ -1826,7 +1827,7 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV, units = 
   
   #Solve for the effective wind speed:
   #U_E = [ϕE (β/βop)E/C]^–B
-  U_E = ((phi_E * (beta_bar/beta_op)^E) / C )^-B
+  U_E = ((phi_E * (meanPackingRatio/optPackingRatio)^E) / C )^-B
   
   return(U_E)
 }
@@ -1834,17 +1835,11 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, beta_bar, beta_op, SAV, units = 
 #Residence Time:
 #The residence time is the how long it takes the fire flame front to pass over a point on the
 #ground.  This only considers the flame front and not the residual burning and smoldering. The
-#calculation is from:
-# Anderson, Hal E.
-# Heat transfer and fire spread.
-# Res. Pap. INT-69. Ogden, UT: U.S. Department of Agriculture, Forest Service, Intermountain Forest
-# and Range Experiment Station. 20 p. 1969.
-#
-#This does not take into consideration the any effect of packing density.
+#calculation is from Anderson 1969.  This relationship is based on strong observational correlation.
 #This can be used to help calculate energy transfer to soil.
 #
 #Input variables / parameters:
-#σ / SAV = characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3)
+#SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 #
 #Output units: minutes
 ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
@@ -1869,8 +1864,8 @@ ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 # This is the total energy released by the flame front as it passed per unit area.
 #
 #Input variables / parameters:
-#I_R = reaction intensity (Btu/ft^2/min | kJ/m^2/min)
-#t_r = residence time (min)
+#I_R = Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
+#t_r = Residence time (min).
 #
 #Output units: Btu/ft^2 | kJ/m^2
 #Inputs carry units.  No conversion necissaruy.
@@ -1915,7 +1910,7 @@ ByramsFirelineIntensity <- function(H_A, R)
 #(per Andrews 2018, as I haven't been able to access the book yet.)
 #
 #Input variables / parameters:
-#I_B = Byram's fireline intensity (Btu/ft/s | kW/m)
+#I_B = Byram's fireline intensity (Btu/ft/s | kW/m).
 #
 #Output units: ft | m
 ByramsFlameLength <- function(I_B, units = ModelUnits)#Was FlameLength().
