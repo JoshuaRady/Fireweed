@@ -66,7 +66,6 @@
 #their English phonetic names with the case indicating the case of the character, e.g. β -> Beta and
 #σ -> sigma.  In a few cases Greek variable names have been changed to abbreviations or descriptive
 #names.  Greek is used where the original equations are shown in the comments.
-#[See table of variables below.?????]
 #
 #Subscripts:
 #  Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number
@@ -91,7 +90,7 @@
 # - It is unclear if fuel loading is w0 or wo.  In Rothermel 1972 it is not clear and in reprints it
 #varies.  We use w sub o (w_o).
 # - Fuel load is specified as lb/ft^2 in the equations but most table of values use tons/acre.
-#Conversion needs to be done prior to passing in the data.
+#Conversion needs to be done prior to passing in the data.  Use tonsPerAcToLbPerSqFt.
 # - Total mineral content is occasionally notated S sub t rather than S sub T (e.g. Rothermel
 #1972, pg. 36, Table 1).  We use S sub T (S_T).
 # - Slope steepness is notated as tan ϕ in the original model.  We use slopeSteepness instead.
@@ -109,21 +108,23 @@
 #all positions.
 #
 #Units:---------------------------------------------------------------------------------------------
-#  The original equations used United States customary units.  Units are indicated for function
-#inputs and outputs.  Metric/SI conversions have been added as needed.  See below for constants and
-#and functions used to manage units in the code.
+#  The original Rothermel/Albini model equations used United States customary units.  The units for
+#inputs and outputs are given in the comments for each function.  Metric/SI conversions have been
+#added for all functions that need them.  The units to use can be specified explicitly for some
+#functions, including the main spread rate functions.  If a set of intermediate calculations are to
+#be performed SetModelUnits() can be called at the start of the session.  The valid unit specifiers
+#are "US" (USCU is too hard to remember) and "Metric".  See below for more on constants and
+#functions used to manage units in the code.
 #___________________________________________________________________________________________________
 
 #Globals:-------------------------------------------------------------------------------------------
-#UnitClasses = c("USCU", "Metric")?
-#I 
-ModelUnits = "USCU"#The default is United States customary units.  Conversions have been added for
-#all functions that need them.
-#This should not be set directly.  Use SetModelUnits().  If R allowed this would be kept private.
+#Specify the units to use.  The default is United States customary units.
+#This should not be set directly.  Use SetModelUnits().  If R allowed it this would be kept private.
+ModelUnits = "US"
 
 #Unit Conversion Factors:---------------------------------------------------------------------------
-#A few of these conversion factors are commented out because I made them but have not really used
-#them yet.
+#Conversion factors marked with an asterisk are not used in this file.  They are provided for use by
+#calling code.
 #It might be better to have a interface of some sort to request conversion factors from.
 
 #Length: (exact per international yard and pound act)
@@ -131,18 +132,18 @@ cmPerIn = 2.54
 cmPerFt = 30.48
 mPerFt = 0.3048
 ftPerM = 3.28084#1 / mPerFt
-#ftPerMi = 5280
+ftPerMi = 5280#* for conversion of windspeed (U, MPH * ftPerMi / 60 = ft/min)
 
 #SAV is in ft^2/ft^3 = 1/ft or cm^2/cm^3 = 1/cm
 #Therefore units convert: ft^2/ft^3 * cmPerFt^2/cmPerFt^2 = 1/ft * 1/cmPerFt = 1/cm
 #So: SAVft * 1/cmPerFt = SAVft / cmPerFt = SAVcm
 
 #Area:
-#ft2PerAcre = 43560
+ft2PerAcre = 43560#*
 
 #Mass:
 kgPerLb = 0.453592
-#lbsPerTon = 2000
+lbsPerTon = 2000#*
 
 #Density:
 lbPerFtCuToKgPerMCu = 16.0185#kgPerLb * (ftPerM)^3, 16.01846337396
@@ -154,12 +155,15 @@ lbPerFtCuToKgPerMCu = 16.0185#kgPerLb * (ftPerM)^3, 16.01846337396
 #The IT value of 1.05506 would be a reasonable alternative.
 kJPerBtu = 1.05435
 
+#tons/ac -> lb/ft^2: (See fuel loading note above.)
+tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre#*
+
 #Code:----------------------------------------------------------------------------------------------
 
 #Set the units for the current calculations:
 SetModelUnits <- function(units)
 {
-  if (!(units %in% c("USCU", "Metric")))
+  if (!(units %in% c("US", "Metric")))
   {
     stop("Invalid unit type.")
   }
@@ -321,7 +325,7 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)#Note: Argument orde
 #Output units: Dimensionless ratio
 OptimumPackingRatio <- function(SAV, units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     optPackingRatio = 3.348 * SAV^-0.8189
   }
@@ -986,7 +990,7 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits
   B = WindFactorB(SAV, units)
   E = WindFactorE(SAV, units)
   
-  if (units == "USCU")
+  if (units == "US")
   {
     #Rothermel 1972 equation 47,79:
     #ϕw = CU^B(β/βop)^-E
@@ -1011,7 +1015,7 @@ WindFactor <- function(SAV, packingRatio, optPackingRatio, U, units = ModelUnits
 
 WindFactorC <- function(SAV, units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     #C = unnamed term
     #Rothermel 1972 equation 48,82:
@@ -1029,7 +1033,7 @@ WindFactorC <- function(SAV, units = ModelUnits)
 
 WindFactorB <- function(SAV, units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     #B = unnamed term
     #Rothermel 1972 equation 49,83:
@@ -1047,7 +1051,7 @@ WindFactorB <- function(SAV, units = ModelUnits)
 
 WindFactorE <- function(SAV, units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     #E = unnamed term
     #Rothermel 1972 equation 50,84:
@@ -1095,7 +1099,7 @@ WindFactorA <- function(SAV, packingRatio, optPackingRatio, units = ModelUnits)
 #Output units: adjusted wind speed (U) at midflame height (ft/min | m/min)
 WindLimit <- function(U, I_R, units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     threshold = 0.9
   }
@@ -1162,7 +1166,7 @@ OptimumReactionVelocity <- function(packingRatio, SAV, units = ModelUnits)
   #This is rate for moisture free fuel with mineral composition of alpha cellulose.
   #Rothermel 1972 equations 36,68:
   #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
-  if (units == "USCU")
+  if (units == "US")
   {
     GammaPrimeMax = SAV^1.5 / (495 + 0.0594 * SAV^1.5)
     #Or equivalently:
@@ -1180,7 +1184,7 @@ OptimumReactionVelocity <- function(packingRatio, SAV, units = ModelUnits)
   #"Arbitrary" variable:
   #Albini 1976 pg. 15:
   #A = 133σ^-0.7913
-  if (units == "USCU")
+  if (units == "US")
   {
     A = 133 * SAV^-0.7913
   }
@@ -1303,7 +1307,7 @@ ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#Reac
 #Output units: Dimensionless proportion
 PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     xi = (192 + 0.2595 * SAV)^-1 * exp((0.792 + 0.681 * SAV^0.5) * (packingRatio + 0.1))
   }
@@ -1335,7 +1339,7 @@ PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 #Units: Dimensionless.
 EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     epsilon = exp(-138/SAV)
   }
@@ -1367,7 +1371,7 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
     stop("Suspect moisture content (M_f).")
   }
   
-  if (units == "USCU")
+  if (units == "US")
   {
     Q_ig = 250 + 1116 * M_f
   }
@@ -1404,7 +1408,6 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #Fuel array:
 #SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 #w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
-#     Sometimes expressed as ton/acre (move to central documentation?).
 #fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 #M_x = Moisture of extinction (fraction: water weight/dry fuel weight).
 #
@@ -1641,7 +1644,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   heatSink_i = c(0,0)
   for (k in 1:numFuelTypes)
   {
-    if (units == "USCU")
+    if (units == "US")
     {
       savConst= -138
     }
@@ -1690,7 +1693,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
 #Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
 StdHeatContent  <- function(units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     h = 8000#Btu/lb
   }
@@ -1705,7 +1708,7 @@ StdHeatContent  <- function(units = ModelUnits)
 #units:
 StdRho_p <- function(units = ModelUnits)
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     rho_p = 32#lb/ft^3
   }
@@ -1844,7 +1847,7 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, meanPackingRatio, optPackingRati
 #Output units: minutes
 ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     #The original equation predicts the residence time as 8 times the fuel diameter in inches.
     #We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
@@ -1915,7 +1918,7 @@ ByramsFirelineIntensity <- function(H_A, R)
 #Output units: ft | m
 ByramsFlameLength <- function(I_B, units = ModelUnits)#Was FlameLength().
 {
-  if (units == "USCU")
+  if (units == "US")
   {
     F_B = 0.45 * I_B^0.46
   }
