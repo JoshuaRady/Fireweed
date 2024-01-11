@@ -1,7 +1,8 @@
 #FwRothermelAlbiniFireSpread.r
 #Programmed by: Joshua M. Rady
 #Woodwell Climate Research Center
-#Started: 2/27/2023
+#2023-2024
+#Reference: Proj. 11 Exp. 3, Proj. 11 Exp. 6, Proj. 11 Exp. 14
 #
 #Description:---------------------------------------------------------------------------------------
 #  This file is part of the Fireweed fire code library.  It contains R implementations of the
@@ -13,8 +14,6 @@
 #consists of a nested set of equations. The library presents functions for each equation with useful
 #output.  Some functions are very simple and could be inlined but a focus on clarity and modularity
 #have been prioritized over compactness.
-#
-#  This code was started in Proj_11_Exp_3_Analysis_D5.r from Project 11 Experiment 3.
 #
 #References:----------------------------------------------------------------------------------------
 #Richard C. Rothermel.
