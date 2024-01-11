@@ -22,7 +22,7 @@ The notation in the Rothermel & and Albini fire spread model and related publica
 | S<sub>e</sub> | Se | (S sub e) | S\_e | Effective mineral content. | unitless fraction: (mineral mass – mass silica) / total dry mass |
 | (S<sub>e</sub>)<sub>ij</sub> | (Se)ij | (S sub e) sub ij | S\_e\_ij | Effective mineral content for each fuel type. | unitless fraction: (mineral mass – mass silica) / total dry mass |
 | ρ<sub>p</sub> | ρp | rho sub p | rho\_p | Fuel particle density. | lb/ft^3, kg/m^3 |
-| (ρ<sub>p</sub>)<sub>ij</sub>| (ρp)ij | (rho sub p [bar]) sub ij ????? | rho\_p\_ij | Fuel particle density for each fuel type. | lb/ft^3, kg/m^3 |
+| (ρ<sub>p</sub>)<sub>ij</sub>| (ρp)ij | (rho sub p) sub ij | rho\_p\_ij | Fuel particle density for each fuel type. | lb/ft^3, kg/m^3 |
 
 ## Fuel Array:
 | Original | Plain Text | Longhand | Code Notation | Description | Units |
@@ -38,7 +38,6 @@ The notation in the Rothermel & and Albini fire spread model and related publica
 | (M<sub>x</sub>)<sub>i</sub> | (Mx)i | (M sub x) sub i | M\_x\_i | Moisture of extinction each fuel category. | fraction: water weight/dry fuel weight |
 | (M<sub>x</sub>)<sub>1</sub> | (Mx)1 | (M sub x) sub 1 | M\_x\_1 | Dead fuel moisture of extinction. | fraction: water weight/dry fuel weight |
 | ρ<sub>b</sub>| ρb | rho sub b | rho\_b | Fuel array bulk density. | lb/ft^3, kg/m^3 |
-| ... | | rho sub b bar| rho\_b\_bar | Mean fuel array bulk density. | lb/ft^3, kg/m^3 |
 
 ## Environmental:
 | Original | Plain Text | Longhand | Code Notation | Description | Units |
