@@ -387,8 +387,7 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #Input units cancel out for calculations.  Metric conversion only needed for SAV sorting.
 #
 #Note: It makes sense to calculate these together and they only need to be calculated once for a
-#give spread rate scenario.  However, I'm not sure the best way the handle the outputs.  Would it
-#be better to put them in a global? ?????
+#give spread rate scenario.
 CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnits)
 {
   #Validity checking:
@@ -616,12 +615,11 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 }
 
 #Net Fuel Load:-------------------------------------------------------------------------------------
-# The fuel load (w sub n) is mass per ground area of dry combustible fuel removing the
-#noncombustible mineral mass.
+# The net fuel load (w_n) is mass per ground area of dry combustible fuel removing the
+#noncombustible mineral mass.  This is the revised calculation developed by Albini.
 #
 #Albini 1976 pg. 14:
 #wn = wo(1 - ST)
-#Or alt notation? w_n = w_o(1 - S_T) ?????
 #
 #Input variables / parameters:
 #w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
@@ -630,7 +628,7 @@ FuelBedSAV <- function(SAV_ij, f_ij, f_i, liveDead)
 #
 #Output units: lb/ft^2 | kg/m^3
 #The inputs carry the units.  No metric conversions are needed.
-NetFuelLoad_Albini <- function(w_o, S_T)
+NetFuelLoad_Homo <- function(w_o, S_T)
 {
   w_n = w_o * (1 - S_T)
   
@@ -645,15 +643,15 @@ NetFuelLoad_Albini <- function(w_o, S_T)
 #S_T_ij = An array of total mineral content for each fuel type (unitless fraction).
 #g_ij = Net fuel load weights (Albini 1976).
 #
-#Returns: w_n_i ((w sub o) sub i) = An 
+#Returns: w_n_i = Net fuel load for live/dead fuel categories.
 #Output units: lb/ft^2 | kg/m^3
 #The inputs carry the units.  No metric conversions are needed.
-NetFuelLoad_Albini_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)#Name?????
+NetFuelLoad_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)
 {
   #Argument checking:
   if (!SameLengths(w_o_ij, S_T_ij, g_ij, liveDead))
   {
-    stop("NetFuelLoad_Albini_Het() expects arguments of the same length.")
+    stop("NetFuelLoad_Het() expects arguments of the same length.")
   }
   
   numFuelTypes = length(w_o_ij)
@@ -951,7 +949,7 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
 #homogeneous and heterogeneous fuels.
 #
 #Rothermel 1972 equation 51,80:
-#ϕs (phi sub s) = 5.275β^-0.3(tan ϕ)^2
+#ϕs = 5.275β^-0.3(tan ϕ)^2
 #
 #Input variables / parameters:
 #packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
@@ -1237,15 +1235,14 @@ LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
 }
 
 #Reaction Intensity:
-#  The reaction intensity (IR / I sub R) is the total energy released by the fire front in 
-#Btu/ft^2/min in all forms (radiation, conduction, and convection).
+#  The reaction intensity (I_R) is the total energy released by the fire front in Btu/ft^2/min in
+#all forms (radiation, conduction, and convection).
 #  This it not the same as fireline intensity!
 
 #Reaction Intensity, Rothermel version for homogeneous fuels:
 #
 #Rothermel equation 27:
 #IR = Γ'wnhηMηs
-#or: I_R = Γ' x w_n x h x η_M x η_s
 #
 #Input variables / parameters:
 #GammaPrime = Optimum reaction velocity (min^-1).
@@ -1257,9 +1254,8 @@ LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
 #Output units: Btu/ft^2/min | kJ/m^2/min
 #Inputs carry units.  No unit conversions are needed.
 #
-#Are these the best parameters?
-#function(GammaPrime, w_n, h, M_f, M_x, Se)?
-ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)#Name??????
+#Note: Alternate the alternate parameters (GammaPrime, w_n, h, M_f, M_x, Se) could be used.
+ReactionIntensity_Homo <- function(GammaPrime, w_n, h, eta_M, eta_s)
 {
   I_R = GammaPrime * w_n * h * eta_M * eta_s
   
@@ -1267,6 +1263,9 @@ ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)#Name???
 }
 
 #Reaction Intensity for Heterogeneous Fuels:
+#
+#Rothermel equation 58 modified by Albini 1976 pg. 17:
+#IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
 #
 #Input variables / parameters:
 #GammaPrime = Optimum reaction velocity (min^-1).
@@ -1277,15 +1276,13 @@ ReactionIntensityRothermel <- function(GammaPrime, w_n, h, eta_M, eta_s)#Name???
 #
 #Output units: Btu/ft^2/min | kJ/m^2/min
 #Inputs carry units.  No unit conversions are needed.
-ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)#ReactionIntensityAlbini()?????
+ReactionIntensity_Het <- function(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i)
 {
   if (!SameLengths(w_n_i, h_i, eta_M_i, eta_s_i))
   {
     stop("ReactionIntensity_Het() expects arguments of the same length.")
   }
   
-  #Rothermel equation 58 modified by Albini 1976 pg. 17:
-  #IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
   I_R = GammaPrime * sum(w_n_i * h_i * eta_M_i * eta_s_i)
   
   return(I_R)
@@ -1452,10 +1449,10 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   
   #Reaction intensity I_R:
   GammaPrime = OptimumReactionVelocity(packingRatio, SAV, units)
-  w_n = NetFuelLoad_Albini(w_o, S_T)
+  w_n = NetFuelLoad_Homo(w_o, S_T)
   eta_M = MoistureDampingCoefficient(M_f, M_x)
   eta_s = MineralDampingCoefficient(S_e)
-  I_R = ReactionIntensityRothermel(GammaPrime, w_n, heatContent, eta_M, eta_s)
+  I_R = ReactionIntensity_Homo(GammaPrime, w_n, heatContent, eta_M, eta_s)
   
   #Other terms:
   xi = PropagatingFluxRatio(packingRatio, SAV, units)
@@ -1602,7 +1599,7 @@ SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
   
   #Reaction intensity:
   GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV)
-  w_n_i = NetFuelLoad_Albini_Het(w_o_ij, S_T_ij, weights$g_ij, liveDead)
+  w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights$g_ij, liveDead)
   
   #Heat content by live/dead fuel category:
   h_i = LiveDeadHeatContent(h_ij, weights$f_ij, liveDead)
