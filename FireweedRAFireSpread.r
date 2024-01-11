@@ -1,12 +1,12 @@
-#FwRothermelAlbiniFireSpread.r
+#FireweedRAFireSpread.r
 #Programmed by: Joshua M. Rady
 #Woodwell Climate Research Center
 #2023-2024
 #Reference: Proj. 11 Exp. 3, Proj. 11 Exp. 6, Proj. 11 Exp. 14
 #
 #Description:---------------------------------------------------------------------------------------
-#  This file is part of the Fireweed fire code library.  It contains R implementations of the
-#Rothermel fire spread model (Rothermel 1972) with the modifications of Albini (Albini 1972).
+#  This file is part of the Fireweed fire code library.  It contains an R implementation of the
+#Rothermel fire spread model (Rothermel 1972) with the modifications of Albini (Albini 1976).
 #
 #  The Rothermel/Albini equations have been implemented in a form as close to the originals as was
 #possible.  The modifications of Albini 1972 are considered official parts of the Rothermel fire
