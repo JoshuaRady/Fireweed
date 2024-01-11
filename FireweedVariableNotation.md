@@ -60,7 +60,7 @@ The notation in the Rothermel & and Albini fire spread model and related publica
 | -------- | ---------- | -------- | ------------- | ----------- | ----- |
 | Γ' | Γ' | Gamma prime | GammaPrime | Optimum reaction velocity. | min^-1 |
 | β | β | beta | packingRatio | Packing ratio, the fraction of the fuel bed volume occupied by fuel. | dimensionless |
-| $`β\bar`$ | beta[bar] | beta bar | meanPackingRatio | Mean packing ratio.  | dimensionless ratio |
+| $`\bar{\beta}`$ | beta[bar] | beta bar | meanPackingRatio | Mean packing ratio.  | dimensionless ratio |
 | β<sub>op</sub> | βop | beta sub op | optPackingRatio | Optimum packing ratio. | dimensionless |
 | ϕ<sub>w</sub> | ϕw | phi sub w | phi\_w | The wind factor. | dimensionless |
 | ϕ<sub>s</sub> | ϕs | phi sub s | phi\_s | The slope factor. | dimensionless |
