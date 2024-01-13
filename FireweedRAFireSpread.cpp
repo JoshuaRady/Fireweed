@@ -70,12 +70,9 @@ double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = M
 
 //This is a wrapper for PropagatingFluxRatio() that allows it to be called from R:
 //The primary reason for providing this wrapper is for verification testing.
-extern "C"
+extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* SAV, double* xi)
 {
-	void PropagatingFluxRatioR(double* packingRatio, double* SAV, double* xi)
-	{
-		*xi = PropagatingFluxRatio(*packingRatio, *SAV);
-	}
+	*xi = PropagatingFluxRatio(*packingRatio, *SAV);
 }
 
 //Heat Sink Components:-----------------------------------------------------------------------------
