@@ -211,12 +211,12 @@ BulkDensity <- function(w_o, fuelBedDepth)
 MeanBulkDensity <- function(w_o_ij, fuelBedDepth)
 {
   #Sum the individual fuel loadings across elements:
-  #No weights are needed since the w_o is expressed as mass per area.
-  #The fuel loadings chould be a a 2D array / matrix but the positions have no significance in the
-  #calculation  Only a sum of all elments needs to be computed.
+  #No weights are needed since  w_o is expressed as mass per area.
+  #The fuel loading could be a 2D array / matrix but the positions have no significance in the
+  #calculation.  Only a sum of all elements needs to be computed.
   #If we know the size of dimensions we could apply error checking.  The 53 standard fire behavior
   #fuel models have 3 dead and 2 live classes.  That is not a fixed requirement of the Rothermel
-  #in theory, but is in practice [I think].
+  #model in theory, but is in practice [I think].
   
   if (length(w_o_ij) < 2)
   {
