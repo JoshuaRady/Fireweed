@@ -15,6 +15,7 @@
 
 
 #include <math.h>
+#include <vedtor.h>
 
 
 //Globals:------------------------------------------------------------------------------------------
@@ -29,6 +30,66 @@ UnitsType ModelUnits = US;
 //SECTION TO BE PORTED!!!!!
 
 
+//Bulk Density:--------------------------------------------------------------------------------------
+//  The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
+//area divided by the fuel bed depth).
+//
+//Rothermel 1972 equation 40:
+//ρb = w_o/δ
+//
+//Input variables / parameters:
+//w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
+//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+//
+//Output units: lb/ft^3 | kg/m^3
+//The inputs carry the units.  No metric conversions are needed.
+double BulkDensity(double w_o, double fuelBedDepth)
+{
+  double rho_b;//Bulk density.
+  
+  rho_b = w_o / fuelBedDepth;
+  return(rho_b);
+}
+
+//Mean Bulk Density:
+//  The heterogeneous fuel version of the spread equation requires a mean bulk density for the 
+//fuels.
+//
+//Rothermel 1972 equation 74:
+//ρb = 1/δ Σi Σj (wo)ij
+//For i = 1 to m fuel categories (live vs. dead) and j = 1 to n fuel size classes.
+//The original notation includes from and to sum subscripts and bars over rho and w.
+//
+//Input variables / parameters:
+//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+//
+//Output units: lb/ft^3 | kg/m^3
+//The inputs carry the units.  No metric conversions are needed.
+double MeanBulkDensity(vector<double> w_o_ij, double fuelBedDepth)
+{
+  
+  double totalLoading;//Sum of w_o_ij.
+  double rho_b_bar;//Return value.
+  
+  //Sum the individual fuel loadings across elements:
+  //No weights are needed since  w_o is expressed as mass per area.
+  //The fuel loading could be a 2D array / matrix but the positions have no significance in the
+  //calculation.  Only a sum of all elements needs to be computed.
+  //If we know the size of dimensions we could apply error checking.  The 53 standard fire behavior
+  //fuel models have 3 dead and 2 live classes.  That is not a fixed requirement of the Rothermel
+  //model in theory, but is in practice [I think].
+  
+  if (w_o_ij.size() < 2)
+  {
+    WARNING << "More than one fuel class expected.";
+  }
+  
+  totalLoading = std::accumulate(w_o_ij.begin(), w_o_ij.end(), 0.0);
+  rho_b_bar = totalLoading / fuelBedDepth;
+  
+  return rho_b_bar;
+}
 
 //Heat Source Components:---------------------------------------------------------------------------
 //MORE CODE HERE!!!!!
