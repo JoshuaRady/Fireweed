@@ -22,7 +22,7 @@
 //Specify the units to use.  The default is United States customary units.
 //This should not be set directly.  Use SetModelUnits().
 //private 
-UnitsType ModelUnits = US;
+//UnitsType ModelUnits = US;
 
 //Code:---------------------------------------------------------------------------------------------
 //SECTION TO BE PORTED!!!!!
@@ -89,6 +89,144 @@ double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth)
   return rho_b_bar;
 }
 
+//Packing Ratio:-------------------------------------------------------------------------------------
+// The packing ratio (beta) is the fraction of the (surface) fuel bed volume occupied by fuel, aka
+//compactness.
+//
+//Rothermel 1972 equation 31:
+//β = ρb/ρp
+//
+//Input variables / parameters:
+//rho_b = Fuel array bulk density (lb/ft^3 | kg/m^3).
+//rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
+//  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
+//
+//Output units: Dimensionless ratio.
+//Input units cancel out.  No metric conversion needed.
+double PackingRatio(double rho_b, double rho_p)
+{
+  return (rho_b / rho_p);
+}
+
+//Mean Packing Ratio:
+//For heterogeneous fuelbeds the mean packing ratio (beta_bar) must be calculated.
+//
+//Rothermel 1972 equation 74:
+//β = 1/δ Σi Σj (wo)ij/(ρp)ij
+//For i = 1 to m fuel categories (live vs. dead) and j = 1 to n fuel size classes.
+//The original notation includes from and to sum subscripts and bars over beta, rho, and w.
+//
+//Input variables / parameters:
+//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+//rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
+//  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
+//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+//
+//Output units: Dimensionless ratio (scalar)
+//Input units cancel out.
+double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij, double fuelBedDepth)
+{
+  int numLoadings, numDensities;
+  double meanPackingRatio;//Return value.
+  std::vector<double> x;//Intermediate calculation.
+  
+  //Parameter checking:
+  numLoadings = w_o_ij.size();
+  numDensities = rho_p_ij.size();
+  
+  //If only one particle density is provided assume that is it the same for all fuel classes:
+  if (numDensities == 1)
+  {
+    //rho_p_ij.resize(numLoadings, val = rho_p_ij[0])
+    rho_p_ij.resize(numLoadings, rho_p_ij[0]);
+  }
+  else//Otherwise one should be provided for each fuel class.
+  {
+    if (numDensities != numLoadings)
+    {
+      Stop("The number of fuel loadings and particle densities do not match.");
+    }
+  }
+  
+  //Confirm delta is a scalar: Not needed in C++!
+//   if (length(fuelBedDepth) != 1)
+//   {
+//     //This can be caused if the arguments are out of order.
+//     stop("A single fuelbed depth must be provided.")
+//     //Add value checking? > 0, < ?
+//   }
+  
+  //Calculate w_o / rho_p for each fuel element:
+  //x = w_o_ij / rho_p_ij
+  for (int i = 0; i < x.size(); i++)
+  {
+  	x[i] = w_o_ij[i] / rho_p_ij[i];
+  }
+  
+  meanPackingRatio = std::accumulate(x.begin(), x.end(), 0.0) / fuelBedDepth;//AKA beta_bar
+  return meanPackingRatio;
+}
+
+//Optimum Packing Ratio:
+// This is the packing ratio (compactness) at which the maximum reaction intensity will occur.
+//
+//Rothermel 1972 equations 37,69:
+//βop = 3.348(σ)^-0.8189
+//
+//Input variables / parameters:
+//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//  For heterogeneous fuels the SAV of the fuel bed / complex is used.
+//
+//Output units: Dimensionless ratio
+double OptimumPackingRatiofunction(double SAV, UnitsType units)// = ModelUnits
+{
+  double optPackingRatio;//Return value.
+  
+  if (units == US)
+  {
+    optPackingRatio = 3.348 * pow(SAV, -0.8189);
+  }
+  else// if (units == "Metric")
+  {
+    //Wilson 1980 gives:
+    //optPackingRatio = 0.219685 * SAV^-0.8189
+    //Tests show that this is pretty good but I was able to calculate a better conversion as follows:
+    
+    // SAV is in 1/ft so:
+    // SAVcm = SAVft * 1/cmPerFt
+    // and
+    // SAVft = SAVcm * cmPerFt
+    
+    //Solve:
+    // x = 3.348 * SAV^-0.8189
+    // x / 3.348 = SAV^-0.8189
+    // (x / 3.348)^(1/-0.8189) = SAV
+    // (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
+    // x / 3.348 = (SAVcm * cmPerFt)^-0.8189
+    // x / 3.348 = SAVcm^-0.8189 * cmPerFt^-0.8189
+    // x = SAVcm^-0.8189 * cmPerFt^-0.8189 * 3.348
+    // x = cmPerFt^-0.8189 * 3.348 * SAVcm^-0.8189
+    // x = 0.2039509 * SAVcm^-0.8189
+    
+    //Same thing:
+    // x = 3.348 * SAV^-0.8189
+    // x / 3.348 = SAV^-0.8189
+    // (x / 3.348)^(1/-0.8189) = SAV
+    // (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
+    // (x / 3.348)^(1/-0.8189) / cmPerFt = SAVcm
+    // (x^(1/-0.8189) / 3.348^(1/-0.8189)) / cmPerFt = SAVcm
+    // x^(1/-0.8189) / (3.348^(1/-0.8189) * cmPerFt) = SAVcm
+    // x^(1/-0.8189) = (3.348^(1/-0.8189) * cmPerFt) * SAVcm
+    // x = ((3.348^(1/-0.8189) * cmPerFt) * SAVcm)^-0.8189
+    // x = (3.348^(1/-0.8189) * cmPerFt)^-0.8189 * SAVcm^-0.8189
+    // x = 0.2039509 * SAVcm^-0.8189
+    
+    optPackingRatio = 0.2039509 * pow(SAV, -0.8189);
+  }
+  
+  return optPackingRatio;
+}
+
 //Heat Source Components:---------------------------------------------------------------------------
 //MORE CODE HERE!!!!!
 
@@ -149,4 +287,11 @@ send messages to standard out by default with means to alter that behavior to be
 void Warning(const char* message)
 {
 	std::cout << message << "\n";
+}
+
+//Log the passed message and shutdown (not yet implemented):
+void Stop(const char* message)
+{
+	std::cout << message << "\n";
+	//Add error throwing.
 }
