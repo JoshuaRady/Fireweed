@@ -14,15 +14,17 @@
 //[More header here...]
 
 
-#include <math.h>//Or cmath?????
-#include <vector>
-#include <numeric>
-#include <iostream>
+// #include <math.h>//Or cmath?????
+// #include <vector>
+// #include <numeric>
+// #include <iostream>
+#include "FireweedRAFireSpread.h"
 
-void Warning(const char* message);//Temporary!
+
+// void Warning(const char* message);//Temporary!
 
 //Globals:------------------------------------------------------------------------------------------
-enum UnitsType {US, Metric};//Move to header?????
+//enum UnitsType {US, Metric};//Move to header?????
 
 //Specify the units to use.  The default is United States customary units.
 //This should not be set directly.  Use SetModelUnits().
