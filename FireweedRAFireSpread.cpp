@@ -14,14 +14,7 @@
 //[More header here...]
 
 
-// #include <math.h>//Or cmath?????
-// #include <vector>
-// #include <numeric>
-// #include <iostream>
 #include "FireweedRAFireSpread.h"
-
-
-// void Warning(const char* message);//Temporary!
 
 //Globals:------------------------------------------------------------------------------------------
 //enum UnitsType {US, Metric};//Move to header?????
