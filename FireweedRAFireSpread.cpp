@@ -14,9 +14,12 @@
 //[More header here...]
 
 
-#include <math.h>
-#include <vedtor.h>
+#include <math.h>//Or cmath?????
+#include <vector>
+#include <numeric>
+#include <iostream>
 
+void Warning(const char* message);//Temporary!
 
 //Globals:------------------------------------------------------------------------------------------
 enum UnitsType {US, Metric};//Move to header?????
@@ -48,7 +51,7 @@ double BulkDensity(double w_o, double fuelBedDepth)
   double rho_b;//Bulk density.
   
   rho_b = w_o / fuelBedDepth;
-  return(rho_b);
+  return rho_b;
 }
 
 //Mean Bulk Density:
@@ -66,7 +69,7 @@ double BulkDensity(double w_o, double fuelBedDepth)
 //
 //Output units: lb/ft^3 | kg/m^3
 //The inputs carry the units.  No metric conversions are needed.
-double MeanBulkDensity(vector<double> w_o_ij, double fuelBedDepth)
+double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth)
 {
   
   double totalLoading;//Sum of w_o_ij.
@@ -82,7 +85,7 @@ double MeanBulkDensity(vector<double> w_o_ij, double fuelBedDepth)
   
   if (w_o_ij.size() < 2)
   {
-    WARNING << "More than one fuel class expected.";
+    Warning("More than one fuel class expected.");
   }
   
   totalLoading = std::accumulate(w_o_ij.begin(), w_o_ij.end(), 0.0);
@@ -126,7 +129,7 @@ double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = M
     //xi = (192 + 7.9095 * SAV)^-1 * exp((0.792 + 3.7597 * SAV^0.5) * (packingRatio + 0.1))
   }
   
-  return(xi);
+  return xi;
 }
 
 //This is a wrapper for PropagatingFluxRatio() that allows it to be called from R:
@@ -140,5 +143,15 @@ extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* 
 //SECTION TO BE PORTED!!!!!
 
 
+/*Logging:------------------------------------------------------------------------------------------
+This code may be deployed in multiple ways so the available infrastructure for logging and error
+messaging may vary.  These functions provided an interface for basic log messages.  This is an
+initial simple implementation that will likely revised or replaced soon.  Right now the plan is to
+send messages to standard out by default with means to alter that behavior to be added later.
+--------------------------------------------------------------------------------------------------*/
 
-
+//Post a non-fatal warning:
+void Warning(const char* message)
+{
+	std::cout << message << "\n";
+}
