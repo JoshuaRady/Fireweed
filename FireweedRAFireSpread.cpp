@@ -24,6 +24,21 @@
 //private 
 //UnitsType ModelUnits = US;
 
+//Unit Conversion Factors:---------------------------------------------------------------------------
+//Conversion factors marked with an asterisk are not used in this file.  They are provided for use by
+//calling code.
+//It might be better to have a interface of some sort to request conversion factors from.
+//Move to header?????
+
+//Length: (exact per international yard and pound act)
+const double cmPerIn = 2.54;
+const double cmPerFt = 30.48;
+const double mPerFt = 0.3048;
+const double ftPerM = 3.28084;//1 / mPerFt
+const int ftPerMi = 5280;//* for conversion of windspeed (U, MPH * ftPerMi / 60 = ft/min)
+
+//[More!!!!!]
+
 //Code:---------------------------------------------------------------------------------------------
 //SECTION TO BE PORTED!!!!!
 
@@ -227,6 +242,260 @@ double OptimumPackingRatiofunction(double SAV, UnitsType units)// = ModelUnits
   return optPackingRatio;
 }
 
+//Weighting Factors:---------------------------------------------------------------------------------
+//The spread model uses weights in many of the calculations for heterogeneous fuels.  These need to
+//be calculated from the surface areas of the different fuel classes.  This function includes the
+//changes to Rothermel 1972 by Albini 1976.
+//
+//Input variables / parameters:
+//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+//rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
+//liveDead = An array indicating if each index in each of the other input variables represents a
+//  dead (1) or live (2) fuel category.
+//
+//Output units: unitless weighting factors
+//Input units cancel out for calculations.  Metric conversion only needed for SAV sorting.
+//
+//Note: It makes sense to calculate these together and they only need to be calculated once for a
+//give spread rate scenario.
+FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
+                           std::vector<double> rho_p_ij, std::vector<int> liveDead,
+                           UnitsType units = ModelUnits)
+{
+	int numFuelTypes;
+	std::vector<double> A_ij(SAV_ij.size(), 0.0);
+	double A_i[2] = {0, 0};
+	double A_T;//Sum of A_i.
+	FuelWeights wts;//Return value.
+	double unitFactor;
+	//std::vector<double> subclass_ij(SAV_ij.size(), 0.0);
+	std::vector<int> subclass_ij(SAV_ij.size(), 0);
+	
+  //Validity checking:
+  //Are arguments the same length?
+  if (!SameLengths(SAV_ij, w_o_ij, liveDead))
+  {
+    Stop("CalcWeightings() expects arguments of the same length.");
+  }
+  //A single value for rho_p_ij will be tolerated:
+  //if (!(length(rho_p_ij) %in% c(1, length(SAV_ij))))
+  if (!(rho_p_ij.size() == 1 || rho_p_ij.size() == SAV_ij.size()))
+  {
+    Stop("rho_p_ij must be length 1 or the same length as the other arguments");
+  }
+  
+  numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
+  
+  //Calculate the (mean) total surface area for each fuel component:
+  //Rothermel equation 53:
+  //Aij = (σ)ij (wo)ij ⁄(ρp)ij
+  		//A_ij = SAV_ij * w_o_ij / rho_p_ij
+  for (int i = 0; i < SAV_ij.size(); i++)
+  {
+  	A_ij[i] = SAV_ij[i] * w_o_ij[i] / rho_p_ij[i];
+  }
+  
+  //Mean total surface area by live / dead fuel categories:
+  //Rothermel equation 54:
+  //Ai = ΣjAij
+  		//A_i = c(0,0)
+  for (int k = 0; k < numFuelTypes; k++)
+  {
+    //A_i[liveDead[k]] = A_i[liveDead[k]] + A_ij[k];
+    A_i[liveDead[k]] += A_ij[k];
+  }
+  
+  //Mean total surface area of the fuel:
+  //Rothermel equation 55:
+  //AT = ΣiAi
+  		//A_T = sum(A_i)//Single scalar value.
+  A_T = A_i[0] + A_i[1];//Single scalar value.
+  
+  //f_ij fuel class weighting factor:
+  //Rothermel equation 56:
+  //fij = Aij/Ai
+  
+  		//f_ij = vector(mode = "numeric", length = numFuelTypes)
+  for (int l = 0; l < numFuelTypes; l++)
+  {
+    if (A_i[liveDead[l]] != 0)
+    {
+      wts.f_ij[l] = A_ij[l] / A_i[liveDead[l]];
+    }
+    //A_i can be 0 if there in no fuel in either the live or dead fuel category.  If A_i = 0 then
+    //A_ij for this fuel should also be 0.  In this case we avoid a divide by 0 and give an
+    //appropriate weight of 0.  Given the initialization we don't have to do this explicitly.
+  }
+  
+  //fi fuel category (live/dead) weighting factor:
+  //Rothermel equation 57:
+  //fi = Ai/AT
+  		//f_i = A_i / A_T//Array/vector of 2.
+  wts.f_i[0] = A_i[0] / A_T;
+  wts.f_i[1] = A_i[1] / A_T;
+  
+  //g_ij weighting factor:
+  //The final set of weights was added in Albini 1976 to get around a logical problem of using f_ij
+  //for fuel loading.
+  //Albini 1972 pg. 15:
+  //g_ij = Σ_(subclass to which j belongs) f_ij
+  //This notation is a bit dense (and potentially confusing).  We accomplish this in three steps:
+  //1. Determine the size subclass for each fuel type.
+  //2. Compute the total weight (from f_ij) in each subclass by live/dead category.
+  //3. Set g_ij equal the total weight for the corresponding size subclass.
+  
+  //What size subclass is each fuel type in?
+  //Note: This maps fuel types to size subclasses even when there is no fuel present (loading = 0).
+  //Also missing classes, i.e. classes where no SAV is provided, will not be mapped to a subclass.
+  //Both these conditions have to be handled below.
+  
+  //The size subclass ranges are defined by SAV so the units do matter here:
+  if (units == Metric)
+  {
+    unitFactor = 1 / cmPerFt;
+  }
+  else
+  {
+    unitFactor = 1;
+  }
+  //Alternatively we could use an array of range edges with the appropriate units.
+  
+  		//subclass_ij = array(data = 0, dim = numFuelTypes)
+  //fill(subclass_ij.begin(), subclass_ij.end(), 0.0)
+  for (int n = 0; n < numFuelTypes; n++)
+  {
+    if (SAV_ij[n] >= 1200 * unitFactor)
+    {
+      subclass_ij[n] = 1;
+    }
+    else if (SAV_ij[n] >= 192 * unitFactor)
+    {
+      subclass_ij[n] = 2;
+    }
+    else if (SAV_ij[n] >= 96 * unitFactor)
+    {
+      subclass_ij[n] = 3;
+    }
+    else if (SAV_ij[n] >= 48 * unitFactor)
+    {
+      subclass_ij[n] = 4;
+    }
+    else if (SAV_ij[n] >= 16 * unitFactor)
+    {
+      subclass_ij[n] = 5;
+    }
+    else//SAV_ij[n] < 16
+    {
+      subclass_ij[n] = 6;
+    }
+  }
+  
+  		//g_ij = vector(mode = "numeric", length = numFuelTypes)//Implicitly intialized to 0.
+  fill(wts.g_ij.begin(), wts.g_ij.end(), 0.0);//Mpve into constructor or declaration?????
+  
+  for (int i; i < 2; i++)//i reused.
+  {
+    //Calculate the total weight for each size subclass (bin them) for this live/dead category:
+    		//subclassTotal = array(data = 0, dim = 6)
+    double subclassTotal[6];//Implicitly initialized to 0.
+    		//catIndexes = which(liveDead == i)
+    
+    //The weight of the sixth and largest subclass is always 0 so we skip it.
+    for (int o = 0; o < 5; o++)
+    {
+      //Which fuel classes are in the current subclass?:
+      
+      //R:
+      //Note: We need a C compatible version that doesn't use which().
+      //Also this indexing technique is a bit hard to follow.
+//       inThisSubclass = which(subclass_ij == o)//Live and dead.
+//       inThisSubclass = inThisSubclass[inThisSubclass %in% catIndexes]//Just this category.
+//       
+//       if (length(inThisSubclass > 0))
+//       {
+//         //Combine the weights of all classes in this size subclass:
+//         subclassTotal[o] = sum(f_ij[inThisSubclass])
+//       }
+      
+      //
+      for (int k = 0; k < wts.f_ij.size(); k++)
+      {
+      	if (liveDead[k] == i && subclass_ij[k] == o)
+      	{
+      		subclassTotal[o] += wts.f_ij[k];
+      	}
+      }
+    }
+    
+    //Assign the subclass weights to each size class.  Some may share the same weight:
+//     for (j in catIndexes)
+//     {
+//       //If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
+//       //to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes
+//       //that have no fuel loading.
+//       if (subclass_ij[j] != 0 && w_o_ij[j] != 0)
+//       {
+//         g_ij[j] = subclassTotal[subclass_ij[j]]
+//       }
+//       //A value of NA might be more logical but a 0 weight makes the math simpler.
+//     }
+    for (int k = 0; k < wts.f_ij.size(); k++)
+    {
+    	//If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
+    	//to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes
+    	//that have no fuel loading.
+    	if (liveDead[k] == i && subclass_ij[k] != 0 && w_o_ij[k] != 0)
+    	{
+    		wts.g_ij[k] = subclassTotal[subclass_ij[k]];
+    	}
+    	//A value of NA might be more logical but a 0 weight makes the math simpler.
+    }
+  }
+  
+  //Return value error checking:
+  //Note: if (sum(X) != 1) these comparisons can fail due to small floating point differences
+  //when we reassemble the weights.  all.equal is the right solution for R near equality but is not
+  //portable.
+  //if (sum(f_ij[liveDead == 1]) != 1)
+  //if (!isTRUE(all.equal(sum(f_ij[liveDead == 1]), 1)))
+  if (!FloatCompare(SumByClass(wts.f_ij, liveDead, Dead), 1))
+  {
+    Stop("f_ij dead fuels do not sum to 1.");
+  }
+  //if (!(sum(f_ij[liveDead == 2]) %in% c(0,1)))
+  //if (!(isTRUE(all.equal(sum(f_ij[liveDead == 2]), 0)) ||
+  //      isTRUE(all.equal(sum(f_ij[liveDead == 2]), 1))))
+  if (!(FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 0) ||
+        FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 1)))
+  {
+    Stop("Invalid f_ij weights for live fuels.");
+  }
+  //if (sum(f_i) != 1)
+  //if (!isTRUE(all.equal(sum(f_i), 1)))
+  if (!FloatCompare((wts.f_i[0] + wts.f_i[1]), 1))
+  {
+    Stop("f_i does not sum to 1.");
+  }
+  //if (sum(g_ij[liveDead == 1]) != 1)
+  //if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
+  if (!FloatCompare(SumByClass(wts.g_ij, liveDead, Dead), 1))
+  {
+    Stop("g_ij dead fuels do not sum to 1.");
+  }
+  //if (!(sum(g_ij[liveDead == 2]) %in% c(0,1)))
+  //if (!(isTRUE(all.equal(sum(g_ij[liveDead == 2]), 0)) ||
+  //      isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1))))
+  if (!(FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 0) ||
+        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 1)))
+  {
+    Stop("Invalid g_ij weights for live fuels.");
+  }
+  
+  //return(list(f_ij = f_ij, f_i = f_i, g_ij = g_ij))
+  return wts;
+}
+
 //Heat Source Components:---------------------------------------------------------------------------
 //MORE CODE HERE!!!!!
 
@@ -247,7 +516,7 @@ double OptimumPackingRatiofunction(double SAV, UnitsType units)// = ModelUnits
 //
 //Output units: Dimensionless proportion
 //R: PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
-double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = ModelUnits)
+double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = ModelUnits)//Default to header!!!!!
 {
   double xi = 0;//Output
   
@@ -275,6 +544,111 @@ extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* 
 //Heat Sink Components:-----------------------------------------------------------------------------
 //SECTION TO BE PORTED!!!!!
 
+
+//Utilities:----------------------------------------------------------------------------------------
+
+//[MORE!!!!!]
+
+//SameLengths():
+//This utility checks that the parameters (vectors) passed have the same length.  Between 2 and 4
+//arguments are accepted.
+/*
+Overloading has been used to reproduce the behavior of the R function, although that function can
+handle arguments of different types in any order.  We only handle a subset of possible type
+combinations.  This function is currently used primarily variable vectors of type double and
+liveDead, which is currently an integer but could be a boolean.  To reduce the number of
+possibilities we require liveDead to be last.  It might be possible to do this more compactly with
+template functions or ariadic arguments.
+
+Could change arguments to const &?
+ */
+//SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
+bool SameLengths(std::vector<double> arg1, std::vector<double> arg2)
+{
+  //Put the argments in a list removing NULL elements:
+  // argList = list(arg1, arg2, arg3, arg4)
+//   argList = argList[!sapply(argList, is.null)]
+//   //This would work too for omitted arguments but would ignore any zero length vectors passed in:
+//   //argList = argList[length(argList) != 0]
+//   
+//   //Are arguments the same length?
+//   if (all(sapply(argList, length) == length(arg1)))
+//   {
+//     //return(length(arg1))
+//     return(TRUE)
+//   }
+//   else
+//   {
+//     //return(-1)
+//     return(FALSE)
+//   }
+	
+	return (arg1.size() == arg2.size());
+}
+
+bool SameLengths(std::vector<double> arg1, std::vector<int> arg2)
+{
+	return (arg1.size() == arg2.size());
+}
+
+bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3)
+{
+	return (SameLengths(arg1, arg2) || SameLengths(arg1, arg3));
+}
+
+bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<int> arg3)
+{
+	return (SameLengths(arg1, arg2) || SameLengths(arg1, arg3));
+}
+
+bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
+                 std::vector<double> arg4)
+{
+	return (SameLengths(arg1, arg2) || SameLengths(arg1, arg3) || SameLengths(arg1, arg4));
+}
+
+bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
+                 std::vector<int> arg4)
+{
+	return (SameLengths(arg1, arg2) || SameLengths(arg1, arg3) || SameLengths(arg1, arg4));
+}
+
+//[MORE!!!!!]
+
+//Calculate the sum of a variable array of the form X_ij by the specified live/dead class:
+//This is a draft.  It could return the sum (an array) for each class rather than specifying one.
+//C++ only.
+//double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat)
+//double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, FuelCategory liveDeadCat)
+double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat)
+{
+	double sum = 0;//Return value.
+	
+	for (int k = 0; k < x_ij.size(); k++)
+	{
+		if (liveDead[k] == liveDeadCat)
+		{
+			sum += x_ij[k];
+		}
+	}
+	
+	return sum;
+}
+
+//Compare two floating point values for near/effective equality:
+//Note: I'm not sure what the default should be for the precision of this comparison (see header).
+//C++ only.
+bool FloatCompare(double val1, double val2, double precision)//Or epsilon?
+{
+	if (std::fabs(val1 - val2) < precision)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 /*Logging:------------------------------------------------------------------------------------------
 This code may be deployed in multiple ways so the available infrastructure for logging and error
