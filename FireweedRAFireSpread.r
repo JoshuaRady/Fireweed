@@ -252,7 +252,7 @@ MeanBulkDensity <- function(w_o_ij, fuelBedDepth)
 #Input variables / parameters:
 #rho_b = Fuel array bulk density (lb/ft^3 | kg/m^3).
 #rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
-#  Forthe 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
+#  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 #
 #Output units: Dimensionless ratio.
 #Input units cancel out.  No metric conversion needed.
@@ -466,7 +466,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   {
     unitFactor = 1
   }
-  #Alternatively we could use an array of ranges edges with the appropriate units.
+  #Alternatively we could use an array of range edges with the appropriate units.
   
   subclass_ij = array(data = 0, dim = numFuelTypes)
   for (n in 1:numFuelTypes)
@@ -505,7 +505,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
     subclassTotal = array(data = 0, dim = 6)
     catIndexes = which(liveDead == i)
     
-    #The weight of the sixth and largest subclass is alway 0 so we skip it.
+    #The weight of the sixth and largest subclass is always 0 so we skip it.
     for (o in 1:5)
     {
       #Which fuel classes are in the current subclass?:
@@ -516,7 +516,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
       
       if (length(inThisSubclass > 0))
       {
-        #Combine the weights of all classes in the this size subclass:
+        #Combine the weights of all classes in this size subclass:
         subclassTotal[o] = sum(f_ij[inThisSubclass])
       }
     }
@@ -536,8 +536,8 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   }
   
   #Return value error checking:
-  #Note: if (sum(X) != 1) for these comparisons can fail due to small floating point differences
-  #when we resemble the weights.  all.equal is the right solution for R near equality but is not
+  #Note: if (sum(X) != 1) these comparisons can fail due to small floating point differences
+  #when we reassemble the weights.  all.equal is the right solution for R near equality but is not
   #portable.
   #if (sum(f_ij[liveDead == 1]) != 1)
   if (!isTRUE(all.equal(sum(f_ij[liveDead == 1]), 1)))
@@ -548,7 +548,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   if (!(isTRUE(all.equal(sum(f_ij[liveDead == 2]), 0)) ||
         isTRUE(all.equal(sum(f_ij[liveDead == 2]), 1))))
   {
-    stop("Invalid f_ij weights for dead fuels.")
+    stop("Invalid f_ij weights for live fuels.")
   }
   #if (sum(f_i) != 1)
   if (!isTRUE(all.equal(sum(f_i), 1)))
@@ -564,7 +564,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   if (!(isTRUE(all.equal(sum(g_ij[liveDead == 2]), 0)) ||
         isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1))))
   {
-    stop("Invalid g_ij weights for dead fuels.")
+    stop("Invalid g_ij weights for live fuels.")
   }
   
   return(list(f_ij = f_ij, f_i = f_i, g_ij = g_ij))
@@ -1732,7 +1732,7 @@ InitSpreadParam <- function(paramVal, paramName, numFuelTypes)
 #arguments are accepted.
 #Adapted from code originally in in CalcWeightings().
 #
-#Alternatively we could return the length if true and  otherwise -1, but this seems likely to create
+#Alternatively we could return the length if true and otherwise -1, but this seems likely to create
 #more work in practice.  In C positive = TRUE, 0 = FALSE, which could be more useful.
 #In the current usage we expect the arguments to be a mix of numeric and logical vectors.  We
 #could add checking for this.
