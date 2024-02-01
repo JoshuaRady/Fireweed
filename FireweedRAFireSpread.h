@@ -46,7 +46,15 @@ double BulkDensity(double w_o, double fuelBedDepth);
 double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth);
 double PackingRatio(double rho_b, double rho_p);
 double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij, double fuelBedDepth);
-double OptimumPackingRatiofunction(double SAV, UnitsType units = ModelUnits);
+double OptimumPackingRatio(double SAV, UnitsType units = ModelUnits);
+FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
+                           std::vector<double> rho_p_ij, std::vector<int> liveDead,
+                           UnitsType units = ModelUnits);
+double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vector<double> f_i,
+                  std::vector<int> liveDead);
+double NetFuelLoad_Homo(double w_o, double S_T);
+std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <double> S_T_ij,
+                                     std::vector <double> g_ij, std::vector <int> liveDead);
 
 
 ////Utilities:

@@ -193,7 +193,7 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 //  For heterogeneous fuels the SAV of the fuel bed / complex is used.
 //
 //Output units: Dimensionless ratio
-double OptimumPackingRatiofunction(double SAV, UnitsType units)// = ModelUnits
+double OptimumPackingRatio(double SAV, UnitsType units)// = ModelUnits
 {
   double optPackingRatio;//Return value.
   
@@ -261,7 +261,7 @@ double OptimumPackingRatiofunction(double SAV, UnitsType units)// = ModelUnits
 //give spread rate scenario.
 FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
                            std::vector<double> rho_p_ij, std::vector<int> liveDead,
-                           UnitsType units = ModelUnits)
+                           UnitsType units)
 {
 	int numFuelTypes;
 	std::vector<double> A_ij(SAV_ij.size(), 0.0);
@@ -550,6 +550,74 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
   
   return fuelBedSAV;
 }
+
+//Net Fuel Load:-------------------------------------------------------------------------------------
+// The net fuel load (w_n) is mass per ground area of dry combustible fuel removing the
+//noncombustible mineral mass.  This is the revised calculation developed by Albini.
+//
+//Albini 1976 pg. 14:
+//wn = wo(1 - ST)
+//
+//Input variables / parameters:
+//w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
+//S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
+//  For all standard fuel models this is 5.55% (0.0555).
+//
+//Output units: lb/ft^2 | kg/m^3
+//The inputs carry the units.  No metric conversions are needed.
+double NetFuelLoad_Homo(double w_o, double S_T)
+{
+	double w_n;//Return value.
+	
+	w_n = w_o * (1 - S_T);
+	
+	return w_n;
+}
+
+//For heterogeneous fuels the net fuel load for each fuel category (live/dead) is calculated using
+//weights.
+//
+//Input variables / parameters:
+//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+//S_T_ij = An array of total mineral content for each fuel type (unitless fraction).
+//g_ij = Net fuel load weights (Albini 1976).
+//
+//Returns: w_n_i = Net fuel load for live/dead fuel categories.
+//Output units: lb/ft^2 | kg/m^3
+//The inputs carry the units.  No metric conversions are needed.
+std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <double> S_T_ij,
+                                     std::vector <double> g_ij, std::vector <int> liveDead)
+{
+	int numFuelTypes;
+	std::vector <double> w_n_ij(w_o_ij.size(), 0);//Intermediate
+	std::vector <double> w_n_i(2, 0);//Return value.
+	
+	//Argument checking:
+	if (!SameLengths(w_o_ij, S_T_ij, g_ij, liveDead))
+	{
+		Stop("NetFuelLoad_Het() expects arguments of the same length.");
+	}
+	
+	numFuelTypes = w_o_ij.size();
+	
+	//w_n_ij.resize(numFuelTypes, 0);
+	
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		//Calculate the net fuel load for each fuel class:
+		//Rothermel equation 60 modified by Albini 1976 pg. 14:
+		//(wn)ij = (wo)ij (1 – (ST)ij)
+		w_n_ij[k] = w_o_ij[k] * (1 - S_T_ij[k]);
+		
+		//Sum the net fuel load for each fuel category:
+		//Albini 1976 pg. 15:
+		//(wn)i = Σjgij(wn)ij
+		w_n_i[liveDead[k]] += g_ij[k] * w_n_ij[k];
+	}
+	
+	return w_n_i;
+}
+
 
 
 
