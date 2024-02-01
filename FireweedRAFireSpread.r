@@ -658,7 +658,7 @@ NetFuelLoad_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)
   #(wn)ij = (wo)ij (1 – (ST)ij)
   w_n_ij = w_o_ij * (1 - S_T_ij)
   
-  #Sum the net fuel load for each fuel catogory:
+  #Sum the net fuel load for each fuel category:
   #Albini 1976 pg. 15:
   #(wn)i = Σjgij(wn)ij
   w_n_i = c(0,0)
@@ -681,7 +681,7 @@ NetFuelLoad_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)
 #
 #Output units: Dimensionless coefficient
 #Input units cancel out.  No metric conversion needed.
-MoistureDampingCoefficient <- function(M_f, M_x)
+MoistureDampingCoefficient_Homo <- function(M_f, M_x)
 {
   #Parameter checking:
   if (!SameLengths(M_f, M_x, 1))
@@ -769,8 +769,8 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   #Rothermel 1972 equations 64,65:
   #(ηM)i = 1 – 2.59(rM)i + 5.11(rM)i2 – 3.52(rM)i3 (max = 1)
   eta_m_i = c(0,0)
-  eta_m_i[1] = MoistureDampingCoefficient(M_f_i[1], M_x_i[1])
-  eta_m_i[2] = MoistureDampingCoefficient(M_f_i[2], M_x_i[2])
+  eta_m_i[1] = MoistureDampingCoefficient_Homo(M_f_i[1], M_x_i[1])
+  eta_m_i[2] = MoistureDampingCoefficient_Homo(M_f_i[2], M_x_i[2])
   
   return(eta_m_i)
 }
@@ -876,7 +876,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
 #
 #Output units: Dimensionless coefficient
 #Unitless inputs and outputs.  No metric conversion needed.
-MineralDampingCoefficient <- function(S_e)
+MineralDampingCoefficient_Homo <- function(S_e)
 {
   #Parameter checking:
   if (!ValidProportion(S_e))
@@ -932,8 +932,8 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
   #Caculate the mineral damping coefficient for each fuel category:
   #(ηs)i = 0.174(Se)i^–0.19 (max = 1)
   eta_s_i = c(0,0)
-  eta_s_i[1] = MineralDampingCoefficient(S_e_i[1])
-  eta_s_i[2] = MineralDampingCoefficient(S_e_i[2])
+  eta_s_i[1] = MineralDampingCoefficient_Homo(S_e_i[1])
+  eta_s_i[2] = MineralDampingCoefficient_Homo(S_e_i[2])
   
   return(eta_s_i)
 }
@@ -1446,8 +1446,8 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
   #Reaction intensity I_R:
   GammaPrime = OptimumReactionVelocity(packingRatio, SAV, units)
   w_n = NetFuelLoad_Homo(w_o, S_T)
-  eta_M = MoistureDampingCoefficient(M_f, M_x)
-  eta_s = MineralDampingCoefficient(S_e)
+  eta_M = MoistureDampingCoefficient_Homo(M_f, M_x)
+  eta_s = MineralDampingCoefficient_Homo(S_e)
   I_R = ReactionIntensity_Homo(GammaPrime, w_n, heatContent, eta_M, eta_s)
   
   #Other terms:
