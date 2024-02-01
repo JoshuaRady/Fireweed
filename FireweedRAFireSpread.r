@@ -703,7 +703,7 @@ MoistureDampingCoefficient_Homo <- function(M_f, M_x)
   #Rothermel 1972 equation 29,65 with maximum added in Albini 1976:
   #Note: This uses the notation of Andrews 2018, the original is a bit different.
   #rM = Mf/Mx (max = 1.0)
-  r_M = M_f/M_x
+  r_M = M_f / M_x
   
   if (r_M > 1.0)
   {
@@ -713,7 +713,7 @@ MoistureDampingCoefficient_Homo <- function(M_f, M_x)
   #Use the ratio to calculate the damping coefficient:
   #Rothermel 1972 equations 29,64:
   #ηM = 1 - 2.59rM + 5.11(rM)^2 - 3.52(rM)^3
-  eta_M = 1 - 2.59 * r_M + 5.11 * (r_M)^2 - 3.52 * (r_M)^3
+  eta_M = 1 - 2.59 * r_M + 5.11 * r_M^2 - 3.52 * r_M^3
   
   return(eta_M)
 }
@@ -1772,7 +1772,7 @@ InRange <- function(value, low = 0, high = 1)
   }
 }
 
-#Check if a value is from 0 to 1. Proportion
+#Check if a value is from 0 to 1, a valid proportion.
 #
 #R array aware.
 ValidProportion <- function(value)
