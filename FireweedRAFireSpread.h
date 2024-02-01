@@ -30,7 +30,8 @@ UnitsType ModelUnits = US;
 //May be converted into a class.
 struct FuelWeights {
 	std::vector<double> f_ij;
-	std::vector<double> f_i;//Always length 2!
+	//f_i will always be length 2 so we could use an array or initialize the length with a constructor. 
+	std::vector<double> f_i;//(2, 0);
 	std::vector<double> g_ij;
 };
 

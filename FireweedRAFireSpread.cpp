@@ -287,6 +287,11 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   
   numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
   
+  //Set the size of weight vectors:
+  wts.f_ij.resize(numFuelTypes, 0);
+  wts.f_i.resize(2, 0);//This should always be length two.  Keeping as a vector for now.
+  wts.g_ij.resize(numFuelTypes, 0);
+  
   //Calculate the (mean) total surface area for each fuel component:
   //Rothermel equation 53:
   //Aij = (σ)ij (wo)ij ⁄(ρp)ij
@@ -509,6 +514,9 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 //
 //Output units: ft^2/ft^3 | cm^2/cm^3
 //The inputs carry the units.  No metric conversions are needed.
+//
+//Note: We could pass in a FuelWeights object rather than f_ij and f_i but this keeps the interface
+//the same as the R version.
 double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vector<double> f_i,
                   std::vector<int> liveDead)
 {
