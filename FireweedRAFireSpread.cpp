@@ -618,7 +618,113 @@ std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <d
 	return w_n_i;
 }
 
+//Damping Coefficients:-----------------------------------------------------------------------------
 
+//Moisture Damping Coefficient:
+// This returns the extent to which fuel moisture reduces combustion for one fuel component.
+//
+//Input variables / parameters:
+//M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
+//M_x = Moisture of extinction (fraction: water weight/dry fuel weight).
+//
+//Output units: Dimensionless coefficient
+//Input units cancel out.  No metric conversion needed.
+double MoistureDampingCoefficient_Homo(double M_f, double M_x)
+{
+  double r_M;//Ratio of fuel moisture content to moisture of extinction.
+  double eta_M;//Return value.
+  
+  //Moisture content can well exceed 1 for live fuels (at least to 300%):
+  if (!InRange(M_f, 0, 3.5))
+  {
+    Stop("Suspect moisture content (M_f).");
+  }
+  //See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
+  if (!InRange(M_x, 0, 8))
+  {
+    Stop("Suspect moisture of extinction.");
+  }
+  
+  //Calculate the ratio of fuel moisture content to moisture of extinction:
+  //Rothermel 1972 equation 29,65 with maximum added in Albini 1976:
+  //Note: This uses the notation of Andrews 2018, the original is a bit different.
+  //rM = Mf/Mx (max = 1.0)
+  r_M = M_f / M_x;
+  
+  if (r_M > 1.0)
+  {
+    r_M = 1.0;
+  }
+  
+  //Use the ratio to calculate the damping coefficient:
+  //Rothermel 1972 equations 29,64:
+  //ηM = 1 - 2.59rM + 5.11(rM)^2 - 3.52(rM)^3
+  eta_M = 1 - 2.59 * r_M + 5.11 * pow(r_M, 2) - 3.52 * pow(r_M, 3);
+  
+  return eta_M;
+}
+
+//Moisture Damping Coefficient (heterogeneous fuels):
+//  For heterogeneous fuel beds the moisture damping coefficient is calculated for each fuel category
+//(live/dead).
+//
+//Input variables / parameters:
+//M_f_ij = Fuel moisture content for for each fuel type (fraction: water weight/dry fuel weight).
+//M_x_i = Moisture of extinction each fuel category (fraction: water weight/dry fuel weight).
+//f_ij = Weighting factors for each fuel type (dimensionless).
+//liveDead = An array indicating if each index in each of the other input variables represents a
+//  dead (1) or live (2) fuel category.
+//
+//Output units: Dimensionless coefficient (array length 2)
+//Input units cancel out.  No metric conversion needed.
+std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
+                                                    std::vector <double> M_x_i,
+                                                    std::vector <double> f_ij,
+                                                    std::vector <double> liveDead)
+{
+  int numFuelTypes;
+  std::vector <double> M_f_i(2, 0);//Weighted moisture content.
+  std::vector <double> eta_m_i(2, 0);//Return value.
+  
+  if (!SameLengths(M_f_ij, f_ij, liveDead))
+  {
+    Stop("MoistureDampingCoefficient_Het() expects arguments of the same length.");
+  }
+  if (!InRange(M_f_ij, 0, 3.5))
+  {
+    Stop("Suspect moisture content (M_f_ij).");
+  }
+  //Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
+  //though higher might be possible so we add a little wiggle room:
+  if (!InRange(M_x_i[Dead], 0, 0.5))
+  {
+    Stop("Invalid dead fuel moisture of extinction.");
+  }
+  //Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
+  //is not physiologic:
+  if (!InRange(M_x_i[Live], 0, 8))
+  {
+    Stop("Suspect live fuel moisture of extinction.");
+  }
+  
+  numFuelTypes = M_f_ij.size();
+  
+  //Calculate the weighted moisture content for each fuel category:
+  //Rothermel 1972 equations 66:
+  //(Mf)i = Σj fij (Mf)ij
+  for (int k = 0; k < numFuelTypes; k++)
+  {
+    M_f_i[liveDead[k]] += f_ij[k] * M_f_ij[k];
+  }
+  
+  //Calculate the moisture damping coefficient for each fuel category:
+  //Rothermel 1972 equations 64,65:
+  //(ηM)i = 1 – 2.59(rM)i + 5.11(rM)i2 – 3.52(rM)i3 (max = 1)
+  eta_m_i[Dead] = MoistureDampingCoefficient_Homo(M_f_i[Dead], M_x_i[Dead]);
+  eta_m_i[Live] = MoistureDampingCoefficient_Homo(M_f_i[Live], M_x_i[Live]);
+  
+  return eta_m_i;
+}
 
 
 //Heat Source Components:---------------------------------------------------------------------------
@@ -738,7 +844,35 @@ bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector
 	return (SameLengths(arg1, arg2) || SameLengths(arg1, arg3) || SameLengths(arg1, arg4));
 }
 
-//[MORE!!!!!]
+//This utility checks that a value falls in a valid range.
+bool InRange(double value, double low, double high)
+{
+	return (value >= low && value <= high);
+}
+
+bool InRange(std::vector<double> value, double low, double high)
+{
+	for (int i = 0; i < value.size(); i++)
+	{
+		if (value[i] < low || value[i] > high)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+//Check if a value is from 0 to 1, a valid proportion.
+bool ValidProportion(double value)
+{
+  return InRange(value, 0, 1);
+}
+
+bool ValidProportion(std::vector<double> value)
+{
+  return InRange(value, 0, 1);
+}
 
 //Calculate the sum of a variable array of the form X_ij by the specified live/dead class:
 //This is a draft.  It could return the sum (an array) for each class rather than specifying one.
