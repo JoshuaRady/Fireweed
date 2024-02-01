@@ -658,7 +658,7 @@ NetFuelLoad_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)
   #(wn)ij = (wo)ij (1 – (ST)ij)
   w_n_ij = w_o_ij * (1 - S_T_ij)
   
-  #Sum the net fuel load for each 
+  #Sum the net fuel load for each fuel catogory:
   #Albini 1976 pg. 15:
   #(wn)i = Σjgij(wn)ij
   w_n_i = c(0,0)
