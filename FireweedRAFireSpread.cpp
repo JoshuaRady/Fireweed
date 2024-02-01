@@ -496,6 +496,55 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   return wts;
 }
 
+//Fuel Bed Surface-area-to-volume Ratio:-------------------------------------------------------------
+//  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.  This is frequently
+//referred to as the characteristic SAV.  It is a weighted average of the fuel component SAVs.
+//
+//Input variables / parameters:
+//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//f_ij = Weighting factors for each fuel type (dimensionless).
+//f_i = Weighting factors for each fuel live/dead category (dimensionless).
+//liveDead = An array indicating if each index in each of the other input variables represents a
+//  dead (1) or live (2) fuel category.
+//
+//Output units: ft^2/ft^3 | cm^2/cm^3
+//The inputs carry the units.  No metric conversions are needed.
+double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vector<double> f_i,
+                  std::vector<int> liveDead)
+{
+  int numFuelTypes;
+  double SAV_i[2];//SAV by live / dead category.
+  double fuelBedSAV;//Return value.
+  
+  //Argument checking:
+  if (!SameLengths(SAV_ij, f_ij, liveDead))
+  {
+    Stop("FuelBedSAV() expects arguments of the same length.");
+  }
+  
+  numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
+  
+  //Characteristic live and dead SAVs:
+  //Rothermel 1972 equation 72:
+  //σi = Σj fijσij (~ over sigma sub i and bar over sigma sub ij in original)
+  
+  for (int k = 0; k < numFuelTypes; k++)
+  {
+    //SAV_i[liveDead[k]] = SAV_i[liveDead[k]] + (f_ij[k] * SAV_ij[k]);
+    SAV_i[liveDead[k]] += f_ij[k] * SAV_ij[k];
+  }
+  
+  //Sum the live and dead components to get the final value:
+  //Rothermel 1972 equation 71:
+  //σ = Σi fiσi (~ over sigma and sigma sub i in original)
+  fuelBedSAV = (f_i[0] * SAV_i[0]) + (f_i[1] * SAV_i[1]);//Or:
+  //fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);
+  
+  return fuelBedSAV;
+}
+
+
+
 //Heat Source Components:---------------------------------------------------------------------------
 //MORE CODE HERE!!!!!
 
