@@ -1760,7 +1760,7 @@ SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
 #This utility checks that a value falls in a valid range.
 #
 #R array aware.
-InRange <- function(value, low = 0, high = 1)
+InRange <- function(value, low, high)
 {
   if (any(value < low) || any(value > high))
   {
