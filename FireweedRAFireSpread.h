@@ -60,6 +60,13 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
                                                     std::vector <double> M_x_i,
                                                     std::vector <double> f_ij,
                                                     std::vector <double> liveDead);
+double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
+                                    std::vector <double> w_o_ij, std::vector <double> SAV_ij,
+                                    std::vector <int> liveDead, UnitsType units = ModelUnits);
+double MineralDampingCoefficient_Homo(double S_e);
+std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
+                                                   std::vector <double> f_ij,
+                                                   std::vector <int> liveDead);
 
 //Utilities:
 

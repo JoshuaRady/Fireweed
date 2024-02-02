@@ -37,11 +37,31 @@ const double mPerFt = 0.3048;
 const double ftPerM = 3.28084;//1 / mPerFt
 const int ftPerMi = 5280;//* for conversion of windspeed (U, MPH * ftPerMi / 60 = ft/min)
 
-//[More!!!!!]
+//SAV is in ft^2/ft^3 = 1/ft or cm^2/cm^3 = 1/cm
+//Therefore units convert: ft^2/ft^3 * cmPerFt^2/cmPerFt^2 = 1/ft * 1/cmPerFt = 1/cm
+//So: SAVft * 1/cmPerFt = SAVft / cmPerFt = SAVcm
+
+//Area:
+const double ft2PerAcre = 43560;//*
+
+//Mass:
+const double kgPerLb = 0.453592;
+const int lbsPerTon = 2000;//*
+
+//Density:
+const double lbPerFtCuToKgPerMCu = 16.0185;//kgPerLb * (ftPerM)^3, 16.01846337396
+
+//JPerBtu = 1055.06 or 1,054.35
+//The definition of a BTU can vary resulting in several different conversion factors.  Wilson 1980
+//seems to have used a value close to the themochemical value of 1.05435 J/BTU, based on his heat of
+//preignition conversion.  We will use that to be consistent with his converted constant values.
+//The IT value of 1.05506 would be a reasonable alternative.
+const double kJPerBtu = 1.05435;
+
+//tons/ac -> lb/ft^2: (See fuel loading note above.)
+const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;//*
 
 //Code:---------------------------------------------------------------------------------------------
-//SECTION TO BE PORTED!!!!!
-
 
 //Bulk Density:--------------------------------------------------------------------------------------
 //  The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
@@ -620,7 +640,7 @@ std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <d
 
 //Damping Coefficients:-----------------------------------------------------------------------------
 
-//Moisture Damping Coefficient:
+//Moisture Damping Coefficient (homogeneous fuels):
 // This returns the extent to which fuel moisture reduces combustion for one fuel component.
 //
 //Input variables / parameters:
@@ -631,37 +651,37 @@ std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <d
 //Input units cancel out.  No metric conversion needed.
 double MoistureDampingCoefficient_Homo(double M_f, double M_x)
 {
-  double r_M;//Ratio of fuel moisture content to moisture of extinction.
-  double eta_M;//Return value.
-  
-  //Moisture content can well exceed 1 for live fuels (at least to 300%):
-  if (!InRange(M_f, 0, 3.5))
-  {
-    Stop("Suspect moisture content (M_f).");
-  }
-  //See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
-  if (!InRange(M_x, 0, 8))
-  {
-    Stop("Suspect moisture of extinction.");
-  }
-  
-  //Calculate the ratio of fuel moisture content to moisture of extinction:
-  //Rothermel 1972 equation 29,65 with maximum added in Albini 1976:
-  //Note: This uses the notation of Andrews 2018, the original is a bit different.
-  //rM = Mf/Mx (max = 1.0)
-  r_M = M_f / M_x;
-  
-  if (r_M > 1.0)
-  {
-    r_M = 1.0;
-  }
-  
-  //Use the ratio to calculate the damping coefficient:
-  //Rothermel 1972 equations 29,64:
-  //ηM = 1 - 2.59rM + 5.11(rM)^2 - 3.52(rM)^3
-  eta_M = 1 - 2.59 * r_M + 5.11 * pow(r_M, 2) - 3.52 * pow(r_M, 3);
-  
-  return eta_M;
+	double r_M;//Ratio of fuel moisture content to moisture of extinction.
+	double eta_M;//Return value.
+	
+	//Moisture content can well exceed 1 for live fuels (at least to 300%):
+	if (!InRange(M_f, 0, 3.5))
+	{
+		Stop("Suspect moisture content (M_f).");
+	}
+	//See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
+	if (!InRange(M_x, 0, 8))
+	{
+		Stop("Suspect moisture of extinction.");
+	}
+	
+	//Calculate the ratio of fuel moisture content to moisture of extinction:
+	//Rothermel 1972 equation 29,65 with maximum added in Albini 1976:
+	//Note: This uses the notation of Andrews 2018, the original is a bit different.
+	//rM = Mf/Mx (max = 1.0)
+	r_M = M_f / M_x;
+	
+	if (r_M > 1.0)
+	{
+		r_M = 1.0;
+	}
+	
+	//Use the ratio to calculate the damping coefficient:
+	//Rothermel 1972 equations 29,64:
+	//ηM = 1 - 2.59rM + 5.11(rM)^2 - 3.52(rM)^3
+	eta_M = 1 - 2.59 * r_M + 5.11 * pow(r_M, 2) - 3.52 * pow(r_M, 3);
+	
+	return eta_M;
 }
 
 //Moisture Damping Coefficient (heterogeneous fuels):
@@ -682,50 +702,236 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
                                                     std::vector <double> f_ij,
                                                     std::vector <double> liveDead)
 {
-  int numFuelTypes;
-  std::vector <double> M_f_i(2, 0);//Weighted moisture content.
-  std::vector <double> eta_m_i(2, 0);//Return value.
-  
-  if (!SameLengths(M_f_ij, f_ij, liveDead))
-  {
-    Stop("MoistureDampingCoefficient_Het() expects arguments of the same length.");
-  }
-  if (!InRange(M_f_ij, 0, 3.5))
-  {
-    Stop("Suspect moisture content (M_f_ij).");
-  }
-  //Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
-  //though higher might be possible so we add a little wiggle room:
-  if (!InRange(M_x_i[Dead], 0, 0.5))
-  {
-    Stop("Invalid dead fuel moisture of extinction.");
-  }
-  //Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
-  //is not physiologic:
-  if (!InRange(M_x_i[Live], 0, 8))
-  {
-    Stop("Suspect live fuel moisture of extinction.");
-  }
-  
-  numFuelTypes = M_f_ij.size();
-  
-  //Calculate the weighted moisture content for each fuel category:
-  //Rothermel 1972 equations 66:
-  //(Mf)i = Σj fij (Mf)ij
-  for (int k = 0; k < numFuelTypes; k++)
-  {
-    M_f_i[liveDead[k]] += f_ij[k] * M_f_ij[k];
-  }
-  
-  //Calculate the moisture damping coefficient for each fuel category:
-  //Rothermel 1972 equations 64,65:
-  //(ηM)i = 1 – 2.59(rM)i + 5.11(rM)i2 – 3.52(rM)i3 (max = 1)
-  eta_m_i[Dead] = MoistureDampingCoefficient_Homo(M_f_i[Dead], M_x_i[Dead]);
-  eta_m_i[Live] = MoistureDampingCoefficient_Homo(M_f_i[Live], M_x_i[Live]);
-  
-  return eta_m_i;
+	int numFuelTypes;
+	std::vector <double> M_f_i(2, 0);//Weighted moisture content.
+	std::vector <double> eta_m_i(2, 0);//Return value.
+	
+	if (!SameLengths(M_f_ij, f_ij, liveDead))
+	{
+		Stop("MoistureDampingCoefficient_Het() expects arguments of the same length.");
+	}
+	if (!InRange(M_f_ij, 0, 3.5))
+	{
+		Stop("Suspect moisture content (M_f_ij).");
+	}
+	//Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
+	//though higher might be possible so we add a little wiggle room:
+	if (!InRange(M_x_i[Dead], 0, 0.5))
+	{
+		Stop("Invalid dead fuel moisture of extinction.");
+	}
+	//Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
+	//is not physiologic:
+	if (!InRange(M_x_i[Live], 0, 8))
+	{
+		Stop("Suspect live fuel moisture of extinction.");
+	}
+	
+	numFuelTypes = M_f_ij.size();
+	
+	//Calculate the weighted moisture content for each fuel category:
+	//Rothermel 1972 equations 66:
+	//(Mf)i = Σj fij (Mf)ij
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		M_f_i[liveDead[k]] += f_ij[k] * M_f_ij[k];
+	}
+	
+	//Calculate the moisture damping coefficient for each fuel category:
+	//Rothermel 1972 equations 64,65:
+	//(ηM)i = 1 – 2.59(rM)i + 5.11(rM)i2 – 3.52(rM)i3 (max = 1)
+	eta_m_i[Dead] = MoistureDampingCoefficient_Homo(M_f_i[Dead], M_x_i[Dead]);
+	eta_m_i[Live] = MoistureDampingCoefficient_Homo(M_f_i[Live], M_x_i[Live]);
+	
+	return eta_m_i;
 }
 
+//Live Fuel Moisture of Extinction:
+//  The live fuel moisture of extinction determines if live fuels will burn and contribute to the
+//heat source term in the calculations.  The live fuel moisture of extinction is calculated from the
+//dead fuel moisture of extinction and in relation to the ratio of live to dead fuels. The value can
+//be quite variable from near zero to over 700 percent (see Andrews 2018 section 5.3.2.2).
+//
+//Input variables / parameters:
+//M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+//M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
+//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//liveDead = An array indicating if each index in each of the other input variables represents a
+//  dead (1) or live (2) fuel category.
+//
+//Output units: fraction, water weight/dry fuel weight
+double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
+                                    std::vector <double> w_o_ij, std::vector <double> SAV_ij,
+                                    std::vector <int> liveDead, UnitsType units)
+{
+	int numFuelTypes;
+	double liveSum = 0;
+	double deadSum = 0;
+	double W;//Live / dead ratio.
+	double common;
+	double top = 0;//The numerator sum.
+	double bottom = 0;//The denominator sum.
+	double M_f_dead;
+	double M_x_2;//Return value.
+	
+	if (!SameLengths(M_f_ij, w_o_ij, SAV_ij, liveDead))
+	{
+		Stop("LiveFuelMoistureOfExtinction() expects arguments of the same length.");
+	}
+	if (!InRange(M_f_ij, 0, 3.5))
+	{
+		Stop("Suspect moisture content (M_f_ij).");
+	}
+	if (!InRange(M_x_1, 0, 0.5))
+	{
+		Stop("Invalid dead fuel moisture of extinction.");
+	}
+	
+	numFuelTypes = M_f_ij.size();
+	
+	//Changing the equations is more complicated than changing the inputs.
+	if (units == Metric)
+	{
+		for (int k = 0; k < numFuelTypes; k++)
+		{
+			w_o_ij[k] = w_o_ij[k] / lbPerFtCuToKgPerMCu;
+			SAV_ij[k] = SAV_ij[k] * cmPerFt;//1/cm to 1/ft
+		}
+	}
+	
+	//Calculate dead:live loading ratio, notated W:
+	//Albini 1976 pg. 16:
+	//W = Σj(wo)1jexp(-138/σ1j) / Σj(wo)2jexp(-500/σ2j)
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		if (liveDead[k] == Live)
+		{
+			liveSum += w_o_ij[k] * exp(-138 / SAV_ij[k]);
+		}
+		else//(liveDead[k] == Dead)
+		{
+			deadSum += w_o_ij[k] * exp(-500 / SAV_ij[k]);
+		}
+	}
+	
+	//If the loading for the live fuel categories are all 0 or live categories are missing liveSum will
+	//be zero.  The ratio W will be therefore also be zero.  This in turn will result in M_x_2 = M_x_1.
+	//While not conceptual meaningful this has no has no mathematical consequence downstream.  Forcing
+	//the value to NA or 0 would cause mathematical problems downstream..
+	
+	W = liveSum / deadSum;//Unitless ratio.
+	
+	//Calculate fine dead fuel moisture as:
+	//Albini 1976 pg. 16:
+	//Mf,dead = Σj(Mf)1j(wo)1jexp(–138/σ1j) / Σj(wo)1jexp(–138/σ1j)
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		if (liveDead[k] == Dead)
+		{
+			common = w_o_ij[k] * exp(-138 / SAV_ij[k]);
+			top += M_f_ij[k] * common;
+			bottom += common;
+		}
+	}
+	
+	M_f_dead = top / bottom;//Moisture fraction / unitless.
+	
+	//Calculate the live fuel moisture of extinction ((Mx)2):
+	//Rothermel 1972 equation 88 with Albini 1976 pg. 16 modifications:
+	//(Mx)2 = 2.9W[1 – Mf,dead⁄(Mx)1] - 0.226, (min = (Mx)1)
+	M_x_2 = 2.9 * W * (1 - M_f_dead / M_x_1) - 0.226;
+	
+	if (M_x_2 < M_x_1)
+	{
+		M_x_2 = M_x_1;
+	}
+	
+	return M_x_2;
+}
+
+//Mineral Damping Coefficient (homogeneous fuels):
+//
+//Albini 1976 pg. 14 adds a maximum to Rothermel 1972 equation 30/62:
+//ηs = 0.174Se^-0.19 (max = 1.0)
+//
+//Input variables / parameters:
+//S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
+//  For all standard fuel models this is 1% (0.01).
+//
+//Output units: Dimensionless coefficient
+//Unitless inputs and outputs.  No metric conversion needed.
+double MineralDampingCoefficient_Homo(double S_e)
+{
+	double eta_s;//Return value.
+	
+	//Parameter checking:
+	if (!ValidProportion(S_e))
+	{
+		Stop("Effective mineral content must be from 0-1.");
+	}
+	
+	eta_s = 0.174 * pow(S_e, -0.19);
+	
+	if (eta_s < 1.0)
+	{
+		return eta_s;
+	}
+	else
+	{
+		return 1.0;
+	}
+}
+
+//Mineral Damping Coefficient (heterogeneous fuels):
+//  For heterogeneous fuels the mineral damping coefficient is calculated for each fuel category
+//(live/dead).
+//
+//Input variables / parameters:
+//S_e_ij = Effective mineral content for each fuel type (unitless fraction:
+//  (mineral mass – mass silica) / total dry mass).
+//f_ij = Weighting factors for each fuel type (dimensionless).
+//
+//Output units: Dimensionless coefficient (array of 2)
+//Unitless inputs and outputs.  No metric conversion needed.
+std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
+                                                   std::vector <double> f_ij,
+                                                   std::vector <int> liveDead)
+{
+	double numFuelTypes;
+	double S_e_i[2] = {0, 0};//Effective mineral content by live / dead category.
+	std::vector <double> eta_s_i(2, 0);//Return value.
+	
+	//Parameter checking:
+	if (!SameLengths(S_e_ij, f_ij, liveDead))
+	{
+		Stop("MineralDampingCoefficient_Het() expects arguments of the same length.");
+	}
+	if (!ValidProportion(S_e_ij))
+	{
+		Stop("Effective mineral content must be from 0-1.");
+	}
+	
+	numFuelTypes = S_e_ij.size();//Types = sum of size classes in both categories.
+	
+	//Calculate the weighted effective mineral content for each fuel category:
+	//(Se)i = Σj fij (Se)ij
+	for (int k; k < numFuelTypes; k++)
+	{
+		S_e_i[liveDead[k]] += f_ij[k] * S_e_ij[k];
+	}
+	
+	//Caculate the mineral damping coefficient for each fuel category:
+	//(ηs)i = 0.174(Se)i^–0.19 (max = 1)
+	eta_s_i[Dead] = MineralDampingCoefficient_Homo(S_e_i[Dead]);
+	eta_s_i[Live] = MineralDampingCoefficient_Homo(S_e_i[Live]);
+	
+	return eta_s_i;
+}
+
+//Slope and Wind Factors:---------------------------------------------------------------------------
+
+//[...]
 
 //Heat Source Components:---------------------------------------------------------------------------
 //MORE CODE HERE!!!!!
