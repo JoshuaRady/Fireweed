@@ -418,9 +418,9 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   }
   
   		//g_ij = vector(mode = "numeric", length = numFuelTypes)//Implicitly intialized to 0.
-  fill(wts.g_ij.begin(), wts.g_ij.end(), 0.0);//Mpve into constructor or declaration?????
+  //fill(wts.g_ij.begin(), wts.g_ij.end(), 0.0);//Mpve into constructor or declaration?????
   
-  for (int i; i < 2; i++)//i reused.
+  for (int i = 0; i < 2; i++)//i reused.
   {
     //Calculate the total weight for each size subclass (bin them) for this live/dead category:
     		//subclassTotal = array(data = 0, dim = 6)
@@ -452,6 +452,11 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
       		subclassTotal[o] += wts.f_ij[k];
       	}
       }
+    }
+    
+    for (int o = 0; o < 6; o++)//Temporary reporting!!!!!
+    {
+    	std::cout << subclassTotal[o];
     }
     
     //Assign the subclass weights to each size class.  Some may share the same weight:
