@@ -521,6 +521,44 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   return wts;
 }
 
+//This is a wrapper for CalcWeightings() that allows it to be called from R:
+//The primary reason for providing this wrapper is for verification testing.
+extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, const double* rho_p_ij,
+                                const int* liveDead, const int* numFuelTypes, const int* units,
+                                double* f_ij, double* f_i, double* g_ij)
+{
+	FuelWeights wts;
+	UnitsType cUnits;
+	
+	//Convert input arrays to vectors:
+	std::vector<double> SAV_ijVec(SAV_ij, SAV_ij + *numFuelTypes);
+	std::vector<double> w_o_ijVec(w_o_ij, w_o_ij + *numFuelTypes);
+	std::vector<double> rho_p_ijVec(rho_p_ij, rho_p_ij + *numFuelTypes);
+	std::vector<int> liveDeadVec(liveDead, liveDead + *numFuelTypes);
+	
+	//The R code uses a string for units, which can't be passed via .C().  We have to use something
+	//as an intermediate translation.  Using the numerical order of options seems as good as any.
+	if (*units == 1)
+	{
+		cUnits = US;
+	}
+	else if (*units == 2)
+	{
+		cUnits = Metric;
+	}
+	else
+	{
+		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
+	}
+	
+	wts = CalcWeightings(SAV_ijVec, w_o_ijVec, rho_p_ijVec, liveDeadVec, cUnits);
+	
+	//Copy output weights into the return arguments:
+	std::copy(wts.f_ij.begin(), wts.f_ij.end(), f_ij);
+	std::copy(wts.f_i.begin(), wts.f_i.end(), f_i);
+	std::copy(wts.g_ij.begin(), wts.g_ij.end(), g_ij);
+}
+
 //Fuel Bed Surface-area-to-volume Ratio:-------------------------------------------------------------
 //  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.  This is frequently
 //referred to as the characteristic SAV.  It is a weighted average of the fuel component SAVs.
@@ -984,7 +1022,40 @@ extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* 
 
 //Utilities:----------------------------------------------------------------------------------------
 
-//[MORE!!!!!]
+//Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
+double StdHeatContent(UnitsType units)
+{
+  double h;//Return value.
+  
+  if (units == US)
+  {
+    h = 8000;//Btu/lb
+  }
+  else//if (units == Metric)
+  {
+    h = 18595.57;//kJ/kg, 8000 * kJPerBtu / kgPerLb
+  }
+  return h;
+}
+
+//Return the fuel particle density (rho_p) used in the 53 standard fuel models in the appropriate
+//units:
+double StdRho_p(UnitsType units)
+{
+  double rho_p;//Return value.
+  
+  if (units == US)
+  {
+    rho_p = 32;//lb/ft^3
+  }
+  else//if (units == Metric)
+  {
+    rho_p = 512.592;//kg/m^3, (32 * lbPerFtCuToKgPerMCu)
+  }
+  return rho_p;
+}
+
+//[InitSpreadParam()...]
 
 //SameLengths():
 //This utility checks that the parameters (vectors) passed have the same length.  Between 2 and 4
