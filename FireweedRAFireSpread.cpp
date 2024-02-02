@@ -304,6 +304,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   {
     Stop("rho_p_ij must be length 1 or the same length as the other arguments");
   }
+  //Actually, this will work in R but not in C++.  Remove this check or expand the argument!!!!!
   
   numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
   
@@ -548,6 +549,12 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 	std::vector<double> w_o_ijVec(w_o_ij, w_o_ij + *numFuelTypes);
 	std::vector<double> rho_p_ijVec(rho_p_ij, rho_p_ij + *numFuelTypes);
 	std::vector<int> liveDeadVec(liveDead, liveDead + *numFuelTypes);
+	
+	//The values used for live and dead differ from R to C++ (due to indexes).  Convert them:
+	for (int k = 0; k < *numFuelTypes; k++)
+	{
+		liveDeadVec[k] -= 1;
+	}
 	
 	//The R code uses a string for units, which can't be passed via .C().  We have to use something
 	//as an intermediate translation.  Using the numerical order of options seems as good as any.
