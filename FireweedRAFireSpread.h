@@ -44,17 +44,22 @@ const int Live = 1;//Temporary?????
 
 double BulkDensity(double w_o, double fuelBedDepth);
 double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth);
+
 double PackingRatio(double rho_b, double rho_p);
 double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij, double fuelBedDepth);
 double OptimumPackingRatio(double SAV, UnitsType units = ModelUnits);
+
 FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
                            std::vector<double> rho_p_ij, std::vector<int> liveDead,
                            UnitsType units = ModelUnits);
+
 double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vector<double> f_i,
                   std::vector<int> liveDead);
+
 double NetFuelLoad_Homo(double w_o, double S_T);
 std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <double> S_T_ij,
                                      std::vector <double> g_ij, std::vector <int> liveDead);
+
 double MoistureDampingCoefficient_Homo(double M_f, double M_x);
 std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
                                                     std::vector <double> M_x_i,
@@ -69,6 +74,9 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
                                                    std::vector <int> liveDead);
 
 //Utilities:
+
+double StdHeatContent(UnitsType units = ModelUnits);
+double StdRho_p(UnitsType units = ModelUnits);
 
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2);
 bool SameLengths(std::vector<double> arg1, std::vector<int> arg2);
