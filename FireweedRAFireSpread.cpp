@@ -482,12 +482,16 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   //Note: if (sum(X) != 1) these comparisons can fail due to small floating point differences
   //when we reassemble the weights.  all.equal is the right solution for R near equality but is not
   //portable.
+  
+  //The dead fuel components of f_ij should always sum to 1:
   //if (sum(f_ij[liveDead == 1]) != 1)
   //if (!isTRUE(all.equal(sum(f_ij[liveDead == 1]), 1)))
   if (!FloatCompare(SumByClass(wts.f_ij, liveDead, Dead), 1))
   {
     Stop("f_ij dead fuels do not sum to 1.");
   }
+  
+  //The live fuel components of f_ij will sum to 1 if present or 0 if not present:
   //if (!(sum(f_ij[liveDead == 2]) %in% c(0,1)))
   //if (!(isTRUE(all.equal(sum(f_ij[liveDead == 2]), 0)) ||
   //      isTRUE(all.equal(sum(f_ij[liveDead == 2]), 1))))
@@ -496,23 +500,32 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   {
     Stop("Invalid f_ij weights for live fuels.");
   }
+  
+  //f_i should always sum to 1:
   //if (sum(f_i) != 1)
   //if (!isTRUE(all.equal(sum(f_i), 1)))
   if (!FloatCompare((wts.f_i[0] + wts.f_i[1]), 1))
   {
     Stop("f_i does not sum to 1.");
   }
+  
+  //The dead fuel components of g_ij should always sum to 1:
   //if (sum(g_ij[liveDead == 1]) != 1)
   //if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
   if (!FloatCompare(SumByClass(wts.g_ij, liveDead, Dead), 1))
   {
     Stop("g_ij dead fuels do not sum to 1.");
   }
+  
+  //For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
+  //However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
+  //and 2 are possible:
   //if (!(sum(g_ij[liveDead == 2]) %in% c(0,1)))
   //if (!(isTRUE(all.equal(sum(g_ij[liveDead == 2]), 0)) ||
   //      isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1))))
   if (!(FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 0) ||
-        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 1)))
+        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 1) ||
+        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 2))))
   {
     Stop("Invalid g_ij weights for live fuels.");
   }

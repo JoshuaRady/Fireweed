@@ -536,33 +536,46 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   }
   
   #Return value error checking:
-  #Note: if (sum(X) != 1) these comparisons can fail due to small floating point differences
+  #Note: if (sum(X) != 1) is used these comparisons can fail due to small floating point differences
   #when we reassemble the weights.  all.equal is the right solution for R near equality but is not
   #portable.
+  
+  #The dead fuel components of f_ij should always sum to 1:
   #if (sum(f_ij[liveDead == 1]) != 1)
   if (!isTRUE(all.equal(sum(f_ij[liveDead == 1]), 1)))
   {
     stop("f_ij dead fuels do not sum to 1.")
   }
+  
+  #The live fuel components of f_ij will sum to 1 if present or 0 if not present:
   #if (!(sum(f_ij[liveDead == 2]) %in% c(0,1)))
   if (!(isTRUE(all.equal(sum(f_ij[liveDead == 2]), 0)) ||
         isTRUE(all.equal(sum(f_ij[liveDead == 2]), 1))))
   {
     stop("Invalid f_ij weights for live fuels.")
   }
+  
+  #f_i should always sum to 1:
   #if (sum(f_i) != 1)
   if (!isTRUE(all.equal(sum(f_i), 1)))
   {
     stop("f_i does not sum to 1.")
   }
+  
+  #The dead fuel components of g_ij should always sum to 1:
   #if (sum(g_ij[liveDead == 1]) != 1)
   if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
   {
     stop("g_ij dead fuels do not sum to 1.")
   }
+  
+  #For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
+  #However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
+  #and 2 are possible:
   #if (!(sum(g_ij[liveDead == 2]) %in% c(0,1)))
   if (!(isTRUE(all.equal(sum(g_ij[liveDead == 2]), 0)) ||
-        isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1))))
+        isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1)) ||
+        isTRUE(all.equal(sum(g_ij[liveDead == 2]), 2))))
   {
     stop("Invalid g_ij weights for live fuels.")
   }
@@ -672,7 +685,7 @@ NetFuelLoad_Het <- function(w_o_ij, S_T_ij, g_ij, liveDead)
 
 #Damping Coefficients:------------------------------------------------------------------------------
 
-#Moisture Damping Coefficient:
+#Moisture Damping Coefficient (homogeneous fuels):
 # This returns the extent to which fuel moisture reduces combustion for one fuel component.
 #
 #Input variables / parameters:
@@ -865,7 +878,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   return(M_x_2)
 }
 
-#Mineral Damping Coefficient:
+#Mineral Damping Coefficient (homogeneous fuels):
 #
 #Albini 1976 pg. 14 adds a maximum to Rothermel 1972 equation 30/62:
 #ηs = 0.174Se^-0.19 (max = 1.0)
@@ -896,7 +909,7 @@ MineralDampingCoefficient_Homo <- function(S_e)
   }
 }
 
-#Mineral Damping Coefficient: (heterogeneous fuels):
+#Mineral Damping Coefficient (heterogeneous fuels):
 #  For heterogeneous fuels the mineral damping coefficient is calculated for each fuel category
 #(live/dead).
 #
