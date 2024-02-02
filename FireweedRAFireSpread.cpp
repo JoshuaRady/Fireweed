@@ -525,7 +525,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   //      isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1))))
   if (!(FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 0) ||
         FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 1) ||
-        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 2))))
+        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 2)))
   {
     Stop("Invalid g_ij weights for live fuels.");
   }
