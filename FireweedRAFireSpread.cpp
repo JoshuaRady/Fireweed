@@ -432,7 +432,8 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   {
     //Calculate the total weight for each size subclass (bin them) for this live/dead category:
     		//subclassTotal = array(data = 0, dim = 6)
-    double subclassTotal[6];//Implicitly initialized to 0.
+    //double subclassTotal[6];//Implicitly initialized to 0.
+    double subclassTotal[6] = {0};//Explicitly initialized to reset for each iteration of the loop.
     		//catIndexes = which(liveDead == i)
     
     //The weight of the sixth and largest subclass is always 0 so we skip it.
