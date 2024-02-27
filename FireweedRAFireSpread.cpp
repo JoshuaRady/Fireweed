@@ -290,7 +290,11 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	FuelWeights wts;//Return value.
 	double unitFactor;
 	//std::vector<double> subclass_ij(SAV_ij.size(), 0.0);
-	std::vector<int> subclass_ij(SAV_ij.size(), 0);
+	//std::vector<int> subclass_ij(SAV_ij.size(), 0);
+	//Mapping of fuels to size subclasses:
+	//Subclasses are identified as indexes, with -1 indicating an unmapped value, which occurs when
+	//there is an empty / undefined fuel class, indicated by an invalid SAV value.
+	std::vector<int> subclass_ij(SAV_ij.size(), -1);
 	
   //Validity checking:
   //Are arguments the same length?
@@ -393,28 +397,32 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   {
     if (SAV_ij[n] >= 1200 * unitFactor)
     {
-      subclass_ij[n] = 1;
+      subclass_ij[n] = 0;//1;
     }
     else if (SAV_ij[n] >= 192 * unitFactor)
     {
-      subclass_ij[n] = 2;
+      subclass_ij[n] = 1;//2;
     }
     else if (SAV_ij[n] >= 96 * unitFactor)
     {
-      subclass_ij[n] = 3;
+      subclass_ij[n] = 2;//3;
     }
     else if (SAV_ij[n] >= 48 * unitFactor)
     {
-      subclass_ij[n] = 4;
+      subclass_ij[n] = 3;//4;
     }
     else if (SAV_ij[n] >= 16 * unitFactor)
     {
-      subclass_ij[n] = 5;
+      subclass_ij[n] = 4;//5;
     }
-    else//SAV_ij[n] < 16
+    //else//SAV_ij[n] < 16
+    else if (SAV_ij[n] > 0)//SAV_ij[n] < 16
     {
-      subclass_ij[n] = 6;
+      subclass_ij[n] = 5;//6;
     }
+    //A value of 0 indicates an empty / undefined SAV value.  Note that this undefined value is
+    //specific to this implementation.  How this is indicated in publications varied.  In th
+    // original publication of "the 40" 9999 is used.
   }
   
   		//g_ij = vector(mode = "numeric", length = numFuelTypes)//Implicitly intialized to 0.
@@ -454,10 +462,10 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
       }
     }
     
-    for (int o = 0; o < 6; o++)//Temporary reporting!!!!!
-    {
-    	std::cout << subclassTotal[o];
-    }
+//     for (int o = 0; o < 6; o++)//Temporary reporting!!!!!
+//     {
+//     	std::cout << subclassTotal[o];
+//     }
     
     //Assign the subclass weights to each size class.  Some may share the same weight:
 //     for (j in catIndexes)
@@ -476,7 +484,8 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
     	//If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
     	//to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes
     	//that have no fuel loading.
-    	if (liveDead[k] == i && subclass_ij[k] != 0 && w_o_ij[k] != 0)
+    	//if (liveDead[k] == i && subclass_ij[k] != 0 && w_o_ij[k] != 0)//Subclass 0 should be valid!!!!!
+    	if (liveDead[k] == i && subclass_ij[k] != -1 && w_o_ij[k] != 0)
     	{
     		wts.g_ij[k] = subclassTotal[subclass_ij[k]];
     	}
