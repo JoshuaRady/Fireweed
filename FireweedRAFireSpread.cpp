@@ -1311,7 +1311,7 @@ double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
 //
 //Output units: Dimensionless proportion
 //R: PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
-double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = ModelUnits)//Default to header!!!!!
+double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units)
 {
   double xi = 0;//Output
   

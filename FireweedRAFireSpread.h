@@ -91,6 +91,8 @@ double ReactionIntensity_Homo (double GammaPrime, double w_n, double h, double e
 double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
                              std::vector <double> h_i, std::vector <double> eta_M_i,
                              std::vector <double> eta_s_i)
+double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = ModelUnits);
+
 
 //Utilities:
 
