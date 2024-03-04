@@ -41,27 +41,32 @@ struct FuelWeights {
 const int Dead = 0;//Temporary?????
 const int Live = 1;//Temporary?????
 
-
+//Bulk Density:
 double BulkDensity(double w_o, double fuelBedDepth);
 double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth);
 
+//Packing Ratio:
 double PackingRatio(double rho_b, double rho_p);
 double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij, double fuelBedDepth);
 double OptimumPackingRatio(double SAV, UnitsType units = ModelUnits);
 
+//Weighting Factors:
 FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
                            std::vector<double> rho_p_ij, std::vector<int> liveDead,
                            UnitsType units = ModelUnits);
 FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
                            double rho_p, std::vector<int> liveDead, UnitsType units = ModelUnits)
 
+//Fuel Bed Surface-area-to-volume Ratio:
 double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vector<double> f_i,
                   std::vector<int> liveDead);
 
+//Net Fuel Load:
 double NetFuelLoad_Homo(double w_o, double S_T);
 std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <double> S_T_ij,
                                      std::vector <double> g_ij, std::vector <int> liveDead);
 
+//Damping Coefficients:
 double MoistureDampingCoefficient_Homo(double M_f, double M_x);
 std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
                                                     std::vector <double> M_x_i,
@@ -75,6 +80,7 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
                                                    std::vector <double> f_ij,
                                                    std::vector <int> liveDead);
 
+//Slope and Wind Factors:
 double SlopeFactor(double packingRatio, double slopeSteepness);
 double WindFactor(double SAV, double packingRatio, double optPackingRatio, double U,
                   UnitsType units = ModelUnits);
@@ -84,6 +90,7 @@ double WindFactorE(SAV, UnitsType units = ModelUnits);
 double WindFactorA(double SAV, double packingRatio, double optPackingRatio,
                    UnitsType units = ModelUnits);
 
+//Heat Source Components:
 double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units = ModelUnits);
 double LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
                            std::vector <double> liveDead)
