@@ -375,7 +375,7 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #changes to Rothermel 1972 by Albini 1976.
 #
 #Input variables / parameters:
-#SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+#SAV_ij = Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 #w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 #rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 #liveDead = An array indicating if each index in each of the other input variables represents a
@@ -388,6 +388,17 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #give spread rate scenario.
 CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnits)
 {
+  A_i = c(0,0)
+  #Mapping of fuels to size subclasses:
+  #Subclasses are identified as indexes, with 0 indicating an unmapped value, which occurs when
+  #there is an empty / undefined fuel class, indicated by an invalid SAV value.
+  subclass_ij = array(data = 0, dim = numFuelTypes)
+  
+  #Weights (implicitly initialized to 0.):
+  f_ij = vector(mode = "numeric", length = numFuelTypes)
+  #f_i is an array/vector of length 2.  It is defined inline below.
+  g_ij = vector(mode = "numeric", length = numFuelTypes)
+  
   #Validity checking:
   #Are arguments the same length?
   if (!SameLengths(SAV_ij, w_o_ij, liveDead))
@@ -410,7 +421,6 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   #Mean total surface area by live / dead fuel categories:
   #Rothermel equation 54:
   #Ai = ΣjAij
-  A_i = c(0,0)
   for (k in 1:numFuelTypes)
   {
     A_i[liveDead[k]] = A_i[liveDead[k]] + A_ij[k]
@@ -424,8 +434,6 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   #f_ij fuel class weighting factor:
   #Rothermel equation 56:
   #fij = Aij/Ai
-  
-  f_ij = vector(mode = "numeric", length = numFuelTypes)
   for (l in 1:numFuelTypes)
   {
     if (A_i[liveDead[l]] != 0)
@@ -440,7 +448,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   #fi fuel category (live/dead) weighting factor:
   #Rothermel equation 57:
   #fi = Ai/AT
-  f_i = A_i / A_T#Array/vector of 2.
+  f_i = A_i / A_T#Array/vector of length 2.
   
   #g_ij weighting factor:
   #The final set of weights was added in Albini 1976 to get around a logical problem of using f_ij
@@ -468,7 +476,6 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   }
   #Alternatively we could use an array of range edges with the appropriate units.
   
-  subclass_ij = array(data = 0, dim = numFuelTypes)
   for (n in 1:numFuelTypes)
   {
     if (SAV_ij[n] >= 1200 * unitFactor)
@@ -491,13 +498,14 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
     {
       subclass_ij[n] = 5
     }
-    else#SAV_ij[n] < 16
+    else if (SAV_ij[n] > 0)#SAV_ij[n] < 16
     {
       subclass_ij[n] = 6
     }
+    #A value of 0 indicates an empty / undefined SAV value.  Note that this undefined value is
+    #specific to this implementation.  How this is indicated in publications varied.  In the
+    #original publication of "the 40" 9999 is used.
   }
-  
-  g_ij = vector(mode = "numeric", length = numFuelTypes)#Implicitly intialized to 0.
   
   for (i in 1:2)
   {
@@ -509,8 +517,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
     for (o in 1:5)
     {
       #Which fuel classes are in the current subclass?:
-      #Note: We need a C compatible version that doesn't use which().
-      #Also this indexing technique is a bit hard to follow.
+      #Note: This indexing technique is a bit hard to follow.
       inThisSubclass = which(subclass_ij == o)#Live and dead.
       inThisSubclass = inThisSubclass[inThisSubclass %in% catIndexes]#Just this category.
       
@@ -541,14 +548,12 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   #portable.
   
   #The dead fuel components of f_ij should always sum to 1:
-  #if (sum(f_ij[liveDead == 1]) != 1)
   if (!isTRUE(all.equal(sum(f_ij[liveDead == 1]), 1)))
   {
     stop("f_ij dead fuels do not sum to 1.")
   }
   
   #The live fuel components of f_ij will sum to 1 if present or 0 if not present:
-  #if (!(sum(f_ij[liveDead == 2]) %in% c(0,1)))
   if (!(isTRUE(all.equal(sum(f_ij[liveDead == 2]), 0)) ||
         isTRUE(all.equal(sum(f_ij[liveDead == 2]), 1))))
   {
@@ -556,14 +561,12 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   }
   
   #f_i should always sum to 1:
-  #if (sum(f_i) != 1)
   if (!isTRUE(all.equal(sum(f_i), 1)))
   {
     stop("f_i does not sum to 1.")
   }
   
   #The dead fuel components of g_ij should always sum to 1:
-  #if (sum(g_ij[liveDead == 1]) != 1)
   if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
   {
     stop("g_ij dead fuels do not sum to 1.")
@@ -572,7 +575,6 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   #For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
   #However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
   #and 2 are possible:
-  #if (!(sum(g_ij[liveDead == 2]) %in% c(0,1)))
   if (!(isTRUE(all.equal(sum(g_ij[liveDead == 2]), 0)) ||
         isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1)) ||
         isTRUE(all.equal(sum(g_ij[liveDead == 2]), 2))))
