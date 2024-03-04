@@ -1337,8 +1337,73 @@ extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* 
 }
 
 //Heat Sink Components:-----------------------------------------------------------------------------
-//SECTION TO BE PORTED!!!!!
 
+//Effective Heating Number:
+//  This represents the proportion of a fuel type that is heated to ignition temperature in advance
+//of the fire front.  It is a function of SAV.  For example, with the same heating fine fuels might
+//be brought fully to combustion while for a large stick only surface would be dried and heated to
+//burn.
+// This function is only used in the homogeneous fuel calculations.
+//
+//Rothermel 1972 equation 14
+//ε = exp(-138/σ)
+//
+//Input variables / parameters:
+//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//
+//Units: Dimensionless.
+double EffectiveHeatingNumber(double SAV, UnitsType units)
+{
+	double epsilon;//Return value.
+
+	if (units == US)
+	{
+		epsilon = exp(-138/SAV);
+	}
+	else// if (units == Metric)
+	{
+		epsilon = exp(-4.527559/SAV);//-138 * cmPerFt = -4.527559.  Wilson 1980 uses −4.528.
+	}
+
+	return epsilon;
+}
+
+//Heat Of Preignition:
+//
+//Rothermel 1972 equations 12,78:
+//Qig = 250 + 1,116Mf
+//
+//Input variables / parameters:
+//M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
+//
+//Output units: btu/lb or kJ/kg
+//
+//For heterogeneous fuels this is calculated for each fuel type.
+//In R this is array compatible but will need to be reworked in C++.
+double HeatOfPreignition(double M_f, units = ModelUnits)
+{
+	double Q_ig;//Return value.
+
+	//Validity checking:
+	if (!InRange(M_f, 0, 3.5))
+	{
+		Stop("Suspect moisture content (M_f).");
+	}
+
+	if (units == US)
+	{
+		Q_ig = 250 + 1116 * M_f;
+	}
+	else// if (units == "Metric")
+	{
+		Q_ig = 581.1114 + 2594.081 * M_f;//Constants * kJPerBtu / kgPerLb
+		//Wilson 1980 uses:
+		//Qig = 581 + 2594 * M_f
+		//This implies Wilson was using the thermochemical BTU conversion which is ~1,054.35 J/BTU.
+	}
+
+	return Q_ig;
+}
 
 //Utilities:----------------------------------------------------------------------------------------
 

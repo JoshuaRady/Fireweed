@@ -93,6 +93,9 @@ double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
                              std::vector <double> eta_s_i)
 double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = ModelUnits);
 
+//Heat Sink Components:
+double EffectiveHeatingNumber(double SAV, UnitsType units = ModelUnits);
+double HeatOfPreignition(double M_f, units = ModelUnits);
 
 //Utilities:
 
