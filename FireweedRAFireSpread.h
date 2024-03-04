@@ -52,6 +52,8 @@ double OptimumPackingRatio(double SAV, UnitsType units = ModelUnits);
 FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
                            std::vector<double> rho_p_ij, std::vector<int> liveDead,
                            UnitsType units = ModelUnits);
+FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
+                           double rho_p, std::vector<int> liveDead, UnitsType units = ModelUnits)
 
 double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vector<double> f_i,
                   std::vector<int> liveDead);
@@ -72,6 +74,15 @@ double MineralDampingCoefficient_Homo(double S_e);
 std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
                                                    std::vector <double> f_ij,
                                                    std::vector <int> liveDead);
+double SlopeFactor(double packingRatio, double slopeSteepness);
+double WindFactor(double SAV, double packingRatio, double optPackingRatio, double U,
+                  UnitsType units = ModelUnits);
+double WindFactorC(double SAV, UnitsType units = ModelUnits);
+double WindFactorB(SAV, UnitsType units = ModelUnits);
+double WindFactorE(SAV, UnitsType units = ModelUnits);
+double WindFactorA(double SAV, double packingRatio, double optPackingRatio,
+                   UnitsType units = ModelUnits);
+
 
 //Utilities:
 

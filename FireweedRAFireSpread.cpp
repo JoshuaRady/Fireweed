@@ -943,7 +943,196 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 
 //Slope and Wind Factors:---------------------------------------------------------------------------
 
-//[...]
+//Slope factor:
+//Dimensionless multiplier that accounts for the effect of slope on spread behavior.  Same for
+//homogeneous and heterogeneous fuels.
+//
+//Rothermel 1972 equation 51,80:
+//ϕs = 5.275β^-0.3(tan ϕ)^2
+//
+//Input variables / parameters:
+//packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
+//  (dimensionless).
+//slopeSteepness = Slope steepness maximum (unitless fraction: vertical rise / horizontal distance).
+//  AKA tan ϕ.
+//
+//Output units: Dimensionless adjustment factor
+//Inputs are fractions which do not change with units.  Mo metric conversion required.
+double SlopeFactor(double packingRatio, double slopeSteepness)
+{
+	double phi_s;
+
+	phi_s = 5.275 * pow(packingRatio, -0.3) * pow(slopeSteepness, 2);
+	return phi_s;
+}
+
+//Wind factor:
+//Dimensionless multiplier that accounts for the effect of wind speed on spread behavior
+//(propagating flux ratio specifically).  Same for homegenous and heterogeneous fuels.
+//
+//Input variables / parameters:
+//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
+//  (dimensionless).
+//optPackingRatio = Optimum packing ratio (dimensionless).
+//   Note: optimum packing ratio is a function of SAV.
+//U = Wind speed at midflame height (ft/min | m/min).
+//
+//Output units: Dimensionless
+//
+//Note: It is not possible to calculate if a wind limit is indicated internal to this function
+//and not all authors agree that a wind limit should be used.  U should be capped, if deemed
+//appropriate prior to passing it in to this function.
+double WindFactor(double SAV, double packingRatio, double optPackingRatio, double U,
+                  UnitsType units)
+{
+	double C, B, E;//Partial terms.
+	double phi_wl;//Return value.
+
+	C = WindFactorC(SAV, units);
+	B = WindFactorB(SAV, units);
+	E = WindFactorE(SAV, units);
+
+	if (units == US)
+	{
+		//Rothermel 1972 equation 47,79:
+		//ϕw = CU^B(β/βop)^-E
+		phi_w = C * pow(U, B) * pow((packingRatio / optPackingRatio), -E);
+	}
+	else
+	{
+		phi_w = C * pow((ftPerM * U), B) * pow((packingRatio / optPackingRatio), -E);
+		//Wilson 1980 uses:
+		//phi_w = C * (0.3048 * U)^B * (packingRatio / optPackingRatio)^-E
+	}
+
+	return phi_w;
+}
+
+//The following three functions represent the equations internal to the calculation of the wind
+//factor.  They have been broken out because they are also used in EffectiveWindSpeed().
+//The metric conversions agree with Andrews 2018 except for the number of digits.
+//Should significant digits be observed for the conversions here?
+//Having a default for units argument is probably unnecessary since these will probably never be
+//called directly.
+
+double WindFactorC(double SAV, UnitsType units)
+{
+	double C;//Return value.
+
+	if (units == US)
+	{
+		//C = unnamed term
+		//Rothermel 1972 equation 48,82:
+		//C = 7.47exp(-0.133σ^0.55)
+		C = 7.47 * exp(-0.133 * pow(SAV, 0.55));
+	}
+	else
+	{
+		C = 7.47 * exp(-0.8710837 * pow(SAV, 0.55));//-0.133 * cmPerFt^0.55 = -0.8710837
+		//Wilson 1980 uses:
+		//C = 7.47 * exp(-0.8711 * SAV^0.55)
+	}
+	return C;
+}
+
+double WindFactorB(SAV, UnitsType units)
+{
+	double B;//Return value.
+
+	if (units == US)
+	{
+		//B = unnamed term
+		//Rothermel 1972 equation 49,83:
+		//B = 0.02526σ^0.54
+		B = 0.02526 * pow(SAV, 0.54);
+	}
+	else
+	{
+		B = 0.1598827 * pow(SAV, 0.54);//0.02526 * cmPerFt^0.54 = 0.1598827
+		//Wilson 1980 uses:
+		//B = 0.15988 * SAV^0.54
+	}
+	return B;
+}
+
+double WindFactorE(SAV, UnitsType units)
+{
+	double E;//Return value.
+
+	if (units == US)
+	{
+		//E = unnamed term
+		//Rothermel 1972 equation 50,84:
+		//E = 0.715exp(-3.59×10^-4 σ)
+		E = 0.715 * exp(-0.000359 * SAV)
+	}
+	else
+	{
+		E = 0.715 * exp(-0.01094232 * SAV)//-0.000359 * cmPerFt = -0.01094232
+		//Wilson 1980 uses:
+		//E = 0.715 * exp(-0.01094 * SAV)
+	}
+	return E;
+}
+
+//In the discussion of the wind factor in Andrews 2018 the equation is simplified to AU^B, combining
+//the multiplicative terms into a single factor A.  This function is provided to return this value
+//for verification purposes and is not currently needed to compute model outputs.
+//Note: This currently does not include the unit conversion of U when U is metric in A.  Since A is
+//used for diagnostic purposes that seems the correct approach.
+double WindFactorA(double SAV, double packingRatio, double optPackingRatio, UnitsType units)
+{
+	double C, E, A;//Partial terms.
+
+	C = WindFactorC(SAV, units);
+	E = WindFactorE(SAV, units);
+	A = C * pow((packingRatio / optPackingRatio), -E);
+	return A;
+}
+
+//Wind limit:
+//  The "wind limit" or "maximum reliable wind" is used to limit the effect of wind on the fire
+//spread rate as wind speed gets high.  It caps the wind speed at a value that is a function of the
+//reaction intensity.
+//   There is not agreement on whether the wind limit should be used.  Albini chose to not use it,
+//but his code reports if the limit was reached (Albini 1976, pg 26).  More recent work finds the
+//original calculation to be flawed and presents an alternate formulation from (Andrews et. al 2013).
+//However, They conclude that in general neither should be used.  They state a better alternative is
+//to cap the spread rate at the “effective wind speed”.
+//  We implement the original formulation as an option to be able to reproduce results that do use
+//the wind limit.
+//
+//Input variables / parameters:
+//U = Wind speed at midflame height (ft/min | m/min).
+//I_R = Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
+//
+//Output units: adjusted wind speed (U) at midflame height (ft/min | m/min)
+double WindLimit(double U, double I_R, FormUnits units = ModelUnits)
+{
+	double threshold;//Windlimit threshold.
+
+	if (units == US)
+	{
+		threshold = 0.9;
+	}
+	else
+	{
+		threshold = 0.02417144;
+	}
+	
+	//Rothermel 1972 Equation 87:
+	if (U/I_R > threshold)
+	{
+		U = threshold * I_R;
+		
+		//Or Andrews et al. 2013 equation 21:
+		//U = 96.8 * I_R^(1/3)
+	}
+	//Otherwise return U unchanged.
+	
+	return U;
+}
 
 //Heat Source Components:---------------------------------------------------------------------------
 //MORE CODE HERE!!!!!
