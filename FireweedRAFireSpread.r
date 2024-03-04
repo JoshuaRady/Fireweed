@@ -1172,7 +1172,7 @@ OptimumReactionVelocity <- function(packingRatio, SAV, units = ModelUnits)
   }
   
   #Calculate the maximum reaction velocity (min^-1):
-  #This is rate for moisture free fuel with mineral composition of alpha cellulose.
+  #This is the rate for moisture free fuel with mineral composition of alpha cellulose.
   #Rothermel 1972 equations 36,68:
   #Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
   if (units == "US")
@@ -1265,7 +1265,7 @@ LiveDeadHeatContent <- function(h_ij, f_ij, liveDead)
 #Output units: Btu/ft^2/min | kJ/m^2/min
 #Inputs carry units.  No unit conversions are needed.
 #
-#Note: Alternate the alternate parameters (GammaPrime, w_n, h, M_f, M_x, Se) could be used.
+#Note: The alternate parameters (GammaPrime, w_n, h, M_f, M_x, Se) could be used.
 ReactionIntensity_Homo <- function(GammaPrime, w_n, h, eta_M, eta_s)
 {
   I_R = GammaPrime * w_n * h * eta_M * eta_s
