@@ -74,6 +74,7 @@ double MineralDampingCoefficient_Homo(double S_e);
 std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
                                                    std::vector <double> f_ij,
                                                    std::vector <int> liveDead);
+
 double SlopeFactor(double packingRatio, double slopeSteepness);
 double WindFactor(double SAV, double packingRatio, double optPackingRatio, double U,
                   UnitsType units = ModelUnits);
@@ -83,6 +84,13 @@ double WindFactorE(SAV, UnitsType units = ModelUnits);
 double WindFactorA(double SAV, double packingRatio, double optPackingRatio,
                    UnitsType units = ModelUnits);
 
+double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units = ModelUnits);
+double LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
+                           std::vector <double> liveDead)
+double ReactionIntensity_Homo (double GammaPrime, double w_n, double h, double eta_M, double eta_s);
+double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
+                             std::vector <double> h_i, std::vector <double> eta_M_i,
+                             std::vector <double> eta_s_i)
 
 //Utilities:
 

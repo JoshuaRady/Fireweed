@@ -1135,9 +1135,166 @@ double WindLimit(double U, double I_R, FormUnits units = ModelUnits)
 }
 
 //Heat Source Components:---------------------------------------------------------------------------
-//MORE CODE HERE!!!!!
 
+//Optimum (Potential) Reaction Velocity:
+//  This is a measure of the optimum (potential) fuel consumption rate (fire efficiency / reaction
+//time).  The 'optimum' rate is the ideal rate that would occur for alpha cellulose in the absence
+//of minerals and moisture.
+//Notation: Γ' (Gamma prime)
+//
+//  This version includes the Albini 1976 modification.
+//
+//Input variables / parameters:
+//β = (Mean) Packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
+//packingRatio = (Mean) Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
+//  (dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
+//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//  For heterogeneous fuels the SAV of the fuel bed / complex is used.
+//
+//Output units: min^-1
+double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
+{
+	double optPackingRatio;
+	double A;//Intermediate.
+	double GammaPrime;//Return value.
 
+	//Calculate the maximum reaction velocity (min^-1):
+	//This is the rate for moisture free fuel with mineral composition of alpha cellulose.
+	//Rothermel 1972 equations 36,68:
+	//Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
+	if (units == US)
+	{
+		GammaPrimeMax = pow(SAV, 1.5) / (495 + 0.0594 * pow(SAV, 1.5));
+		//Or equivalently:
+		//GammaPrimeMax = 1 / (0.0594 * 495 / SAV^1.5)
+	}
+	else
+	{
+		GammaPrimeMax = 1 / (0.0594 + 2.941594 / pow(SAV, 1.5));
+		//Wilson 1980 uses:
+		//GammaPrimeMax = (0.0591 + 2.926 * SAVcm^-1.5)^-1 = 1 / (0.0591 + 2.926 / SAVcm^1.5)
+	}
+	
+	optPackingRatio = OptimumPackingRatio(SAV, units);
+	
+	//"Arbitrary" variable:
+	//Albini 1976 pg. 15:
+	//A = 133σ^-0.7913
+	if (units == "US")
+	{
+		A = 133 * pow(SAV, -0.7913);
+	}
+	else
+	{
+		A = 8.903291 * pow(SAV, -0.7913);
+		//Wilson 1980 uses:
+		//A = 8.9033 * SAV^-0.7913
+	}
+	
+	//These are combined to produce the optimal reaction velocity (min^-1):
+	//Rothermel 1972 equation 38:
+	//Γ' = Γ'max(β/βop)^A exp[A(1 - β/βop)]
+	GammaPrime = GammaPrimeMax * pow((packingRatio/optPackingRatio), A)  *
+		exp(A * (1 - packingRatio/optPackingRatio));
+	
+	return GammaPrime;
+}
+
+//Live / Dead Heat Content:
+//  Calculate the weighted (low?) heat content of the live / dead fuel categories.
+//Only used by reaction intensity calculation.
+//
+//Input variables / parameters:
+//h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
+//f_ij = Weighting factors for each fuel type (dimensionless).
+//liveDead = An array indicating if each index in each of the other input variables represents a
+//  dead (1) or live (2) fuel category.
+//
+//Output units: btu/lb | kJ/kg
+//Whatever units are input, the same will come out.  No unit conversions needed.
+double LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
+                           std::vector <double> liveDead)
+{
+	std::vector <double> h_i(2, 0);//Could this cause issues if only live or dead fuel is present?
+	int numFuelTypes;
+
+	numFuelTypes = f_ij.size();
+
+	if (!SameLengths(h_ij, f_ij, liveDead))
+	{
+		Stop("LiveDeadHeatContent() expects arguments of the same length.");
+	}
+
+	//Rothermel 1972 equation 61:
+	//hi = Σj fij hij
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		h_i[liveDead[k]] = h_i[liveDead[k]] + f_ij[k] * h_ij[k];
+	}
+
+	return h_i;
+}
+
+//Reaction Intensity:
+//  The reaction intensity (I_R) is the total energy released by the fire front in Btu/ft^2/min in
+//all forms (radiation, conduction, and convection).
+//  This it not the same as fireline intensity!
+
+//Reaction Intensity, Rothermel version for homogeneous fuels:
+//
+//Rothermel equation 27:
+//IR = Γ'wnhηMηs
+//
+//Input variables / parameters:
+//GammaPrime = Optimum reaction velocity (min^-1).
+//w_n = Net fuel load for a single fuel component (lb/ft^2 | kg/m^2).
+//h = Heat content of the fuel type (Btu/lb | kJ/kg).
+//eta_M = Moisture damping coefficient (unitless).
+//eta_s = Mineral damping coefficient (unitless).
+//
+//Output units: Btu/ft^2/min | kJ/m^2/min
+//Inputs carry units.  No unit conversions are needed.
+//
+//Note: The alternate parameters (GammaPrime, w_n, h, M_f, M_x, Se) could be used.
+double ReactionIntensity_Homo (double GammaPrime, double w_n, double h, double eta_M, double eta_s)
+{
+	double I_R;//Return value.
+
+	I_R = GammaPrime * w_n * h * eta_M * eta_s;
+
+	return I_R;
+}
+
+//Reaction Intensity for Heterogeneous Fuels:
+//
+//Rothermel equation 58 modified by Albini 1976 pg. 17:
+//IR = Γ' Σi (wn)ihi(ηM)i(ηs)i
+//
+//Input variables / parameters:
+//GammaPrime = Optimum reaction velocity (min^-1).
+//w_n_i = Net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2).
+//h_i = Heat content for live/dead fuel (Btu/lb | kJ/kg).
+//eta_M_i = Moisture damping coefficient for live/dead fuel categories (unitless).
+//eta_s_i = Mineral damping coefficient for live/dead fuel categories (unitless).
+//
+//Output units: Btu/ft^2/min | kJ/m^2/min
+//Inputs carry units.  No unit conversions are needed.
+double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
+                             std::vector <double> h_i, std::vector <double> eta_M_i,
+                             std::vector <double> eta_s_i)
+{
+	double I_R;//Return value.
+
+	if (!SameLengths(w_n_i, h_i, eta_M_i, eta_s_i))
+	{
+		Stop("ReactionIntensity_Het() expects arguments of the same length.");
+	}
+
+	I_R = GammaPrime * ((w_n_i[0] * h_i[0] * eta_M_i[0] * eta_s_i[0]) +
+	                    (w_n_i[1] * h_i[1] * eta_M_i[1] * eta_s_i[1]));
+
+	return I_R;
+}
 
 //Propagating Flux Ratio:
 //The propagating flux ratio, represented as lower case xi, is the proportion of the reaction
