@@ -296,16 +296,10 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	
   //Validity checking:
   //Are arguments the same length?
-  if (!SameLengths(SAV_ij, w_o_ij, liveDead))
+  if (!SameLengths(SAV_ij, w_o_ij, rho_p_ij, liveDead))
   {
     Stop("CalcWeightings() expects arguments of the same length.");
   }
-  //A single value for rho_p_ij will be tolerated: [This will not currently work.]
-  //This function could be overloaded to accept rho_p as a double similar to the R version.
-  //if (!(rho_p_ij.size() == 1 || rho_p_ij.size() == SAV_ij.size()))
-  //{
-  //  Stop("rho_p_ij must be length 1 or the same length as the other arguments");
-  //}
   
   numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
   
@@ -484,6 +478,15 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
   }
   
   return wts;
+}
+
+//The fuel particle density is often the same across fuel classes.  Allow a single value to be used.
+FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
+                           double rho_p, std::vector<int> liveDead, UnitsType units)
+{
+	std::vector<double> rho_p_ij(SAV_ij.size(), rho_p);//Expand.
+	
+	return CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
 }
 
 //This is a wrapper for CalcWeightings() that allows it to be called from R:
