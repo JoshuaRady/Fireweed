@@ -95,7 +95,8 @@ double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = M
 
 //Heat Sink Components:
 double EffectiveHeatingNumber(double SAV, UnitsType units = ModelUnits);
-double HeatOfPreignition(double M_f, units = ModelUnits);
+double HeatOfPreignition(double M_f, UnitsType units = ModelUnits);
+std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType units = ModelUnits);
 
 //Utilities:
 

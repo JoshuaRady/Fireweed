@@ -1380,7 +1380,7 @@ double EffectiveHeatingNumber(double SAV, UnitsType units)
 //
 //For heterogeneous fuels this is calculated for each fuel type.
 //In R this is array compatible but will need to be reworked in C++.
-double HeatOfPreignition(double M_f, units = ModelUnits)
+double HeatOfPreignition(double M_f, UnitsType units)
 {
 	double Q_ig;//Return value.
 
@@ -1403,6 +1403,22 @@ double HeatOfPreignition(double M_f, units = ModelUnits)
 	}
 
 	return Q_ig;
+}
+
+//A vector aware version of HeatOfPreignition().
+std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType units)
+{
+	int numFuelTypes;
+	std::vector Q_ig_ij(M_f_ij.size(), 0);//Return value.
+
+	numFuelTypes = M_f_ij.size();
+
+	for (int i = 0; i < numFuelTypes; i++)
+	{
+		Q_ig_ij[i] = HeatOfPreignition(M_f_ij[i]);
+	}
+
+	return Q_ig_ij;
 }
 
 //Utilities:----------------------------------------------------------------------------------------
