@@ -1379,7 +1379,6 @@ double EffectiveHeatingNumber(double SAV, UnitsType units)
 //Output units: btu/lb or kJ/kg
 //
 //For heterogeneous fuels this is calculated for each fuel type.
-//In R this is array compatible but will need to be reworked in C++.
 double HeatOfPreignition(double M_f, UnitsType units)
 {
 	double Q_ig;//Return value.

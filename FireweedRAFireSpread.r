@@ -1369,8 +1369,7 @@ EffectiveHeatingNumber <- function(SAV, units = ModelUnits)
 #
 #Output units: btu/lb or kJ/kg
 #
-#For heterogeneous fuels this is calculated for each fuel type.
-#In R this is array compatible but will need to be reworked in C++.
+#For heterogeneous fuels this is calculated for each fuel type.  This is array compatible.
 HeatOfPreignition <- function(M_f, units = ModelUnits)
 {
   #Validity checking:
