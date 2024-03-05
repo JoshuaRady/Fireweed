@@ -1714,6 +1714,31 @@ initial simple implementation that will likely revised or replaced soon.  Right 
 send messages to standard out by default with means to alter that behavior to be added later.
 --------------------------------------------------------------------------------------------------*/
 
+//Log a neutral message:
+void LogMsg(const char* message)
+{
+	std::cout << message << "\n";
+}
+
+//Log a neutral message with a numeric value:
+void LogMsg(const char* message, double value)
+{
+	std::cout << message << " " << value << "\n";
+}
+
+//Log a neutral message with a numeric vector:
+void LogMsg(const char* message, std::vector<double> value)
+{
+	std::cout << message << " ";
+
+	for (int i = 0; i < (value.size() - 1); i++)
+	{
+		std::cout << value[i] << ", ";
+	}
+
+	std::cout << value[value.size() - 1] << "\n";
+}
+
 //Post a non-fatal warning:
 void Warning(const char* message)
 {

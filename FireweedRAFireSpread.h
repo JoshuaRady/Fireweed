@@ -130,6 +130,10 @@ bool ValidProportion(std::vector<double> value);
 double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat);
 bool FloatCompare(double val1, double val2, double precision = 0.0001);
 
+//Logging:
+void LogMsg(const char* message);
+void LogMsg(const char* message, double value);
+void LogMsg(const char* message, std::vector<double> value);
 void Warning(const char* message);
 void Stop(const char* message);
 
