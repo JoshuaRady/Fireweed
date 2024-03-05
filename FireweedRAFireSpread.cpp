@@ -1521,21 +1521,21 @@ double SpreadRateRothermelAlbini_Homo(double heatContent = StdHeatContent()//h
 	//For debugging:
 	if (debug)
 	{
-		print("Homogeneous Spread Calc components:")
-		print(paste("GammaPrime =", GammaPrime))
-		print(paste("w_n =", w_n))
-		print(paste("h =", heatContent))
-		print(paste("eta_M =", eta_M))
-		print(paste("eta_s =", eta_s))
-		print(paste("I_R =", I_R))
-		print(paste("xi =", xi))
-		print(paste("phi_s =", phi_s))
-		print(paste("phi_w =", phi_w))
-		print(paste("Heat source =", I_R * xi * (1 + phi_s + phi_w)))
-		print(paste("rho_b =", rho_b))
-		print(paste("epsilon =", epsilon))
-		print(paste("Qig =", Q_ig))
-		print(paste("Heat sink = ", rho_b * epsilon * Q_ig))
+		LogMsg("Homogeneous Spread Calc components:");
+		LogMsg("GammaPrime =", GammaPrime);
+		LogMsg("w_n =", w_n);
+		LogMsg("h =", heatContent);
+		LogMsg("eta_M =", eta_M);
+		LogMsg("eta_s =", eta_s);
+		LogMsg("I_R =", I_R);
+		LogMsg("xi =", xi);
+		LogMsg("phi_s =", phi_s);
+		LogMsg("phi_w =", phi_w);
+		LogMsg("Heat source =", I_R * xi * (1 + phi_s + phi_w));
+		LogMsg("rho_b =", rho_b);
+		LogMsg("epsilon =", epsilon);
+		LogMsg("Qig =", Q_ig);
+		LogMsg("Heat sink = ", rho_b * epsilon * Q_ig);
 	}
 	
 	return R;
