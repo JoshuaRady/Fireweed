@@ -1427,18 +1427,8 @@ std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType un
 //  Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
 //
 //Input variables / parameters:
-//  There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel particle
-//characteristics, 4 fuel array characteristics, and three environmental.
-//
-//Fuel particle properties: 
-//h = Heat content of the fuel type (Btu/lb | kJ/kg).
-//  All the 53 standard fuel models use 8,000 Btu/lb.
-//S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
-//  For all standard fuel models this is 5.55% (0.0555).
-//S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
-//  For all standard fuel models this is 1% (0.01).
-//rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
-//  All the 53 standard fuel models use 32 lb/ft^3.
+//  There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel array characteristics,
+//4 fuel particle characteristics, and three environmental.
 //
 //Fuel array:
 //SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
@@ -1451,18 +1441,27 @@ std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType un
 //U = Wind speed at midflame height (ft/min | m/min).
 //slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
 //
-//useWindLimit = Use the wind limit calculation or not.
+//Fuel particle properties: 
+//h = Heat content of the fuel type (Btu/lb | kJ/kg).
+//  All the 53 standard fuel models use 8,000 Btu/lb.
+//S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
+//  For all standard fuel models this is 5.55% (0.0555).
+//S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
+//  For all standard fuel models this is 1% (0.01).
+//rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
+//  All the 53 standard fuel models use 32 lb/ft^3.
 //
-//Optional Parameters:
-//unit = Specify the class of units for the inputs.
+//Settings:
+//useWindLimit = Use the wind limit calculation or not.
+//units = Specify the class of units for the inputs.
 //debug = Print calculation component values.  This may be removed in the future.
 //
 //Returns: R = rate of spread in ft/min | m/min.
-double SpreadRateRothermelAlbini_Homo(double heatContent = StdHeatContent()//h
+double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
+                                      double M_f, double U, double slopeSteepness,
+                                      double heatContent = StdHeatContent()//h
                                       double S_T = 0.0555, double S_e = 0.01,
                                       double rho_p = StdRho_p(),
-                                      double SAV, double w_o, double fuelBedDepth,
-                                      double M_x, double M_f, double U, double slopeSteepness,
                                       bool useWindLimit = TRUE,
                                       UnitsType units = US,
                                       bool debug = FALSE)
@@ -1547,6 +1546,20 @@ double SpreadRateRothermelAlbini_Homo(double heatContent = StdHeatContent()//h
 //  Some of the input variables differ from the homogeneous fuels form in that they are vectors
 //rather than scalars.
 //
+//Fuel array:
+//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+//M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
+//liveDead = An array indicating if each index in each of the other input variables represents a
+//  dead (1) or live (2) fuel category. Note: This is placed later in the argument list to allow for
+//  a default value.
+//
+//Environmental:
+//M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+//U = Wind speed at midflame height (ft/min | m/min).
+//slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+//
 //Fuel particle properties: 
 //h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
 //  All the 53 standard fuel models use 8,000 Btu/lb.
@@ -1557,20 +1570,8 @@ double SpreadRateRothermelAlbini_Homo(double heatContent = StdHeatContent()//h
 //rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 //  All the 53 standard fuel models use 32 lb/ft^3.
 //
-//Fuel array:
-//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
-//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
-//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
-//M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
-//
-//Environmental:
-//M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
-//U = Wind speed at midflame height (ft/min | m/min).
-//slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
-//
+//Settings:
 //useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
-//
-//Optional Parameters:
 //units = Specify the class of units for the inputs.
 //debug = Print calculation component values.  This may be removed in the future.
 //
@@ -1579,17 +1580,17 @@ double SpreadRateRothermelAlbini_Homo(double heatContent = StdHeatContent()//h
 //Note: This function takes a lot of arguments.  These parameters could be combined into fuel model
 //and environment objects.  Maintaining this generic interface will still need to be retained for
 //full flexibility of use.
-double SpreadRateRothermelAlbini_Het(std::vector <double> h_ij = StdHeatContent(),
-                                     std::vector <double> S_T_ij = 0.0555,
-                                     std::vector <double> S_e_ij = 0.01,
-                                     std::vector <double> rho_p_ij = StdRho_p(),
-                                     std::vector <double> SAV_ij,
+double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> w_o_ij,
                                      double fuelBedDepth,
                                      double M_x_1,
                                      std::vector <double> M_f_ij,
-                                     double U, double slopeSteepness,
-                                     std::vector <double> liveDead = c(1,1,1,2,2),//Standard fuel model 5 classes.
+                                     double U, double slopeSteepness,//Both could default to 0.
+                                     std::vector <double> h_ij,
+                                     std::vector <double> S_T_ij,
+                                     std::vector <double> S_e_ij,
+                                     std::vector <double> rho_p_ij,
+                                     std::vector <double> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false)
@@ -1599,24 +1600,18 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> h_ij = StdHeatContent(
 	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
 	std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {0, 0};//Live/dead intermediates.
 	std::vector <double> Q_ig_ij(w_o_ij.size, 0);
+	double R;//Return value.
 
 	//Parameter checking and processing:
-	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij))
+	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij))
 	{
-		Stop("SpreadRateRothermelAlbini_Het() expects arguments SAV_ij, w_o_ij, M_f_ij to be of the same length.");
+		Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
 	}
 
 	numFuelTypes = SAV_ij.size();
 
 	//Truncate liveDead to match the number of classes provided.  This may assume too much!:
 // 	liveDead = liveDead[1:numFuelTypes]
-
-	//For the heat content, total mineral content, effective mineral content, and fuel particle density
-	//allow the value for all types to to set with a single value:
-// 	h_ij = InitSpreadParam(h_ij, "h_ij", numFuelTypes)
-// 	S_T_ij = InitSpreadParam(S_T_ij, "S_T_ij", numFuelTypes)
-// 	S_e_ij = InitSpreadParam(S_e_ij, "S_e_ij", numFuelTypes)
-// 	rho_p_ij = InitSpreadParam(rho_p_ij, "rho_p_ij", numFuelTypes)
 
 	//Terms used in numerator and denominator:
 
@@ -1644,7 +1639,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> h_ij = StdHeatContent(
 	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
 
 	//The live fuel moisture of extinction must be calculated:
-//M_x_i = c(NA,NA)
 	M_x_i[1] = M_x_1;
 	M_x_i[2] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
 
@@ -1677,7 +1671,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> h_ij = StdHeatContent(
 
 	//We'll do it in two steps:
 	//Weight and size class:
-//heatSink_i = c(0,0)
 	for (k = 0; k < numFuelTypes; k++)
 	{
 		double savConst;
@@ -1722,6 +1715,41 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> h_ij = StdHeatContent(
 		LogMsg("Q_ig_ij =", Q_ig_ij);
 		LogMsg("Heat sink =", heatSink)
 	}
+
+	return R;
+}
+
+//Allow the fuel particle properties to be set with single values or omitted.
+double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
+                                     std::vector <double> w_o_ij,
+                                     double fuelBedDepth,
+                                     double M_x_1,
+                                     std::vector <double> M_f_ij,
+                                     double U, double slopeSteepness,
+                                     double h,
+                                     double S_T,
+                                     double S_e,
+                                     double rho_p,
+                                     std::vector <double> liveDead,
+                                     bool useWindLimit,
+                                     UnitsType units,
+                                     bool debug)
+{
+	int numFuelTypes = SAV_ij.size();
+// 	std::vector <double> h_ij(SAV_ij.size(), h);
+// 	std::vector <double> S_T_ij(SAV_ij.size(), S_T);
+// 	std::vector <double> S_e_ij(SAV_ij.size(), S_e);
+// 	std::vector <double> rho_p_ij(SAV_ij.size(), rho_p);
+	std::vector <double> h_ij(numFuelTypes, h);
+	std::vector <double> S_T_ij(numFuelTypes, S_T);
+	std::vector <double> S_e_ij(numFuelTypes, S_e);
+	std::vector <double> rho_p_ij(numFuelTypes, rho_p);
+	double R;//Return value.
+
+	R = SpreadRateRothermelAlbini_Het(SAV_ij, w_o_ij, fuelBedDepth,  M_x_1,
+	                                  M_f_ij, U, slopeSteepness,
+	                                  h_ij, S_T_ij, S_e_ij, rho_p_ij = StdRho_p(),
+	                                  liveDead, useWindLimit, units, debug)
 
 	return R;
 }

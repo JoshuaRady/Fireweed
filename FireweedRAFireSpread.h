@@ -106,6 +106,44 @@ double EffectiveHeatingNumber(double SAV, UnitsType units = ModelUnits);
 double HeatOfPreignition(double M_f, UnitsType units = ModelUnits);
 std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType units = ModelUnits);
 
+//Spread Rate Calculations:
+double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
+                                      double M_f, double U, double slopeSteepness,
+                                      double heatContent = StdHeatContent()//h
+                                      double S_T = 0.0555, double S_e = 0.01,
+                                      double rho_p = StdRho_p(),
+                                      bool useWindLimit = TRUE,
+                                      UnitsType units = US,
+                                      bool debug = FALSE);
+double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
+                                     std::vector <double> w_o_ij,
+                                     double fuelBedDepth,
+                                     double M_x_1,
+                                     std::vector <double> M_f_ij,
+                                     double U, double slopeSteepness,//Both could default to 0.
+                                     std::vector <double> h_ij,
+                                     std::vector <double> S_T_ij,
+                                     std::vector <double> S_e_ij,
+                                     std::vector <double> rho_p_ij,
+                                     std::vector <double> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
+                                     bool useWindLimit = false,
+                                     UnitsType units = US,
+                                     bool debug = false);
+double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
+                                     std::vector <double> w_o_ij,
+                                     double fuelBedDepth,
+                                     double M_x_1,
+                                     std::vector <double> M_f_ij,
+                                     double U, double slopeSteepness,
+                                     double h = StdHeatContent(),
+                                     double S_T = 0.0555,
+                                     double S_e = 0.01,
+                                     double rho_p = StdRho_p(),
+                                     std::vector <double> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
+                                     bool useWindLimit = false,
+                                     UnitsType units = US,
+                                     bool debug = false);
+
 //Utilities:
 
 double StdHeatContent(UnitsType units = ModelUnits);

@@ -1399,18 +1399,8 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #  Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
 #
 #Input variables / parameters:
-#  There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel particle
-#characteristics, 4 fuel array characteristics, and three environmental.
-#
-#Fuel particle properties: 
-#h = Heat content of the fuel type (Btu/lb | kJ/kg).
-#  All the 53 standard fuel models use 8,000 Btu/lb.
-#S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
-#  For all standard fuel models this is 5.55% (0.0555).
-#S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
-#  For all standard fuel models this is 1% (0.01).
-#rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
-#  All the 53 standard fuel models use 32 lb/ft^3.
+# There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel array characteristics,
+#4 fuel particle characteristics, and three environmental.
 #
 #Fuel array:
 #SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
@@ -1423,18 +1413,27 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #U = Wind speed at midflame height (ft/min | m/min).
 #slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
 #
-#useWindLimit = Use the wind limit calculation or not.
+#Fuel particle properties: 
+#h = Heat content of the fuel type (Btu/lb | kJ/kg).
+#  All the 53 standard fuel models use 8,000 Btu/lb.
+#S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
+#  For all standard fuel models this is 5.55% (0.0555).
+#S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
+#  For all standard fuel models this is 1% (0.01).
+#rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
+#  All the 53 standard fuel models use 32 lb/ft^3.
 #
-#Optional Parameters:
-#unit = Specify the class of units for the inputs.
+#Settings:
+#useWindLimit = Use the wind limit calculation or not.
+#units = Specify the class of units for the inputs.
 #debug = Print calculation component values.  This may be removed in the future.
 #
 #Returns: R = rate of spread in ft/min | m/min.
-SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
+SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
+                                           M_f, U, slopeSteepness,
+                                           heatContent = StdHeatContent(),#h
                                            S_T = 0.0555, S_e = 0.01,
                                            rho_p = StdRho_p(),
-                                           SAV, w_o, fuelBedDepth,
-                                           M_x, M_f, U, slopeSteepness,
                                            useWindLimit = TRUE,
                                            units = NULL,
                                            debug = FALSE)
@@ -1515,9 +1514,23 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
 
 #Albini 1976 modified Rothermel spread model for heterogeneous fuels:
 #
-##Input variables / parameters:
+#Input variables / parameters:
 #  Some of the input variables differ from the homogeneous fuels form in that they are vectors
 #rather than scalars.
+#
+#Fuel array:
+#SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+#fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+#M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
+#liveDead = An array indicating if each index in each of the other input variables represents a
+#  dead (1) or live (2) fuel category. Note: This is placed later in the argument list to allow for
+#  a default value.
+#
+#Environmental:
+#M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+#U = Wind speed at midflame height (ft/min | m/min).
+#slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
 #
 #Fuel particle properties: 
 #h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
@@ -1529,20 +1542,8 @@ SpreadRateRothermelAlbini_Homo <- function(heatContent = StdHeatContent(),#h
 #rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 #  All the 53 standard fuel models use 32 lb/ft^3.
 #
-#Fuel array:
-#SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
-#w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
-#fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
-#M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
-#
-#Environmental:
-#M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
-#U = Wind speed at midflame height (ft/min | m/min).
-#slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
-#
+#Settings:
 #useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
-#
-#Optional Parameters:
 #units = Specify the class of units for the inputs.
 #debug = Print calculation component values.  This may be removed in the future.
 #
