@@ -1421,6 +1421,126 @@ std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType un
 	return Q_ig_ij;
 }
 
+//Spread Rate Calculations:-------------------------------------------------------------------------
+
+//Albini 1976 modified Rothermel spread model for homogeneous fuels:
+//  Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+//
+//Input variables / parameters:
+//  There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel particle
+//characteristics, 4 fuel array characteristics, and three environmental.
+//
+//Fuel particle properties: 
+//h = Heat content of the fuel type (Btu/lb | kJ/kg).
+//  All the 53 standard fuel models use 8,000 Btu/lb.
+//S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
+//  For all standard fuel models this is 5.55% (0.0555).
+//S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
+//  For all standard fuel models this is 1% (0.01).
+//rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
+//  All the 53 standard fuel models use 32 lb/ft^3.
+//
+//Fuel array:
+//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
+//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+//M_x = Moisture of extinction (fraction: water weight/dry fuel weight).
+//
+//Environmental:
+//M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
+//U = Wind speed at midflame height (ft/min | m/min).
+//slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+//
+//useWindLimit = Use the wind limit calculation or not.
+//
+//Optional Parameters:
+//unit = Specify the class of units for the inputs.
+//debug = Print calculation component values.  This may be removed in the future.
+//
+//Returns: R = rate of spread in ft/min | m/min.
+double SpreadRateRothermelAlbini_Homo(double heatContent = StdHeatContent()//h
+                                      double S_T = 0.0555, double S_e = 0.01,
+                                      double rho_p = StdRho_p(),
+                                      double SAV, double w_o, double fuelBedDepth,
+                                      double M_x, double M_f, double U, double slopeSteepness,
+                                      bool useWindLimit = TRUE,
+                                      UnitsType units = US,
+                                      bool debug = FALSE)
+{
+	double rho_b, packingRatio, optPackingRatio;//Bulk density and packing ratio.
+	double GammaPrime, w_n, eta_M, eta_s, I_R;//Reaction intensity & intermediates.
+	double xi, phi_s, phi_w, epsilon, Q_ig;//Other intermediate terms.
+	double R;//Return value.
+
+	//Up front calculations:
+	//The bulk density is needed to calculate the packing ratio and therefore is used in the numerator
+	//and denominator.
+	rho_b = BulkDensity(w_o, fuelBedDepth);
+	
+	packingRatio = PackingRatio(rho_b, rho_p);
+	optPackingRatio = OptimumPackingRatio(SAV, units);
+	
+	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
+	//front of it (AKA propagating flux) in BTU/min/ft^2 | kW/m^2:
+	//Numerator of Rothermel 1972 equation 52:
+	//IR𝜉(1 + 𝜙w + 𝜙s)
+	
+	//Reaction intensity I_R:
+	GammaPrime = OptimumReactionVelocity(packingRatio, SAV, units);
+	w_n = NetFuelLoad_Homo(w_o, S_T);
+	eta_M = MoistureDampingCoefficient_Homo(M_f, M_x);
+	eta_s = MineralDampingCoefficient_Homo(S_e);
+	I_R = ReactionIntensity_Homo(GammaPrime, w_n, heatContent, eta_M, eta_s);
+	
+	//Other terms:
+	xi = PropagatingFluxRatio(packingRatio, SAV, units);
+	phi_s = SlopeFactor(packingRatio, slopeSteepness);
+	
+	//Apply wind limit check:
+	if (useWindLimit)
+	{
+		U = WindLimit(U, I_R, units);
+	}
+	
+	phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U, units);
+	
+	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
+	//kJ/m^3:
+	//Denominator of Rothermel 1972 equation 52:
+	//ρbεQig
+	
+	epsilon = EffectiveHeatingNumber(SAV, units);
+	Q_ig = HeatOfPreignition(M_f, units);
+	
+	//Full spread calculation for homogeneous fuels:
+	//Rothermel 1972 equation 52:
+	//Rate of spread = heat source / heat sink
+	//R = I_R𝝃(1 + 𝜙w + 𝜙s) / ρbεQig
+	R = (I_R * xi * (1 + phi_w + phi_s)) / (rho_b * epsilon * Q_ig);
+	
+	//For debugging:
+	if (debug)
+	{
+		print("Homogeneous Spread Calc components:")
+		print(paste("GammaPrime =", GammaPrime))
+		print(paste("w_n =", w_n))
+		print(paste("h =", heatContent))
+		print(paste("eta_M =", eta_M))
+		print(paste("eta_s =", eta_s))
+		print(paste("I_R =", I_R))
+		print(paste("xi =", xi))
+		print(paste("phi_s =", phi_s))
+		print(paste("phi_w =", phi_w))
+		print(paste("Heat source =", I_R * xi * (1 + phi_s + phi_w)))
+		print(paste("rho_b =", rho_b))
+		print(paste("epsilon =", epsilon))
+		print(paste("Qig =", Q_ig))
+		print(paste("Heat sink = ", rho_b * epsilon * Q_ig))
+	}
+	
+	return R;
+}
+
 //Utilities:----------------------------------------------------------------------------------------
 
 //Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
