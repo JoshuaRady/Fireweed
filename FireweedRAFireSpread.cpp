@@ -486,7 +486,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 {
 	std::vector<double> rho_p_ij(SAV_ij.size(), rho_p);//Expand.
 	
-	return CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
+	return (CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units));
 }
 
 //This is a wrapper for CalcWeightings() that allows it to be called from R:
@@ -987,7 +987,7 @@ double WindFactor(double SAV, double packingRatio, double optPackingRatio, doubl
                   UnitsType units)
 {
 	double C, B, E;//Partial terms.
-	double phi_wl;//Return value.
+	double phi_w;//Return value.
 
 	C = WindFactorC(SAV, units);
 	B = WindFactorB(SAV, units);
@@ -1036,7 +1036,7 @@ double WindFactorC(double SAV, UnitsType units)
 	return C;
 }
 
-double WindFactorB(SAV, UnitsType units)
+double WindFactorB(double SAV, UnitsType units)
 {
 	double B;//Return value.
 
@@ -1056,7 +1056,7 @@ double WindFactorB(SAV, UnitsType units)
 	return B;
 }
 
-double WindFactorE(SAV, UnitsType units)
+double WindFactorE(double SAV, UnitsType units)
 {
 	double E;//Return value.
 
@@ -1065,11 +1065,11 @@ double WindFactorE(SAV, UnitsType units)
 		//E = unnamed term
 		//Rothermel 1972 equation 50,84:
 		//E = 0.715exp(-3.59×10^-4 σ)
-		E = 0.715 * exp(-0.000359 * SAV)
+		E = 0.715 * exp(-0.000359 * SAV);
 	}
 	else
 	{
-		E = 0.715 * exp(-0.01094232 * SAV)//-0.000359 * cmPerFt = -0.01094232
+		E = 0.715 * exp(-0.01094232 * SAV);//-0.000359 * cmPerFt = -0.01094232
 		//Wilson 1980 uses:
 		//E = 0.715 * exp(-0.01094 * SAV)
 	}
@@ -1108,7 +1108,7 @@ double WindFactorA(double SAV, double packingRatio, double optPackingRatio, Unit
 //I_R = Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
 //
 //Output units: adjusted wind speed (U) at midflame height (ft/min | m/min)
-double WindLimit(double U, double I_R, FormUnits units = ModelUnits)
+double WindLimit(double U, double I_R, UnitsType units)
 {
 	double threshold;//Windlimit threshold.
 
@@ -1156,6 +1156,7 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 {
 	double optPackingRatio;
 	double A;//Intermediate.
+	double GammaPrimeMax;//Intermediate.
 	double GammaPrime;//Return value.
 
 	//Calculate the maximum reaction velocity (min^-1):
@@ -1180,7 +1181,7 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 	//"Arbitrary" variable:
 	//Albini 1976 pg. 15:
 	//A = 133σ^-0.7913
-	if (units == "US")
+	if (units == US)
 	{
 		A = 133 * pow(SAV, -0.7913);
 	}
@@ -1212,8 +1213,8 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 //
 //Output units: btu/lb | kJ/kg
 //Whatever units are input, the same will come out.  No unit conversions needed.
-double LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
-                           std::vector <double> liveDead)
+std::vector <double> LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
+                                         std::vector <double> liveDead)
 {
 	std::vector <double> h_i(2, 0);//Could this cause issues if only live or dead fuel is present?
 	int numFuelTypes;
@@ -1256,7 +1257,7 @@ double LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
 //Inputs carry units.  No unit conversions are needed.
 //
 //Note: The alternate parameters (GammaPrime, w_n, h, M_f, M_x, Se) could be used.
-double ReactionIntensity_Homo (double GammaPrime, double w_n, double h, double eta_M, double eta_s)
+double ReactionIntensity_Homo(double GammaPrime, double w_n, double h, double eta_M, double eta_s)
 {
 	double I_R;//Return value.
 
@@ -1408,7 +1409,7 @@ double HeatOfPreignition(double M_f, UnitsType units)
 std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType units)
 {
 	int numFuelTypes;
-	std::vector Q_ig_ij(M_f_ij.size(), 0);//Return value.
+	std::vector <double> Q_ig_ij(M_f_ij.size(), 0);//Return value.
 
 	numFuelTypes = M_f_ij.size();
 
