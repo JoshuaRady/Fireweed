@@ -1541,6 +1541,191 @@ double SpreadRateRothermelAlbini_Homo(double heatContent = StdHeatContent()//h
 	return R;
 }
 
+//Albini 1976 modified Rothermel spread model for heterogeneous fuels:
+//
+//Input variables / parameters:
+//  Some of the input variables differ from the homogeneous fuels form in that they are vectors
+//rather than scalars.
+//
+//Fuel particle properties: 
+//h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
+//  All the 53 standard fuel models use 8,000 Btu/lb.
+//S_T_ij = An array of total mineral content for each fuel type (unitless fraction).
+//  For all standard fuel models this is 5.55% (0.0555).
+//S_e_ij = Effective mineral content for each fuel type (unitless fraction:
+//  (mineral mass – mass silica) / total dry mass).  For all standard fuel models this is 1% (0.01).
+//rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
+//  All the 53 standard fuel models use 32 lb/ft^3.
+//
+//Fuel array:
+//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+//M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
+//
+//Environmental:
+//M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+//U = Wind speed at midflame height (ft/min | m/min).
+//slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+//
+//useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
+//
+//Optional Parameters:
+//units = Specify the class of units for the inputs.
+//debug = Print calculation component values.  This may be removed in the future.
+//
+//Returns: R = rate of spread in ft/min | m/min.
+//
+//Note: This function takes a lot of arguments.  These parameters could be combined into fuel model
+//and environment objects.  Maintaining this generic interface will still need to be retained for
+//full flexibility of use.
+double SpreadRateRothermelAlbini_Het(std::vector <double> h_ij = StdHeatContent(),
+                                     std::vector <double> S_T_ij = 0.0555,
+                                     std::vector <double> S_e_ij = 0.01,
+                                     std::vector <double> rho_p_ij = StdRho_p(),
+                                     std::vector <double> SAV_ij,
+                                     std::vector <double> w_o_ij,
+                                     double fuelBedDepth,
+                                     double M_x_1,
+                                     std::vector <double> M_f_ij,
+                                     double U, double slopeSteepness,
+                                     std::vector <double> liveDead = c(1,1,1,2,2),//Standard fuel model 5 classes.
+                                     bool useWindLimit = false,
+                                     UnitsType units = US,
+                                     bool debug = false)
+{
+	int numFuelTypes;
+	FuelWeights weights;
+	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
+	std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {0, 0};//Live/dead intermediates.
+	std::vector <double> Q_ig_ij(w_o_ij.size, 0);
+
+	//Parameter checking and processing:
+	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij))
+	{
+		Stop("SpreadRateRothermelAlbini_Het() expects arguments SAV_ij, w_o_ij, M_f_ij to be of the same length.");
+	}
+
+	numFuelTypes = SAV_ij.size();
+
+	//Truncate liveDead to match the number of classes provided.  This may assume too much!:
+// 	liveDead = liveDead[1:numFuelTypes]
+
+	//For the heat content, total mineral content, effective mineral content, and fuel particle density
+	//allow the value for all types to to set with a single value:
+// 	h_ij = InitSpreadParam(h_ij, "h_ij", numFuelTypes)
+// 	S_T_ij = InitSpreadParam(S_T_ij, "S_T_ij", numFuelTypes)
+// 	S_e_ij = InitSpreadParam(S_e_ij, "S_e_ij", numFuelTypes)
+// 	rho_p_ij = InitSpreadParam(rho_p_ij, "rho_p_ij", numFuelTypes)
+
+	//Terms used in numerator and denominator:
+
+	//Calculate the weights:
+	weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
+
+	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
+	//front of it:
+	//Numerator of Rothermel 1972 equation 75:
+	//IR𝜉(1 + 𝜙w + 𝜙s)
+
+	//Note: The bulk density is not used to calculate the packing ratio in the heterogeneous form:
+	meanPackingRatio = MeanPackingRatio(w_o_ij, rho_p_ij, fuelBedDepth);//AKA beta_bar
+
+	//For heterogeneous fuels we need to calculate the fuel bed level SAV:
+	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
+
+	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
+
+	//Reaction intensity:
+	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
+	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
+
+	//Heat content by live/dead fuel category:
+	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
+
+	//The live fuel moisture of extinction must be calculated:
+//M_x_i = c(NA,NA)
+	M_x_i[1] = M_x_1;
+	M_x_i[2] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
+
+	//Damping coefficients:
+	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
+	eta_s_i = MineralDampingCoefficient_Het(S_e_ij, weights.f_ij, liveDead);
+
+	I_R = ReactionIntensity_Het(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i);
+
+	//Other numerator terms:
+	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
+	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
+
+	//Apply wind limit check:
+	if (useWindLimit)
+	{
+		U = WindLimit(U, I_R);
+	}
+
+	phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units)
+
+	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
+	//kJ/m^3:
+	//The heat sink term is calculated using weights without calculating epsilon explicitly.
+	//Rothermel equation 77:
+	//ρbεQig = ρb Σi fi Σj fij[exp(-138/σij)](Qig)ij
+
+	rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth);
+	Q_ig_ij = HeatOfPreignition(M_f_ij);
+
+	//We'll do it in two steps:
+	//Weight and size class:
+//heatSink_i = c(0,0)
+	for (k = 0; k < numFuelTypes; k++)
+	{
+		double savConst;
+
+		if (units == US)
+		{
+			savConst= -138;
+		}
+		else
+		{
+			savConst = -4.527559;
+		}
+
+		heatSink_i[liveDead[k]] = heatSink_i[liveDead[k]] +
+			weights.f_ij[k] * exp(savConst / SAV_ij[k]) * Q_ig_ij[k];
+	}
+
+	//Weigh and sum by live/dead category:
+	heatSink = rho_b_bar * ((weights.f_i[0] * heatSink_i[0]) + (weights.f_i[1] * heatSink_i[1]))
+
+	//Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
+	//Rothermel 1972 equation 75:
+	//Rate of spread = heat source / heat sink
+	//R = I_Rξ(1 + φw + φs) / ρbεQig
+	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
+	
+	//For debugging:
+	if (debug)
+	{
+		LogMsg("Heterogeneous Spread Calc components:");
+		LogMsg("Weights f_ij =", weights.f_ij);
+		LogMsg("Weights f_i =", weights.f_i);
+		LogMsg("Weights g_ij =", weights.g_ij);
+		LogMsg("GammaPrime =", GammaPrime))
+		LogMsg("w_n_i =", w_n_i);
+		LogMsg("h_i =", h_i);
+		LogMsg("eta_M_i =", eta_M_i);
+		LogMsg("eta_s_i =", eta_s_i);
+		LogMsg("I_R =", I_R);
+		LogMsg("Heat source =", I_R * xi * (1 + phi_s + phi_w)):
+		LogMsg("rho_b_bar =", rho_b_bar);
+		LogMsg("Q_ig_ij =", Q_ig_ij);
+		LogMsg("Heat sink =", heatSink)
+	}
+
+	return R;
+}
+
 //Utilities:----------------------------------------------------------------------------------------
 
 //Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
