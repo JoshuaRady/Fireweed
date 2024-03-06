@@ -1552,15 +1552,16 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
 #Note: This function takes a lot of arguments.  These parameters could be combined into fuel model
 #and environment objects.  Maintaining this generic interface will still need to be retained for
 #full flexibility of use.
-SpreadRateRothermelAlbini_Het <- function(h_ij = StdHeatContent(),
-                                          S_T_ij = 0.0555, S_e_ij = 0.01,
-                                          rho_p_ij = StdRho_p(),
-                                          SAV_ij,
+SpreadRateRothermelAlbini_Het <- function(SAV_ij,
                                           w_o_ij,
                                           fuelBedDepth,
                                           M_x_1,
                                           M_f_ij,
                                           U, slopeSteepness,
+                                          h_ij = StdHeatContent(),
+                                          S_T_ij = 0.0555,
+                                          S_e_ij = 0.01,
+                                          rho_p_ij = StdRho_p(),
                                           liveDead = c(1,1,1,2,2),#Standard fuel model 5 classes.
                                           useWindLimit = FALSE,
                                           units = NULL,
