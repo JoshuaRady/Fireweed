@@ -388,6 +388,8 @@ OptimumPackingRatio <- function(SAV, units = ModelUnits)
 #give spread rate scenario.
 CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnits)
 {
+  numFuelTypes = length(SAV_ij)#Types = sum of size classes in both categories.
+  
   A_i = c(0,0)
   #Mapping of fuels to size subclasses:
   #Subclasses are identified as indexes, with 0 indicating an unmapped value, which occurs when
@@ -410,8 +412,6 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   {
     stop("rho_p_ij must be length 1 or the same length as the other arguments")
   }
-  
-  numFuelTypes = length(SAV_ij)#Types = sum of size classes in both categories.
   
   #Calculate the (mean) total surface area for each fuel component:
   #Rothermel equation 53:
