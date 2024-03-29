@@ -2058,22 +2058,23 @@ double ResidenceTime(double SAV, UnitsType units)//ResidenceTimeAnderson
 	return t_r;
 }
 
-#Heat per Unit Area:
-# This is the total energy released by the flame front as it passed per unit area.
-#
-#Input variables / parameters:
-#I_R = Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
-#t_r = Residence time (min).
-#
-#Output units: Btu/ft^2 | kJ/m^2
-#Inputs carry units.  No conversion necessary.
+//Heat per Unit Area:
+// This is the total energy released by the flame front as it passed per unit area.
+//
+//Input variables / parameters:
+//I_R = Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
+//t_r = Residence time (min).
+//
+//Output units: Btu/ft^2 | kJ/m^2
+//Inputs carry units.  No conversion necessary.
 double HeatPerUnitArea(double I_R, double t_r)
 {
-  double H_A;//Return value.
+	double H_A;//Return value.
 
-  #Andrews 2018 section 4.3:
-  H_A = I_R * t_r
-  #This can also be calculated as H_A = 384 * I_R/SAV.  See ResidenceTime().
+	//Andrews 2018 section 4.3:
+	H_A = I_R * t_r
+	//This can also be calculated as H_A = 384 * I_R/SAV.  See ResidenceTime().
 
-  return H_A;
+	return H_A;
 }
+
