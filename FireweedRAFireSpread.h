@@ -186,5 +186,6 @@ void Stop(const char* message);
 double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
                           double optPackingRatio, double SAV, UnitsType units = ModelUnits);
 double ResidenceTime(double SAV, UnitsType units = ModelUnits);
+double HeatPerUnitArea(double I_R, double t_r);
 
 #endif
