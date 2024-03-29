@@ -182,4 +182,9 @@ void LogMsg(const char* message, std::vector<double> value);
 void Warning(const char* message);
 void Stop(const char* message);
 
+//Related Fire Property Equations:
+double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
+                          double optPackingRatio, double SAV, UnitsType units = ModelUnits);
+double ResidenceTime(double SAV, UnitsType units = ModelUnits);
+
 #endif

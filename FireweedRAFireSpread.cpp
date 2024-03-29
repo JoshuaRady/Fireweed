@@ -2003,30 +2003,30 @@ to calculate additional fire front properties.  See Andrews 2018 section 4 for m
 //The functions called handle the units so no conversions need to be done here.
 //
 //Note: This is included for completeness.  It is not currently used by any other functions.
-// double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
-//                           double optPackingRatio, double SAV, UnitsType units = ModelUnits)
-// {
-// 	double C, B, E;//Wind factor components.
-// 	double phi_E;//Effective wind factor.
-// 	double U_E;//Return value.
-// 
-// 	C = WindFactorC(SAV, units);
-// 	B = WindFactorB(SAV, units);
-// 	E = WindFactorE(SAV, units);
-// 
-// 	//Effective wind factor:
-// 	//Albini 1976(b) pg. 90:
-// 	phi_E = phi_w * phi_s;
-// 
-// 	//The effective wind factor calculated as in WindFactor():
-// 	//ϕE = C * U_E^B (β/βop)^–E
-// 
-// 	//Solve for the effective wind speed:
-// 	//U_E = [ϕE (β/βop)E/C]^–B
-// 	U_E = pow((phi_E * pow((meanPackingRatio / optPackingRatio), E) / C ), -B);
-// 
-// 	return U_E;
-// }
+double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
+                          double optPackingRatio, double SAV, UnitsType units)
+{
+	double C, B, E;//Wind factor components.
+	double phi_E;//Effective wind factor.
+	double U_E;//Return value.
+
+	C = WindFactorC(SAV, units);
+	B = WindFactorB(SAV, units);
+	E = WindFactorE(SAV, units);
+
+	//Effective wind factor:
+	//Albini 1976(b) pg. 90:
+	phi_E = phi_w * phi_s;
+
+	//The effective wind factor calculated as in WindFactor():
+	//ϕE = C * U_E^B (β/βop)^–E
+
+	//Solve for the effective wind speed:
+	//U_E = [ϕE (β/βop)E/C]^–B
+	U_E = pow((phi_E * pow((meanPackingRatio / optPackingRatio), E) / C ), -B);
+
+	return U_E;
+}
 
 //Residence Time:
 //The residence time is the how long it takes the fire flame front to pass over a point on the
@@ -2038,22 +2038,22 @@ to calculate additional fire front properties.  See Andrews 2018 section 4 for m
 //SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //
 //Output units: minutes
-// double ResidenceTime(double SAV, UnitsType units = ModelUnits)//ResidenceTimeAnderson
-// {
-// 	double t_r;//Returen value.
-// 
-// 	if (units == US)
-// 	{
-// 		//The original equation predicts the residence time as 8 times the fuel diameter in inches.
-// 		//We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
-// 		t_r = 384 / SAV;
-// 	}
-// 	else
-// 	{
-// 		t_r = 12.59843 / SAV;//384 / cmPerFt = 12.59843
-// 		//Wilson 1980 & Andrews 2018 use 12.6 in the alternative formulation of Byram's fireline 
-// 		//intensity.  See ByramsFirelineIntensity().
-// 	}
-// 
-// 	return t_r;
-// }
+double ResidenceTime(double SAV, UnitsType units)//ResidenceTimeAnderson
+{
+	double t_r;//Returen value.
+
+	if (units == US)
+	{
+		//The original equation predicts the residence time as 8 times the fuel diameter in inches.
+		//We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
+		t_r = 384 / SAV;
+	}
+	else
+	{
+		t_r = 12.59843 / SAV;//384 / cmPerFt = 12.59843
+		//Wilson 1980 & Andrews 2018 use 12.6 in the alternative formulation of Byram's fireline 
+		//intensity.  See ByramsFirelineIntensity().
+	}
+
+	return t_r;
+}
