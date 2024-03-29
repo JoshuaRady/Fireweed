@@ -2118,6 +2118,8 @@ double ByramsFirelineIntensity(double H_A, double R)
 //Output units: ft | m
 double ByramsFlameLength(double I_B, UnitsType units)
 {
+	double F_B;//Return value.
+
 	if (units == US)
 	{
 		F_B = 0.45 * pow(I_B, 0.46);
