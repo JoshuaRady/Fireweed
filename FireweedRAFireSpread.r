@@ -1796,10 +1796,11 @@ ValidProportion <- function(value)
   return(InRange(value, low = 0, high = 1))
 }
 
-#---------------------------------------------------------------------------------------------------
+#___________________________________________________________________________________________________
 #Related Fire Property Equations:-------------------------------------------------------------------
 # These equations are not part of the Rothermel & Albini spread model per se but can be used with it
 #to calculate additional fire front properties.  See Andrews 2018 section 4 for more information.
+#___________________________________________________________________________________________________
 
 #Effective Wind Speed:
 #The effective wind speed combines the effect of wind and slope.  It was developed in:
@@ -1838,7 +1839,7 @@ EffectiveWindSpeed <- function(U, phi_w, phi_s, meanPackingRatio, optPackingRati
   
   #Solve for the effective wind speed:
   #U_E = [ϕE (β/βop)E/C]^–B
-  U_E = ((phi_E * (meanPackingRatio/optPackingRatio)^E) / C )^-B
+  U_E = ((phi_E * (meanPackingRatio / optPackingRatio)^E) / C )^-B
   
   return(U_E)
 }
@@ -1879,7 +1880,7 @@ ResidenceTime <- function(SAV, units = ModelUnits)#ResidenceTimeAnderson
 #t_r = Residence time (min).
 #
 #Output units: Btu/ft^2 | kJ/m^2
-#Inputs carry units.  No conversion necissaruy.
+#Inputs carry units.  No conversion necessary.
 HeatPerUnitArea <- function(I_R, t_r)
 {
   #Andrews 2018 section 4.3:
