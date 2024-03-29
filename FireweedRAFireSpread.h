@@ -71,7 +71,7 @@ double MoistureDampingCoefficient_Homo(double M_f, double M_x);
 std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
                                                     std::vector <double> M_x_i,
                                                     std::vector <double> f_ij,
-                                                    std::vector <double> liveDead);
+                                                    std::vector <int> liveDead);
 double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
                                     std::vector <double> w_o_ij, std::vector <double> SAV_ij,
                                     std::vector <int> liveDead, UnitsType units = ModelUnits);
@@ -94,7 +94,7 @@ double WindLimit(double U, double I_R, UnitsType units = ModelUnits);
 //Heat Source Components:
 double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units = ModelUnits);
 std::vector <double> LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
-                                         std::vector <double> liveDead);
+                                         std::vector <int> liveDead);
 double ReactionIntensity_Homo(double GammaPrime, double w_n, double h, double eta_M, double eta_s);
 double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
                              std::vector <double> h_i, std::vector <double> eta_M_i,
@@ -106,15 +106,19 @@ double EffectiveHeatingNumber(double SAV, UnitsType units = ModelUnits);
 double HeatOfPreignition(double M_f, UnitsType units = ModelUnits);
 std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType units = ModelUnits);
 
+//
+double StdHeatContent(UnitsType units = ModelUnits);
+double StdRho_p(UnitsType units = ModelUnits);
+
 //Spread Rate Calculations:
 double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
                                       double M_f, double U, double slopeSteepness,
-                                      double heatContent = StdHeatContent()//h
+                                      double heatContent = StdHeatContent(),
                                       double S_T = 0.0555, double S_e = 0.01,
                                       double rho_p = StdRho_p(),
-                                      bool useWindLimit = TRUE,
+                                      bool useWindLimit = true,
                                       UnitsType units = US,
-                                      bool debug = FALSE);
+                                      bool debug = false);
 double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> w_o_ij,
                                      double fuelBedDepth,
@@ -125,7 +129,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> S_T_ij,
                                      std::vector <double> S_e_ij,
                                      std::vector <double> rho_p_ij,
-                                     std::vector <double> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
+                                     std::vector <int> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);
@@ -139,15 +143,15 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      double S_T = 0.0555,
                                      double S_e = 0.01,
                                      double rho_p = StdRho_p(),
-                                     std::vector <double> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
+                                     std::vector <int> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);
 
 //Utilities:
 
-double StdHeatContent(UnitsType units = ModelUnits);
-double StdRho_p(UnitsType units = ModelUnits);
+//double StdHeatContent(UnitsType units = ModelUnits);
+//double StdRho_p(UnitsType units = ModelUnits);
 
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2);
 bool SameLengths(std::vector<double> arg1, std::vector<int> arg2);
@@ -157,6 +161,9 @@ bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector
                  std::vector<double> arg4);
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
                  std::vector<int> arg4);
+bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
+                 std::vector<double> arg4, std::vector<double> arg5, std::vector<double> arg6,
+                 std::vector<double> arg7);
 
 bool InRange(double value, double low, double high);
 bool InRange(std::vector<double> value, double low, double high);
