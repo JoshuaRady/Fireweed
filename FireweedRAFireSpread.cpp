@@ -712,7 +712,7 @@ double MoistureDampingCoefficient_Homo(double M_f, double M_x)
 std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
                                                     std::vector <double> M_x_i,
                                                     std::vector <double> f_ij,
-                                                    std::vector <double> liveDead)
+                                                    std::vector <int> liveDead)
 {
 	int numFuelTypes;
 	std::vector <double> M_f_i(2, 0);//Weighted moisture content.
@@ -1214,7 +1214,7 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 //Output units: btu/lb | kJ/kg
 //Whatever units are input, the same will come out.  No unit conversions needed.
 std::vector <double> LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
-                                         std::vector <double> liveDead)
+                                         std::vector <int> liveDead)
 {
 	std::vector <double> h_i(2, 0);//Could this cause issues if only live or dead fuel is present?
 	int numFuelTypes;
@@ -1459,12 +1459,12 @@ std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType un
 //Returns: R = rate of spread in ft/min | m/min.
 double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
                                       double M_f, double U, double slopeSteepness,
-                                      double heatContent = StdHeatContent()//h
-                                      double S_T = 0.0555, double S_e = 0.01,
-                                      double rho_p = StdRho_p(),
-                                      bool useWindLimit = TRUE,
-                                      UnitsType units = US,
-                                      bool debug = FALSE)
+                                      double heatContent,//h
+                                      double S_T, double S_e,
+                                      double rho_p,
+                                      bool useWindLimit,
+                                      UnitsType units,
+                                      bool debug)
 {
 	double rho_b, packingRatio, optPackingRatio;//Bulk density and packing ratio.
 	double GammaPrime, w_n, eta_M, eta_s, I_R;//Reaction intensity & intermediates.
@@ -1585,21 +1585,23 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      double fuelBedDepth,
                                      double M_x_1,
                                      std::vector <double> M_f_ij,
-                                     double U, double slopeSteepness,//Both could default to 0.
+                                     double U, double slopeSteepness,
                                      std::vector <double> h_ij,
                                      std::vector <double> S_T_ij,
                                      std::vector <double> S_e_ij,
                                      std::vector <double> rho_p_ij,
-                                     std::vector <double> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
-                                     bool useWindLimit = false,
-                                     UnitsType units = US,
-                                     bool debug = false)
+                                     std::vector <int> liveDead,
+                                     bool useWindLimit,
+                                     UnitsType units,
+                                     bool debug)
 {
 	int numFuelTypes;
 	FuelWeights weights;
+	double meanPackingRatio, fuelBedSAV, optPackingRatio;
 	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
+	double I_R, heatSink;
 	std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {0, 0};//Live/dead intermediates.
-	std::vector <double> Q_ig_ij(w_o_ij.size, 0);
+	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
 	double R;//Return value.
 
 	//Parameter checking and processing:
@@ -1658,7 +1660,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 		U = WindLimit(U, I_R);
 	}
 
-	phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units)
+	phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units);
 
 	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
 	//kJ/m^3:
@@ -1671,7 +1673,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//We'll do it in two steps:
 	//Weight and size class:
-	for (k = 0; k < numFuelTypes; k++)
+	for (int k = 0; k < numFuelTypes; k++)
 	{
 		double savConst;
 
@@ -1689,7 +1691,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	}
 
 	//Weigh and sum by live/dead category:
-	heatSink = rho_b_bar * ((weights.f_i[0] * heatSink_i[0]) + (weights.f_i[1] * heatSink_i[1]))
+	heatSink = rho_b_bar * ((weights.f_i[0] * heatSink_i[0]) + (weights.f_i[1] * heatSink_i[1]));
 
 	//Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
 	//Rothermel 1972 equation 75:
@@ -1704,16 +1706,16 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 		LogMsg("Weights f_ij =", weights.f_ij);
 		LogMsg("Weights f_i =", weights.f_i);
 		LogMsg("Weights g_ij =", weights.g_ij);
-		LogMsg("GammaPrime =", GammaPrime))
+		LogMsg("GammaPrime =", GammaPrime);
 		LogMsg("w_n_i =", w_n_i);
 		LogMsg("h_i =", h_i);
 		LogMsg("eta_M_i =", eta_M_i);
 		LogMsg("eta_s_i =", eta_s_i);
 		LogMsg("I_R =", I_R);
-		LogMsg("Heat source =", I_R * xi * (1 + phi_s + phi_w)):
+		LogMsg("Heat source =", I_R * xi * (1 + phi_s + phi_w));
 		LogMsg("rho_b_bar =", rho_b_bar);
 		LogMsg("Q_ig_ij =", Q_ig_ij);
-		LogMsg("Heat sink =", heatSink)
+		LogMsg("Heat sink =", heatSink);
 	}
 
 	return R;
@@ -1730,7 +1732,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      double S_T,
                                      double S_e,
                                      double rho_p,
-                                     std::vector <double> liveDead,
+                                     std::vector <int> liveDead,
                                      bool useWindLimit,
                                      UnitsType units,
                                      bool debug)
@@ -1748,8 +1750,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	R = SpreadRateRothermelAlbini_Het(SAV_ij, w_o_ij, fuelBedDepth,  M_x_1,
 	                                  M_f_ij, U, slopeSteepness,
-	                                  h_ij, S_T_ij, S_e_ij, rho_p_ij = StdRho_p(),
-	                                  liveDead, useWindLimit, units, debug)
+	                                  h_ij, S_T_ij, S_e_ij, rho_p_ij,
+	                                  liveDead, useWindLimit, units, debug);
 
 	return R;
 }
@@ -1964,3 +1966,85 @@ void Stop(const char* message)
 	std::cout << message << "\n";
 	//Add error throwing.
 }
+
+/*--------------------------------------------------------------------------------------------------
+Related Fire Property Equations:
+	These equations are not part of the Rothermel & Albini spread model per se but can be used with it
+to calculate additional fire front properties.  See Andrews 2018 section 4 for more information.
+--------------------------------------------------------------------------------------------------*/
+
+//Effective Wind Speed:
+//The effective wind speed combines the effect of wind and slope.  It was developed in:
+// Albini, Frank A.
+// Estimating wildfire behavior and effects.
+// Gen. Tech. Rep. INT-GTR-30. Ogden, UT: U.S. Department of Agriculture, Forest Service,
+// Intermountain Forest and Range Experiment Station. 92 p. 1976.
+//for use in nomograhs but is used by some contexts to calculate the wind limit.
+//
+//Input variables / parameters:
+//U = Wind speed at midflame height (ft/min | m/min).
+//phi_w = The wind factor (dimensionless).
+//phi_s = The slope factor (dimensionless).
+//meanPackingRatio = Mean packing ratio (beta_bar) (dimensionless ratio).
+//optPackingRatio = Optimum packing ratio (dimensionless).
+//   Note: optimum packing ratio is a function of SAV.
+//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//
+//Output: effective wind speed at midflame height (ft/min | m/min)
+//The functions called handle the units so no conversions need to be done here.
+//
+//Note: This is included for completeness.  It is not currently used by any other functions.
+// double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
+//                           double optPackingRatio, double SAV, UnitsType units = ModelUnits)
+// {
+// 	double C, B, E;//Wind factor components.
+// 	double phi_E;//Effective wind factor.
+// 	double U_E;//Return value.
+// 
+// 	C = WindFactorC(SAV, units);
+// 	B = WindFactorB(SAV, units);
+// 	E = WindFactorE(SAV, units);
+// 
+// 	//Effective wind factor:
+// 	//Albini 1976(b) pg. 90:
+// 	phi_E = phi_w * phi_s;
+// 
+// 	//The effective wind factor calculated as in WindFactor():
+// 	//ϕE = C * U_E^B (β/βop)^–E
+// 
+// 	//Solve for the effective wind speed:
+// 	//U_E = [ϕE (β/βop)E/C]^–B
+// 	U_E = pow((phi_E * pow((meanPackingRatio / optPackingRatio), E) / C ), -B);
+// 
+// 	return U_E;
+// }
+
+//Residence Time:
+//The residence time is the how long it takes the fire flame front to pass over a point on the
+//ground.  This only considers the flame front and not the residual burning and smoldering. The
+//calculation is from Anderson 1969.  This relationship is based on strong observational correlation.
+//This can be used to help calculate energy transfer to soil.
+//
+//Input variables / parameters:
+//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//
+//Output units: minutes
+// double ResidenceTime(double SAV, UnitsType units = ModelUnits)//ResidenceTimeAnderson
+// {
+// 	double t_r;//Returen value.
+// 
+// 	if (units == US)
+// 	{
+// 		//The original equation predicts the residence time as 8 times the fuel diameter in inches.
+// 		//We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
+// 		t_r = 384 / SAV;
+// 	}
+// 	else
+// 	{
+// 		t_r = 12.59843 / SAV;//384 / cmPerFt = 12.59843
+// 		//Wilson 1980 & Andrews 2018 use 12.6 in the alternative formulation of Byram's fireline 
+// 		//intensity.  See ByramsFirelineIntensity().
+// 	}
+// 
+// 	return t_r;
+// }
