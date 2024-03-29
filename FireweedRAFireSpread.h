@@ -187,5 +187,7 @@ double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPacki
                           double optPackingRatio, double SAV, UnitsType units = ModelUnits);
 double ResidenceTime(double SAV, UnitsType units = ModelUnits);
 double HeatPerUnitArea(double I_R, double t_r);
+double ByramsFirelineIntensity(double H_A, double R);
+double ByramsFlameLength(double I_B, UnitsType units = ModelUnits);
 
 #endif

@@ -2072,9 +2072,62 @@ double HeatPerUnitArea(double I_R, double t_r)
 	double H_A;//Return value.
 
 	//Andrews 2018 section 4.3:
-	H_A = I_R * t_r
+	H_A = I_R * t_r;
 	//This can also be calculated as H_A = 384 * I_R/SAV.  See ResidenceTime().
 
 	return H_A;
 }
 
+//Byram’s Fireline Intensity:
+//  Byram 1959 defines fireline intensity as (equation 3.3):
+//I_B = HwR
+//Where:
+//  H = heat content of the fuel (Btu/lb | kJ/kg)
+//  w = weight of "available" fuel (lb/ft^2 | kg/m^2)
+//  R = fire rate of spread (ft/s | m/s)
+//Albini uses H_A as an approximation of H x W (Andrews 2018).  (Note: I can't find this in the text
+//of Albini 1976.  It may be in the code.)
+//
+//Input variables / parameters:
+//H_A = heat per unit area from the flame front (Btu/ft^2 | kJ/m^2)
+//R = fire front rate of spread (ft/min | m/min)
+//
+//Output units: Btu/ft/s | kW/m
+//The inputs carry the units.  No unit conversion is required.
+//
+//Andrews 2018 also presents the alternate formulation:
+//I_B = (384/σ)I_R * R
+//This is the same as ByramsFirelineIntensity(HeatPerUnitArea(I_R, ResidenceTime(SAV)), R).
+double ByramsFirelineIntensity(double H_A, double R)
+{
+	double I_B;//Return value.
+
+	I_B = H_A * R / 60;//Seconds / minute
+
+	return I_B;
+}
+
+//Flame Length:
+//  Calculate the flame length (not height) of the flame front.
+//The equation is from Byram 1959 (equation 3.4) with notation from Brown and Davis 1973, page 175
+//(per Andrews 2018, as I haven't been able to access the book yet.)
+//
+//Input variables / parameters:
+//I_B = Byram's fireline intensity (Btu/ft/s | kW/m).
+//
+//Output units: ft | m
+double ByramsFlameLength(double I_B, UnitsType units)
+{
+	if (units == US)
+	{
+		F_B = 0.45 * pow(I_B, 0.46);
+	}
+	else
+	{
+		F_B = 0.07749992 * pow(I_B, 0.46);
+		//The errata of Wilson 1980 and Andrews 2018 give 0.0775 * I_B_m^0.46, with Wilson using L_f
+		//instead of F_B.
+	}
+
+	return F_B;//L_f in Wilson 1980.
+}
