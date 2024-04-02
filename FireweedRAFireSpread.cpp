@@ -161,7 +161,7 @@ const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;//*
 //Code:---------------------------------------------------------------------------------------------
 
 //Bulk Density:--------------------------------------------------------------------------------------
-//  The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
+//	The bulk density is the mass/wt. of oven dry surface fuel per volume of fuel bed (fuel mass per
 //area divided by the fuel bed depth).
 //
 //Rothermel 1972 equation 40:
@@ -175,14 +175,14 @@ const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;//*
 //The inputs carry the units.  No metric conversions are needed.
 double BulkDensity(double w_o, double fuelBedDepth)
 {
-  double rho_b;//Bulk density.
-  
-  rho_b = w_o / fuelBedDepth;
-  return rho_b;
+	double rho_b;//Bulk density.
+
+	rho_b = w_o / fuelBedDepth;
+	return rho_b;
 }
 
 //Mean Bulk Density:
-//  The heterogeneous fuel version of the spread equation requires a mean bulk density for the 
+//	The heterogeneous fuel version of the spread equation requires a mean bulk density for the 
 //fuels.
 //
 //Rothermel 1972 equation 74:
@@ -198,31 +198,30 @@ double BulkDensity(double w_o, double fuelBedDepth)
 //The inputs carry the units.  No metric conversions are needed.
 double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth)
 {
-  
-  double totalLoading;//Sum of w_o_ij.
-  double rho_b_bar;//Return value.
-  
-  //Sum the individual fuel loadings across elements:
-  //No weights are needed since  w_o is expressed as mass per area.
-  //The fuel loading could be a 2D array / matrix but the positions have no significance in the
-  //calculation.  Only a sum of all elements needs to be computed.
-  //If we know the size of dimensions we could apply error checking.  The 53 standard fire behavior
-  //fuel models have 3 dead and 2 live classes.  That is not a fixed requirement of the Rothermel
-  //model in theory, but is in practice [I think].
-  
-  if (w_o_ij.size() < 2)
-  {
-    Warning("More than one fuel class expected.");
-  }
-  
-  totalLoading = std::accumulate(w_o_ij.begin(), w_o_ij.end(), 0.0);
-  rho_b_bar = totalLoading / fuelBedDepth;
-  
-  return rho_b_bar;
+	double totalLoading;//Sum of w_o_ij.
+	double rho_b_bar;//Return value.
+
+	//Sum the individual fuel loadings across elements:
+	//No weights are needed since  w_o is expressed as mass per area.
+	//The fuel loading could be a 2D array / matrix but the positions have no significance in the
+	//calculation.  Only a sum of all elements needs to be computed.
+	//If we know the size of dimensions we could apply error checking.  The 53 standard fire behavior
+	//fuel models have 3 dead and 2 live classes.  That is not a fixed requirement of the Rothermel
+	//model in theory, but is in practice [I think].
+
+	if (w_o_ij.size() < 2)
+	{
+		Warning("More than one fuel class expected.");
+	}
+
+	totalLoading = std::accumulate(w_o_ij.begin(), w_o_ij.end(), 0.0);
+	rho_b_bar = totalLoading / fuelBedDepth;
+
+	return rho_b_bar;
 }
 
 //Packing Ratio:-------------------------------------------------------------------------------------
-// The packing ratio (beta) is the fraction of the (surface) fuel bed volume occupied by fuel, aka
+//	The packing ratio (beta) is the fraction of the (surface) fuel bed volume occupied by fuel, aka
 //compactness.
 //
 //Rothermel 1972 equation 31:
@@ -231,13 +230,13 @@ double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth)
 //Input variables / parameters:
 //rho_b = Fuel array bulk density (lb/ft^3 | kg/m^3).
 //rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
-//  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
+//	For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 //
 //Output units: Dimensionless ratio.
 //Input units cancel out.  No metric conversion needed.
 double PackingRatio(double rho_b, double rho_p)
 {
-  return (rho_b / rho_p);
+	return (rho_b / rho_p);
 }
 
 //Mean Packing Ratio:
@@ -251,52 +250,52 @@ double PackingRatio(double rho_b, double rho_p)
 //Input variables / parameters:
 //w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 //rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
-//  For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
+//	For the 53 standard fuel models particle density is 32 lb/ft^3. (30-46 in some others.)
 //fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 //
 //Output units: Dimensionless ratio (scalar)
 //Input units cancel out.
 double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij, double fuelBedDepth)
 {
-  int numLoadings, numDensities;
-  double meanPackingRatio;//Return value.
-  std::vector<double> x;//Intermediate calculation.
-  
-  //Parameter checking:
-  numLoadings = w_o_ij.size();
-  numDensities = rho_p_ij.size();
-  
-  //If only one particle density is provided assume that is it the same for all fuel classes:
-  if (numDensities == 1)
-  {
-    //rho_p_ij.resize(numLoadings, val = rho_p_ij[0])
-    rho_p_ij.resize(numLoadings, rho_p_ij[0]);
-  }
-  else//Otherwise one should be provided for each fuel class.
-  {
-    if (numDensities != numLoadings)
-    {
-      Stop("The number of fuel loadings and particle densities do not match.");
-    }
-  }
-  
-  //Confirm delta is a scalar: Not needed in C++!
+	int numLoadings, numDensities;
+	double meanPackingRatio;//Return value.
+	std::vector<double> x;//Intermediate calculation.
+
+	//Parameter checking:
+	numLoadings = w_o_ij.size();
+	numDensities = rho_p_ij.size();
+
+	//If only one particle density is provided assume that is it the same for all fuel classes:
+	if (numDensities == 1)
+	{
+		//rho_p_ij.resize(numLoadings, val = rho_p_ij[0])
+		rho_p_ij.resize(numLoadings, rho_p_ij[0]);
+	}
+	else//Otherwise one should be provided for each fuel class.
+	{
+		if (numDensities != numLoadings)
+		{
+			Stop("The number of fuel loadings and particle densities do not match.");
+		}
+	}
+
+//Confirm delta is a scalar: Not needed in C++!
 //   if (length(fuelBedDepth) != 1)
 //   {
 //     //This can be caused if the arguments are out of order.
 //     stop("A single fuelbed depth must be provided.")
 //     //Add value checking? > 0, < ?
 //   }
-  
-  //Calculate w_o / rho_p for each fuel element:
-  //x = w_o_ij / rho_p_ij
-  for (int i = 0; i < x.size(); i++)
-  {
-  	x[i] = w_o_ij[i] / rho_p_ij[i];
-  }
-  
-  meanPackingRatio = std::accumulate(x.begin(), x.end(), 0.0) / fuelBedDepth;//AKA beta_bar
-  return meanPackingRatio;
+
+	//Calculate w_o / rho_p for each fuel element:
+	//x = w_o_ij / rho_p_ij
+	for (int i = 0; i < x.size(); i++)
+	{
+		x[i] = w_o_ij[i] / rho_p_ij[i];
+	}
+
+	meanPackingRatio = std::accumulate(x.begin(), x.end(), 0.0) / fuelBedDepth;//AKA beta_bar
+	return meanPackingRatio;
 }
 
 //Optimum Packing Ratio:
@@ -307,56 +306,56 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 //
 //Input variables / parameters:
 //SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
-//  For heterogeneous fuels the SAV of the fuel bed / complex is used.
+//	For heterogeneous fuels the SAV of the fuel bed / complex is used.
 //
 //Output units: Dimensionless ratio
 double OptimumPackingRatio(double SAV, UnitsType units)// = ModelUnits
 {
-  double optPackingRatio;//Return value.
-  
-  if (units == US)
-  {
-    optPackingRatio = 3.348 * pow(SAV, -0.8189);
-  }
-  else// if (units == "Metric")
-  {
-    //Wilson 1980 gives:
-    //optPackingRatio = 0.219685 * SAV^-0.8189
-    //Tests show that this is pretty good but I was able to calculate a better conversion as follows:
-    
-    // SAV is in 1/ft so:
-    // SAVcm = SAVft * 1/cmPerFt
-    // and
-    // SAVft = SAVcm * cmPerFt
-    
-    //Solve:
-    // x = 3.348 * SAV^-0.8189
-    // x / 3.348 = SAV^-0.8189
-    // (x / 3.348)^(1/-0.8189) = SAV
-    // (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
-    // x / 3.348 = (SAVcm * cmPerFt)^-0.8189
-    // x / 3.348 = SAVcm^-0.8189 * cmPerFt^-0.8189
-    // x = SAVcm^-0.8189 * cmPerFt^-0.8189 * 3.348
-    // x = cmPerFt^-0.8189 * 3.348 * SAVcm^-0.8189
-    // x = 0.2039509 * SAVcm^-0.8189
-    
-    //Same thing:
-    // x = 3.348 * SAV^-0.8189
-    // x / 3.348 = SAV^-0.8189
-    // (x / 3.348)^(1/-0.8189) = SAV
-    // (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
-    // (x / 3.348)^(1/-0.8189) / cmPerFt = SAVcm
-    // (x^(1/-0.8189) / 3.348^(1/-0.8189)) / cmPerFt = SAVcm
-    // x^(1/-0.8189) / (3.348^(1/-0.8189) * cmPerFt) = SAVcm
-    // x^(1/-0.8189) = (3.348^(1/-0.8189) * cmPerFt) * SAVcm
-    // x = ((3.348^(1/-0.8189) * cmPerFt) * SAVcm)^-0.8189
-    // x = (3.348^(1/-0.8189) * cmPerFt)^-0.8189 * SAVcm^-0.8189
-    // x = 0.2039509 * SAVcm^-0.8189
-    
-    optPackingRatio = 0.2039509 * pow(SAV, -0.8189);
-  }
-  
-  return optPackingRatio;
+	double optPackingRatio;//Return value.
+
+	if (units == US)
+	{
+		optPackingRatio = 3.348 * pow(SAV, -0.8189);
+	}
+	else// if (units == "Metric")
+	{
+		//Wilson 1980 gives:
+		//optPackingRatio = 0.219685 * SAV^-0.8189
+		//Tests show that this is pretty good but I was able to calculate a better conversion as follows:
+		
+		// SAV is in 1/ft so:
+		// SAVcm = SAVft * 1/cmPerFt
+		// and
+		// SAVft = SAVcm * cmPerFt
+		
+		//Solve:
+		// x = 3.348 * SAV^-0.8189
+		// x / 3.348 = SAV^-0.8189
+		// (x / 3.348)^(1/-0.8189) = SAV
+		// (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
+		// x / 3.348 = (SAVcm * cmPerFt)^-0.8189
+		// x / 3.348 = SAVcm^-0.8189 * cmPerFt^-0.8189
+		// x = SAVcm^-0.8189 * cmPerFt^-0.8189 * 3.348
+		// x = cmPerFt^-0.8189 * 3.348 * SAVcm^-0.8189
+		// x = 0.2039509 * SAVcm^-0.8189
+		
+		//Same thing:
+		// x = 3.348 * SAV^-0.8189
+		// x / 3.348 = SAV^-0.8189
+		// (x / 3.348)^(1/-0.8189) = SAV
+		// (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
+		// (x / 3.348)^(1/-0.8189) / cmPerFt = SAVcm
+		// (x^(1/-0.8189) / 3.348^(1/-0.8189)) / cmPerFt = SAVcm
+		// x^(1/-0.8189) / (3.348^(1/-0.8189) * cmPerFt) = SAVcm
+		// x^(1/-0.8189) = (3.348^(1/-0.8189) * cmPerFt) * SAVcm
+		// x = ((3.348^(1/-0.8189) * cmPerFt) * SAVcm)^-0.8189
+		// x = (3.348^(1/-0.8189) * cmPerFt)^-0.8189 * SAVcm^-0.8189
+		// x = 0.2039509 * SAVcm^-0.8189
+		
+		optPackingRatio = 0.2039509 * pow(SAV, -0.8189);
+	}
+
+	return optPackingRatio;
 }
 
 //Weighting Factors:---------------------------------------------------------------------------------
@@ -369,7 +368,7 @@ double OptimumPackingRatio(double SAV, UnitsType units)// = ModelUnits
 //w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 //rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//  dead (1) or live (2) fuel category.
+//	dead (1) or live (2) fuel category.
 //
 //Output units: unitless weighting factors
 //Input units cancel out for calculations.  Metric conversion only needed for SAV sorting.
@@ -390,190 +389,190 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	//Subclasses are identified as indexes, with -1 indicating an unmapped value, which occurs when
 	//there is an empty / undefined fuel class, indicated by an invalid SAV value.
 	std::vector<int> subclass_ij(SAV_ij.size(), -1);
-	
-  //Validity checking:
-  //Are arguments the same length?
-  if (!SameLengths(SAV_ij, w_o_ij, rho_p_ij, liveDead))
-  {
-    Stop("CalcWeightings() expects arguments of the same length.");
-  }
-  
-  numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
-  
-  //Set the size of weight vectors:
-  wts.f_ij.resize(numFuelTypes, 0);
-  wts.f_i.resize(2, 0);//This should always be length two.  Keeping as a vector for now.
-  wts.g_ij.resize(numFuelTypes, 0);
-  
-  //Calculate the (mean) total surface area for each fuel component:
-  //Rothermel equation 53:
-  //Aij = (σ)ij (wo)ij ⁄(ρp)ij
-  for (int i = 0; i < numFuelTypes; i++)
-  {
-  	A_ij[i] = SAV_ij[i] * w_o_ij[i] / rho_p_ij[i];
-  }
-  
-  //Mean total surface area by live / dead fuel categories:
-  //Rothermel equation 54:
-  //Ai = ΣjAij
-  for (int k = 0; k < numFuelTypes; k++)
-  {
-    A_i[liveDead[k]] += A_ij[k];
-  }
-  
-  //Mean total surface area of the fuel:
-  //Rothermel equation 55:
-  //AT = ΣiAi
-  A_T = A_i[0] + A_i[1];//Single scalar value.
-  
-  //f_ij fuel class weighting factor:
-  //Rothermel equation 56:
-  //fij = Aij/Ai
-  for (int l = 0; l < numFuelTypes; l++)
-  {
-    if (A_i[liveDead[l]] != 0)
-    {
-      wts.f_ij[l] = A_ij[l] / A_i[liveDead[l]];
-    }
-    //A_i can be 0 if there in no fuel in either the live or dead fuel category.  If A_i = 0 then
-    //A_ij for this fuel should also be 0.  In this case we avoid a divide by 0 and give an
-    //appropriate weight of 0.  Given the initialization we don't have to do this explicitly.
-  }
-  
-  //fi fuel category (live/dead) weighting factor:
-  //Rothermel equation 57:
-  //fi = Ai/AT
-  wts.f_i[0] = A_i[0] / A_T;
-  wts.f_i[1] = A_i[1] / A_T;
-  
-  //g_ij weighting factor:
-  //The final set of weights was added in Albini 1976 to get around a logical problem of using f_ij
-  //for fuel loading.
-  //Albini 1972 pg. 15:
-  //g_ij = Σ_(subclass to which j belongs) f_ij
-  //This notation is a bit dense (and potentially confusing).  We accomplish this in three steps:
-  //1. Determine the size subclass for each fuel type.
-  //2. Compute the total weight (from f_ij) in each subclass by live/dead category.
-  //3. Set g_ij equal the total weight for the corresponding size subclass.
-  
-  //What size subclass is each fuel type in?
-  //Note: This maps fuel types to size subclasses even when there is no fuel present (loading = 0).
-  //Also missing classes, i.e. classes where no SAV is provided, will not be mapped to a subclass.
-  //Both these conditions have to be handled below.
-  
-  //The size subclass ranges are defined by SAV so the units do matter here:
-  if (units == Metric)
-  {
-    unitFactor = 1 / cmPerFt;
-  }
-  else
-  {
-    unitFactor = 1;
-  }
-  //Alternatively we could use an array of range edges with the appropriate units.
-  
-  for (int n = 0; n < numFuelTypes; n++)
-  {
-    if (SAV_ij[n] >= 1200 * unitFactor)
-    {
-      subclass_ij[n] = 0;
-    }
-    else if (SAV_ij[n] >= 192 * unitFactor)
-    {
-      subclass_ij[n] = 1;
-    }
-    else if (SAV_ij[n] >= 96 * unitFactor)
-    {
-      subclass_ij[n] = 2;
-    }
-    else if (SAV_ij[n] >= 48 * unitFactor)
-    {
-      subclass_ij[n] = 3;
-    }
-    else if (SAV_ij[n] >= 16 * unitFactor)
-    {
-      subclass_ij[n] = 4;
-    }
-    else if (SAV_ij[n] > 0)//SAV_ij[n] < 16
-    {
-      subclass_ij[n] = 5;
-    }
-    //A value of 0 indicates an empty / undefined SAV value.  Note that this undefined value is
-    //specific to this implementation.  How this is indicated in publications varied.  In the
-    //original publication of "the 40" 9999 is used.
-  }
-  
-  for (int i = 0; i < 2; i++)//i reused.
-  {
-    //Calculate the total weight for each size subclass (bin them) for this live/dead category:
-    double subclassTotal[6] = {0};//Explicitly initialized to reset for each iteration of the loop.
-    
-    //The weight of the sixth and largest subclass (index 5) is always 0 so we skip it.
-    for (int o = 0; o < 5; o++)
-    {
-      //Combine the weights of all classes in this size subclass:
-      for (int k = 0; k < wts.f_ij.size(); k++)
-      {
-      	if (liveDead[k] == i && subclass_ij[k] == o)
-      	{
-      		subclassTotal[o] += wts.f_ij[k];
-      	}
-      }
-    }
 
-    //Assign the subclass weights to each size class.  Some may share the same weight:
-    for (int k = 0; k < wts.f_ij.size(); k++)
-    {
-    	//If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
-    	//to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes
-    	//that have no fuel loading.
-    	if (liveDead[k] == i && subclass_ij[k] != -1 && w_o_ij[k] != 0)
-    	{
-    		wts.g_ij[k] = subclassTotal[subclass_ij[k]];
-    	}
-    	//A value of NA might be more logical but a 0 weight makes the math simpler.
-    }
-  }
-  
-  //Return value error checking:
-  //Note: if (sum(X) != 1) these comparisons can fail due to small floating point differences
-  //when we reassemble the weights.  FloatCompare() handle this problem.
-  
-  //The dead fuel components of f_ij should always sum to 1:
-  if (!FloatCompare(SumByClass(wts.f_ij, liveDead, Dead), 1))
-  {
-    Stop("f_ij dead fuels do not sum to 1.");
-  }
-  
-  //The live fuel components of f_ij will sum to 1 if present or 0 if not present:
-  if (!(FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 0) ||
-        FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 1)))
-  {
-    Stop("Invalid f_ij weights for live fuels.");
-  }
-  
-  //f_i should always sum to 1:
-  if (!FloatCompare((wts.f_i[0] + wts.f_i[1]), 1))
-  {
-    Stop("f_i does not sum to 1.");
-  }
-  
-  //The dead fuel components of g_ij should always sum to 1:
-  if (!FloatCompare(SumByClass(wts.g_ij, liveDead, Dead), 1))
-  {
-    Stop("g_ij dead fuels do not sum to 1.");
-  }
-  
-  //For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
-  //However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
-  //and 2 are possible:
-  if (!(FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 0) ||
-        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 1) ||
-        FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 2)))
-  {
-    Stop("Invalid g_ij weights for live fuels.");
-  }
-  
+	//Validity checking:
+	//Are arguments the same length?
+	if (!SameLengths(SAV_ij, w_o_ij, rho_p_ij, liveDead))
+	{
+		Stop("CalcWeightings() expects arguments of the same length.");
+	}
+
+	numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
+
+	//Set the size of weight vectors:
+	wts.f_ij.resize(numFuelTypes, 0);
+	wts.f_i.resize(2, 0);//This should always be length two.  Keeping as a vector for now.
+	wts.g_ij.resize(numFuelTypes, 0);
+
+	//Calculate the (mean) total surface area for each fuel component:
+	//Rothermel equation 53:
+	//Aij = (σ)ij (wo)ij ⁄(ρp)ij
+	for (int i = 0; i < numFuelTypes; i++)
+	{
+		A_ij[i] = SAV_ij[i] * w_o_ij[i] / rho_p_ij[i];
+	}
+
+	//Mean total surface area by live / dead fuel categories:
+	//Rothermel equation 54:
+	//Ai = ΣjAij
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		A_i[liveDead[k]] += A_ij[k];
+	}
+
+	//Mean total surface area of the fuel:
+	//Rothermel equation 55:
+	//AT = ΣiAi
+	A_T = A_i[0] + A_i[1];//Single scalar value.
+
+	//f_ij fuel class weighting factor:
+	//Rothermel equation 56:
+	//fij = Aij/Ai
+	for (int l = 0; l < numFuelTypes; l++)
+	{
+		if (A_i[liveDead[l]] != 0)
+		{
+			wts.f_ij[l] = A_ij[l] / A_i[liveDead[l]];
+		}
+		//A_i can be 0 if there in no fuel in either the live or dead fuel category.  If A_i = 0 then
+		//A_ij for this fuel should also be 0.  In this case we avoid a divide by 0 and give an
+		//appropriate weight of 0.  Given the initialization we don't have to do this explicitly.
+	}
+
+	//fi fuel category (live/dead) weighting factor:
+	//Rothermel equation 57:
+	//fi = Ai/AT
+	wts.f_i[0] = A_i[0] / A_T;
+	wts.f_i[1] = A_i[1] / A_T;
+
+	//g_ij weighting factor:
+	//The final set of weights was added in Albini 1976 to get around a logical problem of using f_ij
+	//for fuel loading.
+	//Albini 1972 pg. 15:
+	//g_ij = Σ_(subclass to which j belongs) f_ij
+	//This notation is a bit dense (and potentially confusing).  We accomplish this in three steps:
+	//1. Determine the size subclass for each fuel type.
+	//2. Compute the total weight (from f_ij) in each subclass by live/dead category.
+	//3. Set g_ij equal the total weight for the corresponding size subclass.
+
+	//What size subclass is each fuel type in?
+	//Note: This maps fuel types to size subclasses even when there is no fuel present (loading = 0).
+	//Also missing classes, i.e. classes where no SAV is provided, will not be mapped to a subclass.
+	//Both these conditions have to be handled below.
+
+	//The size subclass ranges are defined by SAV so the units do matter here:
+	if (units == Metric)
+	{
+		unitFactor = 1 / cmPerFt;
+	}
+	else
+	{
+		unitFactor = 1;
+	}
+	//Alternatively we could use an array of range edges with the appropriate units.
+
+	for (int n = 0; n < numFuelTypes; n++)
+	{
+		if (SAV_ij[n] >= 1200 * unitFactor)
+		{
+			subclass_ij[n] = 0;
+		}
+		else if (SAV_ij[n] >= 192 * unitFactor)
+		{
+			subclass_ij[n] = 1;
+		}
+		else if (SAV_ij[n] >= 96 * unitFactor)
+		{
+			subclass_ij[n] = 2;
+		}
+		else if (SAV_ij[n] >= 48 * unitFactor)
+		{
+			subclass_ij[n] = 3;
+		}
+		else if (SAV_ij[n] >= 16 * unitFactor)
+		{
+			subclass_ij[n] = 4;
+		}
+		else if (SAV_ij[n] > 0)//SAV_ij[n] < 16
+		{
+			subclass_ij[n] = 5;
+		}
+		//A value of 0 indicates an empty / undefined SAV value.  Note that this undefined value is
+		//specific to this implementation.  How this is indicated in publications varied.  In the
+		//original publication of "the 40" 9999 is used.
+	}
+
+	for (int i = 0; i < 2; i++)//i reused.
+	{
+		//Calculate the total weight for each size subclass (bin them) for this live/dead category:
+		double subclassTotal[6] = {0};//Explicitly initialized to reset for each iteration of the loop.
+		
+		//The weight of the sixth and largest subclass (index 5) is always 0 so we skip it.
+		for (int o = 0; o < 5; o++)
+		{
+			//Combine the weights of all classes in this size subclass:
+			for (int k = 0; k < wts.f_ij.size(); k++)
+			{
+				if (liveDead[k] == i && subclass_ij[k] == o)
+				{
+					subclassTotal[o] += wts.f_ij[k];
+				}
+			}
+		}
+
+		//Assign the subclass weights to each size class.  Some may share the same weight:
+		for (int k = 0; k < wts.f_ij.size(); k++)
+		{
+			//If a fuel class is not fully specified, i.e. has an invalid SAV of 0, it will not be mapped
+			//to a size subclass.  In that case leave g_ij[k] = 0.  Also don't assign weights to classes
+			//that have no fuel loading.
+			if (liveDead[k] == i && subclass_ij[k] != -1 && w_o_ij[k] != 0)
+			{
+				wts.g_ij[k] = subclassTotal[subclass_ij[k]];
+			}
+			//A value of NA might be more logical but a 0 weight makes the math simpler.
+		}
+	}
+
+	//Return value error checking:
+	//Note: if (sum(X) != 1) these comparisons can fail due to small floating point differences
+	//when we reassemble the weights.  FloatCompare() handle this problem.
+
+	//The dead fuel components of f_ij should always sum to 1:
+	if (!FloatCompare(SumByClass(wts.f_ij, liveDead, Dead), 1))
+	{
+		Stop("f_ij dead fuels do not sum to 1.");
+	}
+
+	//The live fuel components of f_ij will sum to 1 if present or 0 if not present:
+	if (!(FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 0) ||
+			  FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 1)))
+	{
+		Stop("Invalid f_ij weights for live fuels.");
+	}
+
+	//f_i should always sum to 1:
+	if (!FloatCompare((wts.f_i[0] + wts.f_i[1]), 1))
+	{
+		Stop("f_i does not sum to 1.");
+	}
+
+	//The dead fuel components of g_ij should always sum to 1:
+	if (!FloatCompare(SumByClass(wts.g_ij, liveDead, Dead), 1))
+	{
+		Stop("g_ij dead fuels do not sum to 1.");
+	}
+
+	//For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
+	//However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
+	//and 2 are possible:
+	if (!(FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 0) ||
+			  FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 1) ||
+			  FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 2)))
+	{
+		Stop("Invalid g_ij weights for live fuels.");
+	}
+
   return wts;
 }
 
@@ -582,7 +581,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
                            double rho_p, std::vector<int> liveDead, UnitsType units)
 {
 	std::vector<double> rho_p_ij(SAV_ij.size(), rho_p);//Expand.
-	
+
 	return (CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units));
 }
 
@@ -594,19 +593,19 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 {
 	FuelWeights wts;
 	UnitsType cUnits;
-	
+
 	//Convert input arrays to vectors:
 	std::vector<double> SAV_ijVec(SAV_ij, SAV_ij + *numFuelTypes);
 	std::vector<double> w_o_ijVec(w_o_ij, w_o_ij + *numFuelTypes);
 	std::vector<double> rho_p_ijVec(rho_p_ij, rho_p_ij + *numFuelTypes);
 	std::vector<int> liveDeadVec(liveDead, liveDead + *numFuelTypes);
-	
+
 	//The values used for live and dead differ from R to C++ (due to indexes).  Convert them:
 	for (int k = 0; k < *numFuelTypes; k++)
 	{
 		liveDeadVec[k] -= 1;
 	}
-	
+
 	//The R code uses a string for units, which can't be passed via .C().  We have to use something
 	//as an intermediate translation.  Using the numerical order of options seems as good as any.
 	if (*units == 1)
@@ -621,9 +620,9 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 	{
 		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
 	}
-	
+
 	wts = CalcWeightings(SAV_ijVec, w_o_ijVec, rho_p_ijVec, liveDeadVec, cUnits);
-	
+
 	//Copy output weights into the return arguments:
 	std::copy(wts.f_ij.begin(), wts.f_ij.end(), f_ij);
 	std::copy(wts.f_i.begin(), wts.f_i.end(), f_i);
@@ -631,7 +630,7 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 }
 
 //Fuel Bed Surface-area-to-volume Ratio:-------------------------------------------------------------
-//  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.  This is frequently
+//	For heterogeneous fuels a SAV for the entire fuel bed must be calculated.  This is frequently
 //referred to as the characteristic SAV.  It is a weighted average of the fuel component SAVs.
 //
 //Input variables / parameters:
@@ -639,7 +638,7 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //f_i = Weighting factors for each fuel live/dead category (dimensionless).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//  dead (1) or live (2) fuel category.
+//	dead (1) or live (2) fuel category.
 //
 //Output units: ft^2/ft^3 | cm^2/cm^3
 //The inputs carry the units.  No metric conversions are needed.
@@ -649,35 +648,35 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vector<double> f_i,
                   std::vector<int> liveDead)
 {
-  int numFuelTypes;
-  double SAV_i[2];//SAV by live / dead category.
-  double fuelBedSAV;//Return value.
-  
-  //Argument checking:
-  if (!SameLengths(SAV_ij, f_ij, liveDead))
-  {
-    Stop("FuelBedSAV() expects arguments of the same length.");
-  }
-  
-  numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
-  
-  //Characteristic live and dead SAVs:
-  //Rothermel 1972 equation 72:
-  //σi = Σj fijσij (~ over sigma sub i and bar over sigma sub ij in original)
-  
-  for (int k = 0; k < numFuelTypes; k++)
-  {
-    //SAV_i[liveDead[k]] = SAV_i[liveDead[k]] + (f_ij[k] * SAV_ij[k]);
-    SAV_i[liveDead[k]] += f_ij[k] * SAV_ij[k];
-  }
-  
-  //Sum the live and dead components to get the final value:
-  //Rothermel 1972 equation 71:
-  //σ = Σi fiσi (~ over sigma and sigma sub i in original)
-  fuelBedSAV = (f_i[0] * SAV_i[0]) + (f_i[1] * SAV_i[1]);//Or:
-  //fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);
-  
-  return fuelBedSAV;
+	int numFuelTypes;
+	double SAV_i[2];//SAV by live / dead category.
+	double fuelBedSAV;//Return value.
+
+	//Argument checking:
+	if (!SameLengths(SAV_ij, f_ij, liveDead))
+	{
+		Stop("FuelBedSAV() expects arguments of the same length.");
+	}
+
+	numFuelTypes = SAV_ij.size();//Types = sum of size classes in both categories.
+
+	//Characteristic live and dead SAVs:
+	//Rothermel 1972 equation 72:
+	//σi = Σj fijσij (~ over sigma sub i and bar over sigma sub ij in original)
+
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		//SAV_i[liveDead[k]] = SAV_i[liveDead[k]] + (f_ij[k] * SAV_ij[k]);
+		SAV_i[liveDead[k]] += f_ij[k] * SAV_ij[k];
+	}
+
+	//Sum the live and dead components to get the final value:
+	//Rothermel 1972 equation 71:
+	//σ = Σi fiσi (~ over sigma and sigma sub i in original)
+	fuelBedSAV = (f_i[0] * SAV_i[0]) + (f_i[1] * SAV_i[1]);//Or:
+	//fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);
+
+	return fuelBedSAV;
 }
 
 //Net Fuel Load:-------------------------------------------------------------------------------------
@@ -690,16 +689,16 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
 //Input variables / parameters:
 //w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
 //S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
-//  For all standard fuel models this is 5.55% (0.0555).
+//	For all standard fuel models this is 5.55% (0.0555).
 //
 //Output units: lb/ft^2 | kg/m^3
 //The inputs carry the units.  No metric conversions are needed.
 double NetFuelLoad_Homo(double w_o, double S_T)
 {
 	double w_n;//Return value.
-	
+
 	w_n = w_o * (1 - S_T);
-	
+
 	return w_n;
 }
 
@@ -720,17 +719,17 @@ std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <d
 	int numFuelTypes;
 	std::vector <double> w_n_ij(w_o_ij.size(), 0);//Intermediate
 	std::vector <double> w_n_i(2, 0);//Return value.
-	
+
 	//Argument checking:
 	if (!SameLengths(w_o_ij, S_T_ij, g_ij, liveDead))
 	{
 		Stop("NetFuelLoad_Het() expects arguments of the same length.");
 	}
-	
+
 	numFuelTypes = w_o_ij.size();
-	
+
 	//w_n_ij.resize(numFuelTypes, 0);
-	
+
 	for (int k = 0; k < numFuelTypes; k++)
 	{
 		//Calculate the net fuel load for each fuel class:
@@ -743,7 +742,7 @@ std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <d
 		//(wn)i = Σjgij(wn)ij
 		w_n_i[liveDead[k]] += g_ij[k] * w_n_ij[k];
 	}
-	
+
 	return w_n_i;
 }
 
@@ -762,7 +761,7 @@ double MoistureDampingCoefficient_Homo(double M_f, double M_x)
 {
 	double r_M;//Ratio of fuel moisture content to moisture of extinction.
 	double eta_M;//Return value.
-	
+
 	//Moisture content can well exceed 1 for live fuels (at least to 300%):
 	if (!InRange(M_f, 0, 3.5))
 	{
@@ -773,28 +772,28 @@ double MoistureDampingCoefficient_Homo(double M_f, double M_x)
 	{
 		Stop("Suspect moisture of extinction.");
 	}
-	
+
 	//Calculate the ratio of fuel moisture content to moisture of extinction:
 	//Rothermel 1972 equation 29,65 with maximum added in Albini 1976:
 	//Note: This uses the notation of Andrews 2018, the original is a bit different.
 	//rM = Mf/Mx (max = 1.0)
 	r_M = M_f / M_x;
-	
+
 	if (r_M > 1.0)
 	{
 		r_M = 1.0;
 	}
-	
+
 	//Use the ratio to calculate the damping coefficient:
 	//Rothermel 1972 equations 29,64:
 	//ηM = 1 - 2.59rM + 5.11(rM)^2 - 3.52(rM)^3
 	eta_M = 1 - 2.59 * r_M + 5.11 * pow(r_M, 2) - 3.52 * pow(r_M, 3);
-	
+
 	return eta_M;
 }
 
 //Moisture Damping Coefficient (heterogeneous fuels):
-//  For heterogeneous fuel beds the moisture damping coefficient is calculated for each fuel category
+//	For heterogeneous fuel beds the moisture damping coefficient is calculated for each fuel category
 //(live/dead).
 //
 //Input variables / parameters:
@@ -802,7 +801,7 @@ double MoistureDampingCoefficient_Homo(double M_f, double M_x)
 //M_x_i = Moisture of extinction each fuel category (fraction: water weight/dry fuel weight).
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//  dead (1) or live (2) fuel category.
+//	dead (1) or live (2) fuel category.
 //
 //Output units: Dimensionless coefficient (array length 2)
 //Input units cancel out.  No metric conversion needed.
@@ -814,7 +813,7 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 	int numFuelTypes;
 	std::vector <double> M_f_i(2, 0);//Weighted moisture content.
 	std::vector <double> eta_m_i(2, 0);//Return value.
-	
+
 	if (!SameLengths(M_f_ij, f_ij, liveDead))
 	{
 		Stop("MoistureDampingCoefficient_Het() expects arguments of the same length.");
@@ -835,9 +834,9 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 	{
 		Stop("Suspect live fuel moisture of extinction.");
 	}
-	
+
 	numFuelTypes = M_f_ij.size();
-	
+
 	//Calculate the weighted moisture content for each fuel category:
 	//Rothermel 1972 equations 66:
 	//(Mf)i = Σj fij (Mf)ij
@@ -845,18 +844,18 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 	{
 		M_f_i[liveDead[k]] += f_ij[k] * M_f_ij[k];
 	}
-	
+
 	//Calculate the moisture damping coefficient for each fuel category:
 	//Rothermel 1972 equations 64,65:
 	//(ηM)i = 1 – 2.59(rM)i + 5.11(rM)i2 – 3.52(rM)i3 (max = 1)
 	eta_m_i[Dead] = MoistureDampingCoefficient_Homo(M_f_i[Dead], M_x_i[Dead]);
 	eta_m_i[Live] = MoistureDampingCoefficient_Homo(M_f_i[Live], M_x_i[Live]);
-	
+
 	return eta_m_i;
 }
 
 //Live Fuel Moisture of Extinction:
-//  The live fuel moisture of extinction determines if live fuels will burn and contribute to the
+//	The live fuel moisture of extinction determines if live fuels will burn and contribute to the
 //heat source term in the calculations.  The live fuel moisture of extinction is calculated from the
 //dead fuel moisture of extinction and in relation to the ratio of live to dead fuels. The value can
 //be quite variable from near zero to over 700 percent (see Andrews 2018 section 5.3.2.2).
@@ -867,7 +866,7 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 //w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 //SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//  dead (1) or live (2) fuel category.
+//	dead (1) or live (2) fuel category.
 //
 //Output units: fraction, water weight/dry fuel weight
 double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
@@ -883,7 +882,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	double bottom = 0;//The denominator sum.
 	double M_f_dead;
 	double M_x_2;//Return value.
-	
+
 	if (!SameLengths(M_f_ij, w_o_ij, SAV_ij, liveDead))
 	{
 		Stop("LiveFuelMoistureOfExtinction() expects arguments of the same length.");
@@ -896,9 +895,9 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	{
 		Stop("Invalid dead fuel moisture of extinction.");
 	}
-	
+
 	numFuelTypes = M_f_ij.size();
-	
+
 	//Changing the equations is more complicated than changing the inputs.
 	if (units == Metric)
 	{
@@ -908,7 +907,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 			SAV_ij[k] = SAV_ij[k] * cmPerFt;//1/cm to 1/ft
 		}
 	}
-	
+
 	//Calculate dead:live loading ratio, notated W:
 	//Albini 1976 pg. 16:
 	//W = Σj(wo)1jexp(-138/σ1j) / Σj(wo)2jexp(-500/σ2j)
@@ -923,14 +922,14 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 			deadSum += w_o_ij[k] * exp(-500 / SAV_ij[k]);
 		}
 	}
-	
+
 	//If the loading for the live fuel categories are all 0 or live categories are missing liveSum will
 	//be zero.  The ratio W will be therefore also be zero.  This in turn will result in M_x_2 = M_x_1.
 	//While not conceptual meaningful this has no has no mathematical consequence downstream.  Forcing
 	//the value to NA or 0 would cause mathematical problems downstream..
-	
+
 	W = liveSum / deadSum;//Unitless ratio.
-	
+
 	//Calculate fine dead fuel moisture as:
 	//Albini 1976 pg. 16:
 	//Mf,dead = Σj(Mf)1j(wo)1jexp(–138/σ1j) / Σj(wo)1jexp(–138/σ1j)
@@ -943,19 +942,19 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 			bottom += common;
 		}
 	}
-	
+
 	M_f_dead = top / bottom;//Moisture fraction / unitless.
-	
+
 	//Calculate the live fuel moisture of extinction ((Mx)2):
 	//Rothermel 1972 equation 88 with Albini 1976 pg. 16 modifications:
 	//(Mx)2 = 2.9W[1 – Mf,dead⁄(Mx)1] - 0.226, (min = (Mx)1)
 	M_x_2 = 2.9 * W * (1 - M_f_dead / M_x_1) - 0.226;
-	
+
 	if (M_x_2 < M_x_1)
 	{
 		M_x_2 = M_x_1;
 	}
-	
+
 	return M_x_2;
 }
 
@@ -966,22 +965,22 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 //
 //Input variables / parameters:
 //S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
-//  For all standard fuel models this is 1% (0.01).
+//	For all standard fuel models this is 1% (0.01).
 //
 //Output units: Dimensionless coefficient
 //Unitless inputs and outputs.  No metric conversion needed.
 double MineralDampingCoefficient_Homo(double S_e)
 {
 	double eta_s;//Return value.
-	
+
 	//Parameter checking:
 	if (!ValidProportion(S_e))
 	{
 		Stop("Effective mineral content must be from 0-1.");
 	}
-	
+
 	eta_s = 0.174 * pow(S_e, -0.19);
-	
+
 	if (eta_s < 1.0)
 	{
 		return eta_s;
@@ -993,12 +992,12 @@ double MineralDampingCoefficient_Homo(double S_e)
 }
 
 //Mineral Damping Coefficient (heterogeneous fuels):
-//  For heterogeneous fuels the mineral damping coefficient is calculated for each fuel category
+//	For heterogeneous fuels the mineral damping coefficient is calculated for each fuel category
 //(live/dead).
 //
 //Input variables / parameters:
 //S_e_ij = Effective mineral content for each fuel type (unitless fraction:
-//  (mineral mass – mass silica) / total dry mass).
+//	(mineral mass – mass silica) / total dry mass).
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //
 //Output units: Dimensionless coefficient (array of 2)
@@ -1010,7 +1009,7 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 	double numFuelTypes;
 	double S_e_i[2] = {0, 0};//Effective mineral content by live / dead category.
 	std::vector <double> eta_s_i(2, 0);//Return value.
-	
+
 	//Parameter checking:
 	if (!SameLengths(S_e_ij, f_ij, liveDead))
 	{
@@ -1020,21 +1019,21 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 	{
 		Stop("Effective mineral content must be from 0-1.");
 	}
-	
+
 	numFuelTypes = S_e_ij.size();//Types = sum of size classes in both categories.
-	
+
 	//Calculate the weighted effective mineral content for each fuel category:
 	//(Se)i = Σj fij (Se)ij
 	for (int k; k < numFuelTypes; k++)
 	{
 		S_e_i[liveDead[k]] += f_ij[k] * S_e_ij[k];
 	}
-	
+
 	//Caculate the mineral damping coefficient for each fuel category:
 	//(ηs)i = 0.174(Se)i^–0.19 (max = 1)
 	eta_s_i[Dead] = MineralDampingCoefficient_Homo(S_e_i[Dead]);
 	eta_s_i[Live] = MineralDampingCoefficient_Homo(S_e_i[Live]);
-	
+
 	return eta_s_i;
 }
 
@@ -1049,9 +1048,9 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 //
 //Input variables / parameters:
 //packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
-//  (dimensionless).
+//	(dimensionless).
 //slopeSteepness = Slope steepness maximum (unitless fraction: vertical rise / horizontal distance).
-//  AKA tan ϕ.
+//	AKA tan ϕ.
 //
 //Output units: Dimensionless adjustment factor
 //Inputs are fractions which do not change with units.  Mo metric conversion required.
@@ -1070,9 +1069,9 @@ double SlopeFactor(double packingRatio, double slopeSteepness)
 //Input variables / parameters:
 //SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
-//  (dimensionless).
+//	(dimensionless).
 //optPackingRatio = Optimum packing ratio (dimensionless).
-//   Note: optimum packing ratio is a function of SAV.
+//	 Note: optimum packing ratio is a function of SAV.
 //U = Wind speed at midflame height (ft/min | m/min).
 //
 //Output units: Dimensionless
@@ -1189,15 +1188,15 @@ double WindFactorA(double SAV, double packingRatio, double optPackingRatio, Unit
 }
 
 //Wind limit:
-//  The "wind limit" or "maximum reliable wind" is used to limit the effect of wind on the fire
+//	The "wind limit" or "maximum reliable wind" is used to limit the effect of wind on the fire
 //spread rate as wind speed gets high.  It caps the wind speed at a value that is a function of the
 //reaction intensity.
-//   There is not agreement on whether the wind limit should be used.  Albini chose to not use it,
+//	 There is not agreement on whether the wind limit should be used.  Albini chose to not use it,
 //but his code reports if the limit was reached (Albini 1976, pg 26).  More recent work finds the
 //original calculation to be flawed and presents an alternate formulation from (Andrews et. al 2013).
 //However, They conclude that in general neither should be used.  They state a better alternative is
 //to cap the spread rate at the “effective wind speed”.
-//  We implement the original formulation as an option to be able to reproduce results that do use
+//	We implement the original formulation as an option to be able to reproduce results that do use
 //the wind limit.
 //
 //Input variables / parameters:
@@ -1217,7 +1216,7 @@ double WindLimit(double U, double I_R, UnitsType units)
 	{
 		threshold = 0.02417144;
 	}
-	
+
 	//Rothermel 1972 Equation 87:
 	if (U/I_R > threshold)
 	{
@@ -1227,26 +1226,26 @@ double WindLimit(double U, double I_R, UnitsType units)
 		//U = 96.8 * I_R^(1/3)
 	}
 	//Otherwise return U unchanged.
-	
+
 	return U;
 }
 
 //Heat Source Components:---------------------------------------------------------------------------
 
 //Optimum (Potential) Reaction Velocity:
-//  This is a measure of the optimum (potential) fuel consumption rate (fire efficiency / reaction
+//	This is a measure of the optimum (potential) fuel consumption rate (fire efficiency / reaction
 //time).  The 'optimum' rate is the ideal rate that would occur for alpha cellulose in the absence
 //of minerals and moisture.
 //Notation: Γ' (Gamma prime)
 //
-//  This version includes the Albini 1976 modification.
+//	This version includes the Albini 1976 modification.
 //
 //Input variables / parameters:
 //β = (Mean) Packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 //packingRatio = (Mean) Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
-//  (dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
+//	(dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
 //SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
-//  For heterogeneous fuels the SAV of the fuel bed / complex is used.
+//	For heterogeneous fuels the SAV of the fuel bed / complex is used.
 //
 //Output units: min^-1
 double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
@@ -1272,9 +1271,9 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 		//Wilson 1980 uses:
 		//GammaPrimeMax = (0.0591 + 2.926 * SAVcm^-1.5)^-1 = 1 / (0.0591 + 2.926 / SAVcm^1.5)
 	}
-	
+
 	optPackingRatio = OptimumPackingRatio(SAV, units);
-	
+
 	//"Arbitrary" variable:
 	//Albini 1976 pg. 15:
 	//A = 133σ^-0.7913
@@ -1288,25 +1287,25 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 		//Wilson 1980 uses:
 		//A = 8.9033 * SAV^-0.7913
 	}
-	
+
 	//These are combined to produce the optimal reaction velocity (min^-1):
 	//Rothermel 1972 equation 38:
 	//Γ' = Γ'max(β/βop)^A exp[A(1 - β/βop)]
 	GammaPrime = GammaPrimeMax * pow((packingRatio/optPackingRatio), A)  *
 		exp(A * (1 - packingRatio/optPackingRatio));
-	
+
 	return GammaPrime;
 }
 
 //Live / Dead Heat Content:
-//  Calculate the weighted (low?) heat content of the live / dead fuel categories.
+//	Calculate the weighted (low?) heat content of the live / dead fuel categories.
 //Only used by reaction intensity calculation.
 //
 //Input variables / parameters:
 //h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//  dead (1) or live (2) fuel category.
+//	dead (1) or live (2) fuel category.
 //
 //Output units: btu/lb | kJ/kg
 //Whatever units are input, the same will come out.  No unit conversions needed.
@@ -1334,9 +1333,9 @@ std::vector <double> LiveDeadHeatContent(std::vector <double> h_ij, std::vector 
 }
 
 //Reaction Intensity:
-//  The reaction intensity (I_R) is the total energy released by the fire front in Btu/ft^2/min in
+//	The reaction intensity (I_R) is the total energy released by the fire front in Btu/ft^2/min in
 //all forms (radiation, conduction, and convection).
-//  This it not the same as fireline intensity!
+//	This it not the same as fireline intensity!
 
 //Reaction Intensity, Rothermel version for homogeneous fuels:
 //
@@ -1403,28 +1402,28 @@ double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
 //
 //Input variables / parameters:
 //packingRatio = (Mean) Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
-//  (dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
+//	(dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
 //SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
-//  For heterogeneous fuels the fuel bed level SAV is used.
+//	For heterogeneous fuels the fuel bed level SAV is used.
 //
 //Output units: Dimensionless proportion
 //R: PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
 double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units)
 {
-  double xi = 0;//Output
-  
-  if (units == US)
-  {
-    xi = pow((192 + 0.2595 * SAV), -1) * exp((0.792 + 0.681 * pow(SAV, 0.5)) * (packingRatio + 0.1));
-  }
-  else
-  {
-    xi = pow((192 + 7.90956 * SAV), -1) * exp((0.792 + 3.759712 * pow(SAV, 0.5)) * (packingRatio + 0.1));
-    //Wilson 1980 uses:
-    //xi = (192 + 7.9095 * SAV)^-1 * exp((0.792 + 3.7597 * SAV^0.5) * (packingRatio + 0.1))
-  }
-  
-  return xi;
+	double xi = 0;//Output
+
+	if (units == US)
+	{
+	  xi = pow((192 + 0.2595 * SAV), -1) * exp((0.792 + 0.681 * pow(SAV, 0.5)) * (packingRatio + 0.1));
+	}
+	else
+	{
+		xi = pow((192 + 7.90956 * SAV), -1) * exp((0.792 + 3.759712 * pow(SAV, 0.5)) * (packingRatio + 0.1));
+		//Wilson 1980 uses:
+		//xi = (192 + 7.9095 * SAV)^-1 * exp((0.792 + 3.7597 * SAV^0.5) * (packingRatio + 0.1))
+	}
+
+	return xi;
 }
 
 //This is a wrapper for PropagatingFluxRatio() that allows it to be called from R:
@@ -1437,7 +1436,7 @@ extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* 
 //Heat Sink Components:-----------------------------------------------------------------------------
 
 //Effective Heating Number:
-//  This represents the proportion of a fuel type that is heated to ignition temperature in advance
+//	This represents the proportion of a fuel type that is heated to ignition temperature in advance
 //of the fire front.  It is a function of SAV.  For example, with the same heating fine fuels might
 //be brought fully to combustion while for a large stick only surface would be dried and heated to
 //burn.
@@ -1521,10 +1520,10 @@ std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType un
 //Spread Rate Calculations:-------------------------------------------------------------------------
 
 //Albini 1976 modified Rothermel spread model for homogeneous fuels:
-//  Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+//	Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
 //
 //Input variables / parameters:
-//  There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel array characteristics,
+//	There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel array characteristics,
 //4 fuel particle characteristics, and three environmental.
 //
 //Fuel array:
@@ -1540,13 +1539,13 @@ std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType un
 //
 //Fuel particle properties: 
 //h = Heat content of the fuel type (Btu/lb | kJ/kg).
-//  All the 53 standard fuel models use 8,000 Btu/lb.
+//	All the 53 standard fuel models use 8,000 Btu/lb.
 //S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
-//  For all standard fuel models this is 5.55% (0.0555).
+//	For all standard fuel models this is 5.55% (0.0555).
 //S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
-//  For all standard fuel models this is 1% (0.01).
+//	For all standard fuel models this is 1% (0.01).
 //rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
-//  All the 53 standard fuel models use 32 lb/ft^3.
+//	All the 53 standard fuel models use 32 lb/ft^3.
 //
 //Settings:
 //useWindLimit = Use the wind limit calculation or not.
@@ -1572,48 +1571,48 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
 	//The bulk density is needed to calculate the packing ratio and therefore is used in the numerator
 	//and denominator.
 	rho_b = BulkDensity(w_o, fuelBedDepth);
-	
+
 	packingRatio = PackingRatio(rho_b, rho_p);
 	optPackingRatio = OptimumPackingRatio(SAV, units);
-	
+
 	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
 	//front of it (AKA propagating flux) in BTU/min/ft^2 | kW/m^2:
 	//Numerator of Rothermel 1972 equation 52:
 	//IR𝜉(1 + 𝜙w + 𝜙s)
-	
+
 	//Reaction intensity I_R:
 	GammaPrime = OptimumReactionVelocity(packingRatio, SAV, units);
 	w_n = NetFuelLoad_Homo(w_o, S_T);
 	eta_M = MoistureDampingCoefficient_Homo(M_f, M_x);
 	eta_s = MineralDampingCoefficient_Homo(S_e);
 	I_R = ReactionIntensity_Homo(GammaPrime, w_n, heatContent, eta_M, eta_s);
-	
+
 	//Other terms:
 	xi = PropagatingFluxRatio(packingRatio, SAV, units);
 	phi_s = SlopeFactor(packingRatio, slopeSteepness);
-	
+
 	//Apply wind limit check:
 	if (useWindLimit)
 	{
 		U = WindLimit(U, I_R, units);
 	}
-	
+
 	phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U, units);
-	
+
 	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
 	//kJ/m^3:
 	//Denominator of Rothermel 1972 equation 52:
 	//ρbεQig
-	
+
 	epsilon = EffectiveHeatingNumber(SAV, units);
 	Q_ig = HeatOfPreignition(M_f, units);
-	
+
 	//Full spread calculation for homogeneous fuels:
 	//Rothermel 1972 equation 52:
 	//Rate of spread = heat source / heat sink
 	//R = I_R𝝃(1 + 𝜙w + 𝜙s) / ρbεQig
 	R = (I_R * xi * (1 + phi_w + phi_s)) / (rho_b * epsilon * Q_ig);
-	
+
 	//For debugging:
 	if (debug)
 	{
@@ -1633,14 +1632,14 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
 		LogMsg("Qig =", Q_ig);
 		LogMsg("Heat sink = ", rho_b * epsilon * Q_ig);
 	}
-	
+
 	return R;
 }
 
 //Albini 1976 modified Rothermel spread model for heterogeneous fuels:
 //
 //Input variables / parameters:
-//  Some of the input variables differ from the homogeneous fuels form in that they are vectors
+//	Some of the input variables differ from the homogeneous fuels form in that they are vectors
 //rather than scalars.
 //
 //Fuel array:
@@ -1649,8 +1648,8 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
 //fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 //M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//  dead (1) or live (2) fuel category. Note: This is placed later in the argument list to allow for
-//  a default value.
+//	dead (1) or live (2) fuel category. Note: This is placed later in the argument list to allow for
+//	a default value.
 //
 //Environmental:
 //M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
@@ -1659,13 +1658,13 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
 //
 //Fuel particle properties: 
 //h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
-//  All the 53 standard fuel models use 8,000 Btu/lb.
+//	All the 53 standard fuel models use 8,000 Btu/lb.
 //S_T_ij = An array of total mineral content for each fuel type (unitless fraction).
-//  For all standard fuel models this is 5.55% (0.0555).
+//	For all standard fuel models this is 5.55% (0.0555).
 //S_e_ij = Effective mineral content for each fuel type (unitless fraction:
-//  (mineral mass – mass silica) / total dry mass).  For all standard fuel models this is 1% (0.01).
+//	(mineral mass – mass silica) / total dry mass).  For all standard fuel models this is 1% (0.01).
 //rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
-//  All the 53 standard fuel models use 32 lb/ft^3.
+//	All the 53 standard fuel models use 32 lb/ft^3.
 //
 //Settings:
 //useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
@@ -1795,7 +1794,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Rate of spread = heat source / heat sink
 	//R = I_Rξ(1 + φw + φs) / ρbεQig
 	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
-	
+
 	//For debugging:
 	if (debug)
 	{
@@ -1858,34 +1857,34 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 //Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
 double StdHeatContent(UnitsType units)
 {
-  double h;//Return value.
-  
-  if (units == US)
-  {
-    h = 8000;//Btu/lb
-  }
-  else//if (units == Metric)
-  {
-    h = 18595.57;//kJ/kg, 8000 * kJPerBtu / kgPerLb
-  }
-  return h;
+	double h;//Return value.
+
+	if (units == US)
+	{
+	  h = 8000;//Btu/lb
+	}
+	else//if (units == Metric)
+	{
+	  h = 18595.57;//kJ/kg, 8000 * kJPerBtu / kgPerLb
+	}
+	return h;
 }
 
 //Return the fuel particle density (rho_p) used in the 53 standard fuel models in the appropriate
 //units:
 double StdRho_p(UnitsType units)
 {
-  double rho_p;//Return value.
-  
-  if (units == US)
-  {
-    rho_p = 32;//lb/ft^3
-  }
-  else//if (units == Metric)
-  {
-    rho_p = 512.592;//kg/m^3, (32 * lbPerFtCuToKgPerMCu)
-  }
-  return rho_p;
+	double rho_p;//Return value.
+
+	if (units == US)
+	{
+	  rho_p = 32;//lb/ft^3
+	}
+	else//if (units == Metric)
+	{
+	  rho_p = 512.592;//kg/m^3, (32 * lbPerFtCuToKgPerMCu)
+	}
+	return rho_p;
 }
 
 //[InitSpreadParam()...]
@@ -1906,8 +1905,8 @@ Could change arguments to const &?
 //SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2)
 {
-  //Put the argments in a list removing NULL elements:
-  // argList = list(arg1, arg2, arg3, arg4)
+	//Put the argments in a list removing NULL elements:
+	// argList = list(arg1, arg2, arg3, arg4)
 //   argList = argList[!sapply(argList, is.null)]
 //   //This would work too for omitted arguments but would ignore any zero length vectors passed in:
 //   //argList = argList[length(argList) != 0]
@@ -1923,7 +1922,7 @@ bool SameLengths(std::vector<double> arg1, std::vector<double> arg2)
 //     //return(-1)
 //     return(FALSE)
 //   }
-	
+
 	return (arg1.size() == arg2.size());
 }
 
@@ -1985,12 +1984,12 @@ bool InRange(std::vector<double> value, double low, double high)
 //Check if a value is from 0 to 1, a valid proportion.
 bool ValidProportion(double value)
 {
-  return InRange(value, 0, 1);
+	return InRange(value, 0, 1);
 }
 
 bool ValidProportion(std::vector<double> value)
 {
-  return InRange(value, 0, 1);
+	return InRange(value, 0, 1);
 }
 
 //Calculate the sum of a variable array of the form X_ij by the specified live/dead class:
@@ -2001,7 +2000,7 @@ bool ValidProportion(std::vector<double> value)
 double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat)
 {
 	double sum = 0;//Return value.
-	
+
 	for (int k = 0; k < x_ij.size(); k++)
 	{
 		if (liveDead[k] == liveDeadCat)
@@ -2009,7 +2008,7 @@ double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveD
 			sum += x_ij[k];
 		}
 	}
-	
+
 	return sum;
 }
 
@@ -2093,7 +2092,7 @@ to calculate additional fire front properties.  See Andrews 2018 section 4 for m
 //phi_s = The slope factor (dimensionless).
 //meanPackingRatio = Mean packing ratio (beta_bar) (dimensionless ratio).
 //optPackingRatio = Optimum packing ratio (dimensionless).
-//   Note: optimum packing ratio is a function of SAV.
+//	 Note: optimum packing ratio is a function of SAV.
 //SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //
 //Output: effective wind speed at midflame height (ft/min | m/min)
@@ -2176,12 +2175,12 @@ double HeatPerUnitArea(double I_R, double t_r)
 }
 
 //Byram’s Fireline Intensity:
-//  Byram 1959 defines fireline intensity as (equation 3.3):
+//	Byram 1959 defines fireline intensity as (equation 3.3):
 //I_B = HwR
 //Where:
-//  H = heat content of the fuel (Btu/lb | kJ/kg)
-//  w = weight of "available" fuel (lb/ft^2 | kg/m^2)
-//  R = fire rate of spread (ft/s | m/s)
+//	H = heat content of the fuel (Btu/lb | kJ/kg)
+//	w = weight of "available" fuel (lb/ft^2 | kg/m^2)
+//	R = fire rate of spread (ft/s | m/s)
 //Albini uses H_A as an approximation of H x W (Andrews 2018).  (Note: I can't find this in the text
 //of Albini 1976.  It may be in the code.)
 //
@@ -2205,7 +2204,7 @@ double ByramsFirelineIntensity(double H_A, double R)
 }
 
 //Flame Length:
-//  Calculate the flame length (not height) of the flame front.
+//	Calculate the flame length (not height) of the flame front.
 //The equation is from Byram 1959 (equation 3.4) with notation from Brown and Davis 1973, page 175
 //(per Andrews 2018, as I haven't been able to access the book yet.)
 //
