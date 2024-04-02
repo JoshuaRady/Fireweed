@@ -1,13 +1,14 @@
-//FireweedRAFireSpread.cpp
-//Programmed by: Joshua M. Rady
-//Woodwell Climate Research Center
-//Started: 1/12/2024
-//Reference: Proj. 11 Exp. 14
-//
-//Description:--------------------------------------------------------------------------------------
-//	This file is part of the Fireweed fire code library.  It contains a C++ implementation of the
-//Rothermel fire spread model (Rothermel 1972) with the modifications of Albini (Albini 1976).
-/*
+/***************************************************************************************************
+FireweedRAFireSpread.cpp
+Programmed by: Joshua M. Rady
+Woodwell Climate Research Center
+Started: 1/12/2024
+Reference: Proj. 11 Exp. 14
+
+Description:--------------------------------------------------------------------------------------
+	This file is part of the Fireweed fire code library.  It contains a C++ implementation of the
+Rothermel fire spread model (Rothermel 1972) with the modifications of Albini (Albini 1976).
+
 	The Rothermel/Albini equations have been implemented in a form as close to the originals as was
 possible.  The modifications of Albini 1972 are considered official parts of the Rothermel fire
 spread model and all equations include these modifications where they apply.  The Rothermel model
@@ -120,11 +121,11 @@ functions used to manage units in the code.
 
 //Globals:------------------------------------------------------------------------------------------
 
-//Unit Conversion Factors:---------------------------------------------------------------------------
-//Conversion factors marked with an asterisk are not used in this file.  They are provided for use by
-//calling code.
-//It might be better to have a interface of some sort to request conversion factors from.
-//Move to header?????
+/*Unit Conversion Factors:--------------------------------------------------------------------------
+Conversion factors marked with an asterisk are not used in this file.  They are provided for use by
+calling code.
+It might be better to have a interface of some sort to request conversion factors from.
+Move to header?????*/
 
 //Length: (exact per international yard and pound act)
 const double cmPerIn = 2.54;
@@ -148,10 +149,10 @@ const int lbsPerTon = 2000;//*
 const double lbPerFtCuToKgPerMCu = 16.0185;//kgPerLb * (ftPerM)^3, 16.01846337396
 
 //JPerBtu = 1055.06 or 1,054.35
-//The definition of a BTU can vary resulting in several different conversion factors.  Wilson 1980
-//seems to have used a value close to the themochemical value of 1.05435 J/BTU, based on his heat of
-//preignition conversion.  We will use that to be consistent with his converted constant values.
-//The IT value of 1.05506 would be a reasonable alternative.
+/*The definition of a BTU can vary resulting in several different conversion factors.  Wilson 1980
+seems to have used a value close to the themochemical value of 1.05435 J/BTU, based on his heat of
+preignition conversion.  We will use that to be consistent with his converted constant values.
+The IT value of 1.05506 would be a reasonable alternative.*/
 const double kJPerBtu = 1.05435;
 
 //tons/ac -> lb/ft^2: (See fuel loading note above.)
