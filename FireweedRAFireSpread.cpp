@@ -17,12 +17,6 @@
 #include "FireweedRAFireSpread.h"
 
 //Globals:------------------------------------------------------------------------------------------
-//enum UnitsType {US, Metric};//Move to header?????
-
-//Specify the units to use.  The default is United States customary units.
-//This should not be set directly.  Use SetModelUnits().
-//private 
-//UnitsType ModelUnits = US;
 
 //Unit Conversion Factors:---------------------------------------------------------------------------
 //Conversion factors marked with an asterisk are not used in this file.  They are provided for use by
