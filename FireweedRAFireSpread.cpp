@@ -279,14 +279,6 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 		}
 	}
 
-//Confirm delta is a scalar: Not needed in C++!
-//   if (length(fuelBedDepth) != 1)
-//   {
-//     //This can be caused if the arguments are out of order.
-//     stop("A single fuelbed depth must be provided.")
-//     //Add value checking? > 0, < ?
-//   }
-
 	//Calculate w_o / rho_p for each fuel element:
 	//x = w_o_ij / rho_p_ij
 	for (int i = 0; i < x.size(); i++)
@@ -322,36 +314,6 @@ double OptimumPackingRatio(double SAV, UnitsType units)// = ModelUnits
 		//Wilson 1980 gives:
 		//optPackingRatio = 0.219685 * SAV^-0.8189
 		//Tests show that this is pretty good but I was able to calculate a better conversion as follows:
-		
-		// SAV is in 1/ft so:
-		// SAVcm = SAVft * 1/cmPerFt
-		// and
-		// SAVft = SAVcm * cmPerFt
-		
-		//Solve:
-		// x = 3.348 * SAV^-0.8189
-		// x / 3.348 = SAV^-0.8189
-		// (x / 3.348)^(1/-0.8189) = SAV
-		// (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
-		// x / 3.348 = (SAVcm * cmPerFt)^-0.8189
-		// x / 3.348 = SAVcm^-0.8189 * cmPerFt^-0.8189
-		// x = SAVcm^-0.8189 * cmPerFt^-0.8189 * 3.348
-		// x = cmPerFt^-0.8189 * 3.348 * SAVcm^-0.8189
-		// x = 0.2039509 * SAVcm^-0.8189
-		
-		//Same thing:
-		// x = 3.348 * SAV^-0.8189
-		// x / 3.348 = SAV^-0.8189
-		// (x / 3.348)^(1/-0.8189) = SAV
-		// (x / 3.348)^(1/-0.8189) = SAVcm * cmPerFt
-		// (x / 3.348)^(1/-0.8189) / cmPerFt = SAVcm
-		// (x^(1/-0.8189) / 3.348^(1/-0.8189)) / cmPerFt = SAVcm
-		// x^(1/-0.8189) / (3.348^(1/-0.8189) * cmPerFt) = SAVcm
-		// x^(1/-0.8189) = (3.348^(1/-0.8189) * cmPerFt) * SAVcm
-		// x = ((3.348^(1/-0.8189) * cmPerFt) * SAVcm)^-0.8189
-		// x = (3.348^(1/-0.8189) * cmPerFt)^-0.8189 * SAVcm^-0.8189
-		// x = 0.2039509 * SAVcm^-0.8189
-		
 		optPackingRatio = 0.2039509 * pow(SAV, -0.8189);
 	}
 
@@ -1834,10 +1796,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      bool debug)
 {
 	int numFuelTypes = SAV_ij.size();
-// 	std::vector <double> h_ij(SAV_ij.size(), h);
-// 	std::vector <double> S_T_ij(SAV_ij.size(), S_T);
-// 	std::vector <double> S_e_ij(SAV_ij.size(), S_e);
-// 	std::vector <double> rho_p_ij(SAV_ij.size(), rho_p);
 	std::vector <double> h_ij(numFuelTypes, h);
 	std::vector <double> S_T_ij(numFuelTypes, S_T);
 	std::vector <double> S_e_ij(numFuelTypes, S_e);
@@ -1905,24 +1863,6 @@ Could change arguments to const &?
 //SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2)
 {
-	//Put the argments in a list removing NULL elements:
-	// argList = list(arg1, arg2, arg3, arg4)
-//   argList = argList[!sapply(argList, is.null)]
-//   //This would work too for omitted arguments but would ignore any zero length vectors passed in:
-//   //argList = argList[length(argList) != 0]
-//   
-//   //Are arguments the same length?
-//   if (all(sapply(argList, length) == length(arg1)))
-//   {
-//     //return(length(arg1))
-//     return(TRUE)
-//   }
-//   else
-//   {
-//     //return(-1)
-//     return(FALSE)
-//   }
-
 	return (arg1.size() == arg2.size());
 }
 
