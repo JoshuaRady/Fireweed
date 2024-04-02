@@ -5,14 +5,116 @@
 //Reference: Proj. 11 Exp. 14
 //
 //Description:--------------------------------------------------------------------------------------
-//	This file is part of the Fireweed fire code library.  It contains an R implementation of the
+//	This file is part of the Fireweed fire code library.  It contains a C++ implementation of the
 //Rothermel fire spread model (Rothermel 1972) with the modifications of Albini (Albini 1976).
-//
+/*
+	The Rothermel/Albini equations have been implemented in a form as close to the originals as was
+possible.  The modifications of Albini 1972 are considered official parts of the Rothermel fire
+spread model and all equations include these modifications where they apply.  The Rothermel model
+consists of a nested set of equations. The library presents functions for each equation with useful
+output.  Some functions are very simple and could be inlined but a focus on clarity and modularity
+have been prioritized over compactness.
 
-//----- This is an ongoing port of the R code.  It is a work in progress.  Please stand by. ------//
+References:-----------------------------------------------------------------------------------------
+Richard C. Rothermel.
+A mathematical model for predicting fire spread in wildland fuels.
+Res. Pap. INT-115. Ogden, UT: U.S. Department of Agriculture, Intermountain Forest and Range
+Experiment Station. 40 p. 1972.
+	This is the original article describing the Rothermel fire spread model.
 
-//[More header here...]
+Frank A. Albini.
+Computer-based models of wildland fire behavior: a user's manual.
+Intermountain Forest and Range Experiment Station, Forest Service, U.S. Department of Agriculture.
+1976.
+	This paper documents the changes that Albini made to the equations of Rothermel 1972 as well as
+a set of functions implementing the equations in FORTRAN (sometimes referred to collectively as
+FIREMOD, the name of the spread rate routine).  The code here was developed directly from the
+equations in the paper.  I have not been able to find the FORTRAN code itself.
 
+Patricia L. Andrews, Miguel G. Cruz, and Richard C. Rothermel.
+Examination of the wind speed limit function in the Rothermel surface fire spread model.
+International Journal of Wildland Fire 22(7): 959-69, 2013. http://dx.doi.org/10.1071/WF12122
+	This review summarizes and contextualizes the equations of Rothermel and Albini as well as
+related work and was an important reference for preparing this code.
+
+Ralph Wilson.
+Reformulation of forest fire spread equations in SI units.
+Research Note INT-292.  U.S. Department of Agriculture, Forest Service, Intermountain Range and
+Forest Experiment Station. Ogden, UT. 5 pages, 1980. https://doi.org/10.2737/INT-RN-292
+	This report provides SI conversions of some of the spread and related equations.	These were used
+to check the conversions performed here.
+
+Anderson, Hal E.
+Heat transfer and fire spread.
+Res. Pap. INT-69. Ogden, UT: U.S. Department of Agriculture, Forest Service, Intermountain Forest
+and Range Experiment Station. 20 p. 1969.
+	This report is the source of the residency time calculation used here.
+
+George M. Byram.
+Combustion of forest fuels.
+In Forest fire: control and use. Davis, K. P. editor. Pages 61-89. New York, NY: McGraw-Hill. 1959.
+	This chapter defines Byram's fireline intensity and Byram's equaiton for flame length.
+
+Notation:-------------------------------------------------------------------------------------------
+	The equations from these papers contain mathematical notation and variables with characters that
+cannot be directly represented in R/C++.  To represent the variables the following translations
+were used.
+
+Greek letters in variable names:
+	Many model variables use Greek characters.  In most cases these are translated in the code using
+their English phonetic names with the case indicating the case of the character, e.g. β -> Beta and
+σ -> sigma.  In a few cases Greek variable names have been changed to abbreviations or descriptive
+names.  Greek is used where the original equations are shown in the comments.
+
+Subscripts:
+	Variables with subscripts are represented with underscores, e.g. Ab (A sub b) -> A_b.  A number
+of variables have two levels of subscript, the second representing fuel type indexes (i and j, see
+fuel classes below).  These are represented with underscores as well, e.g (Ab)ij ((A sub b) sub ij)
+-> A_b_ij.
+Note: This notation is used throughout the code but is not fully consistent in comments yet.
+
+Diacritical marks:
+	In Rothermel 1972 some variables for the heterogeneous fuels equations are marked with either
+bars to indicate a mean (across all fuel classes) or tildes for characteristic values of a fuel
+category (live/dead).  Most reprints ignore these.  We have left them out in most cases although
+a couple variables of the form x_bar are used.
+
+	For further information consult the accompanying variable notation cross-reference document.
+This contains all the input parameters and variables, many of which are common to multiple
+functions.
+
+Variable notes:
+ - The surface-area-to-volume ratio for fuels is notated as σ (sigma) and abbreviated as sav or
+SAV in different places in the papers.  We use SAV in the code.
+ - It is unclear if fuel loading is w0 or wo.  In Rothermel 1972 it is not clear and in reprints it
+varies.  We use w sub o (w_o).
+ - Fuel load is specified as lb/ft^2 in the equations but most table of values use tons/acre.
+Conversion needs to be done prior to passing in the data.  Use tonsPerAcToLbPerSqFt.
+ - Total mineral content is occasionally notated S sub t rather than S sub T (e.g. Rothermel
+1972, pg. 36, Table 1).  We use S sub T (S_T).
+ - Slope steepness is notated as tan ϕ in the original model.  We use slopeSteepness instead.
+Slope steepness is a fraction, not degrees.
+
+Fuel classes:---------------------------------------------------------------------------------------
+	Heterogeneous fuels fuel types are distinguished with subscripts i = 1 to m categories
+(live vs. dead) and j = 1 to n fuel size classes.  j = 1 for dead fuels and j = 2 for live fuels.
+All the standard fuels have three dead fuel size classes and two live classes (herbaceous vs.
+woody).  Therefore storing fuel class properties in a matrix / 2D array would result in an
+empty/undefined position in the live row.  We avoid this by representing fuel properties in the
+code as vectors.  Dead and live size classes are stored contiguously and we maintain a liveDead
+vector that holds the live/dead status for each vector index.  Where the original paper operations
+operate over indexes i and j we use index k, where k = 1 to (n + m) consistently to iterate over
+all positions.
+
+Units:----------------------------------------------------------------------------------------------
+	The original Rothermel/Albini model equations used United States customary units.  The units for
+inputs and outputs are given in the comments for each function.  Metric/SI conversions have been
+added for all functions that need them.  The units to use can be specified explicitly for some
+functions, including the main spread rate functions.  If a set of intermediate calculations are to
+be performed SetModelUnits() can be called at the start of the session.  The valid unit specifiers
+are "US" (USCU is too hard to remember) and "Metric".  See below for more on constants and
+functions used to manage units in the code.
+***************************************************************************************************/
 
 #include "FireweedRAFireSpread.h"
 
