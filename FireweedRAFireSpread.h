@@ -119,14 +119,6 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
                                       bool useWindLimit = true,
                                       UnitsType units = US,
                                       bool debug = false);
-extern "C" SpreadRateRothermelAlbini_HomoR(const double* SAV, const double* w_o,
-                                           const double* fuelBedDepth, const double* M_x,
-                                           const double* M_f, const double* U,
-                                           const double* slopeSteepness, const double* heatContent,//h
-                                           const double* S_T, const double* S_e,
-                                           const double* rho_p, const int* useWindLimit,
-                                           const int* units, const int* debug, double* R)
-
 double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> w_o_ij,
                                      double fuelBedDepth,

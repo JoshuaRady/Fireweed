@@ -1604,13 +1604,13 @@ The parameters are the same as SpreadRateRothermelAlbini_Homo() except:
 should be used on the R side.
  - units is passed in as an integer with 1 = US and 2 = metric.
  - The spread rate is returned in the additional argument R.*/
-extern "C" SpreadRateRothermelAlbini_HomoR(const double* SAV, const double* w_o,
-                                           const double* fuelBedDepth, const double* M_x,
-                                           const double* M_f, const double* U,
-                                           const double* slopeSteepness, const double* heatContent,//h
-                                           const double* S_T, const double* S_e,
-                                           const double* rho_p, const int* useWindLimit,
-                                           const int* units, const int* debug, double* R)
+extern "C" void SpreadRateRothermelAlbini_HomoR(const double* SAV, const double* w_o,
+                                                const double* fuelBedDepth, const double* M_x,
+                                                const double* M_f, const double* U,
+                                                const double* slopeSteepness, const double* heatContent,//h
+                                                const double* S_T, const double* S_e,
+                                                const double* rho_p, const int* useWindLimit,
+                                                const int* units, const int* debug, double* R)
 {
 	bool useWindLimitBool;
 	UnitsType cUnits;
@@ -1645,11 +1645,11 @@ extern "C" SpreadRateRothermelAlbini_HomoR(const double* SAV, const double* w_o,
 		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
 	}
 	
-	if (*debugBool == 0)
+	if (*debug == 0)
 	{
 		debugBool = false;
 	}
-	else if (*debugBool == 1)
+	else if (*debug == 1)
 	{
 		debugBool = true;
 	}
