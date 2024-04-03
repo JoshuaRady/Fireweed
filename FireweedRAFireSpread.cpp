@@ -1598,7 +1598,7 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
 	return R;
 }
 
-/*This is a wrapper for CalcWeightings() that allows it to be called from R via .C():
+/*This is a wrapper for SpreadRateRothermelAlbini_Homo() that allows it to be called from R via .C():
 The parameters are the same as SpreadRateRothermelAlbini_Homo() except:
  - The useWindLimit and debug arguments are type int.  This is port of the .C() interface.  Logical
 should be used on the R side.
@@ -1873,6 +1873,89 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	                                  liveDead, useWindLimit, units, debug);
 
 	return R;
+}
+
+/*This is a wrapper for SpreadRateRothermelAlbini_Het() that allows it to be called from R via .C():
+We are only providing an interface for the the explicit arguments version for now.
+The number of fuel types must be provided as the size of the input data is not carried from R.*/
+extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const double* w_o_ij,
+                                               const double* fuelBedDepth,const double* M_x_1,
+                                               const double*  M_f_ij, double* U,
+                                               double* slopeSteepness, double* h_ij,
+                                               double* S_T_ij, double* S_e_ij,
+                                               double* rho_p_ij, double* liveDead,
+                                               const int* useWindLimit, const int* numFuelTypes, 
+                                               const int* units, const int* debug, double* R)
+{
+	//Convert input arrays to vectors:
+	std::vector<double> SAV_ijVec(SAV_ij, SAV_ij + *numFuelTypes);
+	std::vector<double> w_o_ijVec(w_o_ij, w_o_ij + *numFuelTypes);
+
+	std::vector<double> M_f_ijVec(M_f_ij, M_f_ij + *numFuelTypes);
+	std::vector<double> h_ijVec(h_ij, h_ij + *numFuelTypes);
+	std::vector<double> S_T_ijVec(S_T_ij, S_T_ij + *numFuelTypes);
+	std::vector<double> S_e_ijVec(S_e_ij, S_e_ij + *numFuelTypes);
+
+	std::vector<double> rho_p_ijVec(rho_p_ij, rho_p_ij + *numFuelTypes);
+	std::vector<int> liveDeadVec(liveDead, liveDead + *numFuelTypes);
+
+	bool useWindLimitBool;
+	UnitsType cUnits;
+	bool debugBool;
+
+	//Code repeated from CalcWeightingsR() and SpreadRateRothermelAlbini_HomoR()!!!!!
+
+	//The values used for live and dead differ from R to C++ (due to indexes).  Convert them:
+	for (int k = 0; k < *numFuelTypes; k++)
+	{
+		liveDeadVec[k] -= 1;
+	}
+
+	//R logicals are pass as integer values.  This should be seamless to the user:
+	if (*useWindLimit == 0)
+	{
+		useWindLimitBool = false;
+	}
+	else if (*useWindLimit == 1)
+	{
+		useWindLimitBool = true;
+	}
+	else//The NA value is possible it NAOK = TRUE in .C().
+	{
+		Stop("Invalid value passed for useWindLimit.");
+	}
+
+	//The R code uses a string for units, which can't be passed via .C().  We have to use something
+	//as an intermediate translation.  Using the numerical order of options seems as good as any.
+	if (*units == 1)
+	{
+		cUnits = US;
+	}
+	else if (*units == 2)
+	{
+		cUnits = Metric;
+	}
+	else
+	{
+		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
+	}
+
+	if (*debug == 0)
+	{
+		debugBool = false;
+	}
+	else if (*debug == 1)
+	{
+		debugBool = true;
+	}
+	else//The NA value is possible it NAOK = TRUE in .C().
+	{
+		Stop("Invalid value passed for debugBool.");
+	}
+
+	*R = SpreadRateRothermelAlbini_Het(SAV_ijVec, w_o_ijVec, *fuelBedDepth, *M_x_1, M_f_ijVec, *U,
+                                       *slopeSteepness, h_ijVec, S_T_ijVec, S_e_ijVec, rho_p_ijVec,
+                                       liveDeadVec, useWindLimitBool, cUnits, debugBool);
 }
 
 //Utilities:----------------------------------------------------------------------------------------
