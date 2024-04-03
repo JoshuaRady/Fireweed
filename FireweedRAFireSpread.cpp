@@ -1598,6 +1598,71 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
 	return R;
 }
 
+/*This is a wrapper for CalcWeightings() that allows it to be called from R via .C():
+The parameters are the same as SpreadRateRothermelAlbini_Homo() except:
+ - The useWindLimit and debug arguments are type int.  This is port of the .C() interface.  Logical
+should be used on the R side.
+ - units is passed in as an integer with 1 = US and 2 = metric.
+ - The spread rate is returned in the additional argument R.*/
+extern "C" SpreadRateRothermelAlbini_HomoR(const double* SAV, const double* w_o,
+                                           const double* fuelBedDepth, const double* M_x,
+                                           const double* M_f, const double* U,
+                                           const double* slopeSteepness, const double* heatContent,//h
+                                           const double* S_T, const double* S_e,
+                                           const double* rho_p, const int* useWindLimit,
+                                           const int* units, const int* debug, double* R)
+{
+	bool useWindLimitBool;
+	UnitsType cUnits;
+	bool debugBool;
+
+	//R logicals are pass as integer values.  This should be seamless to the user:
+	if (*useWindLimit == 0)
+	{
+		useWindLimitBool = false;
+	}
+	else if (*useWindLimit == 1)
+	{
+		useWindLimitBool = true;
+	}
+	else//The NA value is possible it NAOK = TRUE in .C().
+	{
+		Stop("Invalid value passed for useWindLimit.");
+	}
+	
+	//The R code uses a string for units, which can't be passed via .C().  We have to use something
+	//as an intermediate translation.  Using the numerical order of options seems as good as any.
+	if (*units == 1)
+	{
+		cUnits = US;
+	}
+	else if (*units == 2)
+	{
+		cUnits = Metric;
+	}
+	else
+	{
+		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
+	}
+	
+	if (*debugBool == 0)
+	{
+		debugBool = false;
+	}
+	else if (*debugBool == 1)
+	{
+		debugBool = true;
+	}
+	else//The NA value is possible it NAOK = TRUE in .C().
+	{
+		Stop("Invalid value passed for debugBool.");
+	}
+	
+	*R = SpreadRateRothermelAlbini_Homo(*SAV, *w_o, *fuelBedDepth, *M_x, *M_f, *U, *slopeSteepness,
+                                        *heatContent, *S_T, *S_e, *rho_p, useWindLimitBool, cUnits,
+                                        debugBool)
+}
+
 //Albini 1976 modified Rothermel spread model for heterogeneous fuels:
 //
 //Input variables / parameters:
