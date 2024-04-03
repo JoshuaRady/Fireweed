@@ -1660,7 +1660,7 @@ extern "C" void SpreadRateRothermelAlbini_HomoR(const double* SAV, const double*
 	
 	*R = SpreadRateRothermelAlbini_Homo(*SAV, *w_o, *fuelBedDepth, *M_x, *M_f, *U, *slopeSteepness,
                                         *heatContent, *S_T, *S_e, *rho_p, useWindLimitBool, cUnits,
-                                        debugBool)
+                                        debugBool);
 }
 
 //Albini 1976 modified Rothermel spread model for heterogeneous fuels:
