@@ -1882,10 +1882,10 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
                                                const double* fuelBedDepth,const double* M_x_1,
                                                const double*  M_f_ij, double* U,
                                                double* slopeSteepness, double* h_ij,
-                                               double* S_T_ij, double* S_e_ij,
-                                               double* rho_p_ij, int* liveDead,
-                                               const int* useWindLimit, const int* numFuelTypes, 
-                                               const int* units, const int* debug, double* R)
+                                               double* S_T_ij, double* S_e_ij, double* rho_p_ij,
+                                               int* liveDead, const int* useWindLimit,
+                                               const int* units, const int* debug,
+                                               const int* numFuelTypes, double* R)
 {
 	//Convert input arrays to vectors:
 	std::vector<double> SAV_ijVec(SAV_ij, SAV_ij + *numFuelTypes);
