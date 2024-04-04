@@ -1910,7 +1910,7 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		liveDeadVec[k] -= 1;
 	}
-	LogMsg("Pass liveDeadVec.")//Temporary reporting,
+	LogMsg("Pass liveDeadVec.");//Temporary reporting,
 
 	//R logicals are passed as integer values.  This should be seamless to the user:
 	if (*useWindLimit == 0)
@@ -1925,7 +1925,7 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		Stop("Invalid value passed for useWindLimit.");
 	}
-	LogMsg("Pass useWindLimit.")//Temporary reporting,
+	LogMsg("Pass useWindLimit.");//Temporary reporting,
 
 	//The R code uses a string for units, which can't be passed via .C().  We have to use something
 	//as an intermediate translation.  Using the numerical order of options seems as good as any.
@@ -1941,7 +1941,7 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
 	}
-	LogMsg("Pass units.")//Temporary reporting,
+	LogMsg("Pass units.");//Temporary reporting,
 
 	if (*debug == 0)
 	{
@@ -1955,7 +1955,7 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		Stop("Invalid value passed for debugBool.");
 	}
-	LogMsg("Pass debug.")//Temporary reporting,
+	LogMsg("Pass debug.");//Temporary reporting,
 
 // 	*R = SpreadRateRothermelAlbini_Het(SAV_ijVec, w_o_ijVec, *fuelBedDepth, *M_x_1, M_f_ijVec, *U,
 //                                        *slopeSteepness, h_ijVec, S_T_ijVec, S_e_ijVec, rho_p_ijVec,
