@@ -1732,10 +1732,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	{
 		Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
 	}
-	LogMsg("Pass SameLengths().");//Temporary reporting,
 
 	numFuelTypes = SAV_ij.size();
-	LogMsg("numFuelTypes:", numFuelTypes);//Temporary reporting,
 
 	//Truncate liveDead to match the number of classes provided.  This may assume too much!:
 // 	liveDead = liveDead[1:numFuelTypes]
@@ -1744,7 +1742,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//Calculate the weights:
 	weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
-	LogMsg("Pass CalcWeightings().");//Temporary reporting,
 
 	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
 	//front of it:
@@ -1758,8 +1755,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
 
 	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
-	LogMsg("Pass OptimumPackingRatio().");//Temporary reporting!!!!!
-	//return R;//Temp!!!!!
 
 	//Reaction intensity:
 	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
@@ -1771,7 +1766,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//The live fuel moisture of extinction must be calculated:
 	M_x_i[1] = M_x_1;
 	M_x_i[2] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
-	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
 
 	//Damping coefficients:
 	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
@@ -1782,7 +1776,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Other numerator terms:
 	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
 	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
-	LogMsg("Pass SlopeFactor().");//Temporary reporting,
 
 	//Apply wind limit check:
 	if (useWindLimit)
@@ -1800,7 +1793,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth);
 	Q_ig_ij = HeatOfPreignition(M_f_ij);
-	LogMsg("Pass HeatOfPreignition().");//Temporary reporting,
 
 	//We'll do it in two steps:
 	//Weight and size class:
@@ -1829,7 +1821,6 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Rate of spread = heat source / heat sink
 	//R = I_Rξ(1 + φw + φs) / ρbεQig
 	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
-	LogMsg("R calculated().");//Temporary reporting,
 
 	//For debugging:
 	if (debug)
@@ -1919,7 +1910,6 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		liveDeadVec[k] -= 1;
 	}
-	//LogMsg("Pass liveDeadVec.");//Temporary reporting,
 
 	//R logicals are passed as integer values.  This should be seamless to the user:
 	if (*useWindLimit == 0)
@@ -1934,7 +1924,6 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		Stop("Invalid value passed for useWindLimit.");
 	}
-	//LogMsg("Pass useWindLimit.");//Temporary reporting,
 
 	//The R code uses a string for units, which can't be passed via .C().  We have to use something
 	//as an intermediate translation.  Using the numerical order of options seems as good as any.
@@ -1950,7 +1939,6 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
 	}
-	//LogMsg("Pass units.");//Temporary reporting,
 
 	if (*debug == 0)
 	{
@@ -1964,7 +1952,6 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	{
 		Stop("Invalid value passed for debugBool.");
 	}
-	//LogMsg("Pass debug.");//Temporary reporting,
 
 	*R = SpreadRateRothermelAlbini_Het(SAV_ijVec, w_o_ijVec, *fuelBedDepth, *M_x_1, M_f_ijVec, *U,
 	                                   *slopeSteepness, h_ijVec, S_T_ijVec, S_e_ijVec, rho_p_ijVec,
