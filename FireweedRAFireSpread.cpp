@@ -1778,6 +1778,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
 	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
 	LogMsg("Pass SlopeFactor().");//Temporary reporting,
+	return 77.7;
 
 	//Apply wind limit check:
 	if (useWindLimit)
