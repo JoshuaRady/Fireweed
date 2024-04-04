@@ -1883,7 +1883,7 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
                                                const double*  M_f_ij, double* U,
                                                double* slopeSteepness, double* h_ij,
                                                double* S_T_ij, double* S_e_ij,
-                                               double* rho_p_ij, double* liveDead,
+                                               double* rho_p_ij, int* liveDead,
                                                const int* useWindLimit, const int* numFuelTypes, 
                                                const int* units, const int* debug, double* R)
 {
