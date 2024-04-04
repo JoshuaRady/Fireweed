@@ -1758,7 +1758,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
 
 	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
-	LogMsg("Pass OptimumPackingRatio().");//Temporary reporting,
+	LogMsg("Pass OptimumPackingRatio().");//Temporary reporting!!!!!
+	return R;//Temp!!!!!
 
 	//Reaction intensity:
 	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
