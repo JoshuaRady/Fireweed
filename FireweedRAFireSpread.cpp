@@ -1766,6 +1766,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//The live fuel moisture of extinction must be calculated:
 	M_x_i[1] = M_x_1;
 	M_x_i[2] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
+	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
 
 	//Damping coefficients:
 	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
@@ -1776,6 +1777,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Other numerator terms:
 	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
 	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
+	LogMsg("Pass SlopeFactor().");//Temporary reporting,
 
 	//Apply wind limit check:
 	if (useWindLimit)
@@ -1793,6 +1795,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth);
 	Q_ig_ij = HeatOfPreignition(M_f_ij);
+	LogMsg("Pass HeatOfPreignition().");//Temporary reporting,
 
 	//We'll do it in two steps:
 	//Weight and size class:
@@ -1821,6 +1824,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Rate of spread = heat source / heat sink
 	//R = I_Rξ(1 + φw + φs) / ρbεQig
 	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
+	LogMsg("R calculated().");//Temporary reporting,
 
 	//For debugging:
 	if (debug)
