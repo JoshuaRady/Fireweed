@@ -1735,7 +1735,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	LogMsg("Pass SameLengths().");//Temporary reporting,
 
 	numFuelTypes = SAV_ij.size();
-	LogMsg("numFuelTypes:", numFuelTypes)//Temporary reporting,
+	LogMsg("numFuelTypes:", numFuelTypes);//Temporary reporting,
 
 	//Truncate liveDead to match the number of classes provided.  This may assume too much!:
 // 	liveDead = liveDead[1:numFuelTypes]
