@@ -1746,8 +1746,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//Calculate the weights:
 	weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
-	LogMsg("Pass CalcWeightings().");//Temporary reporting!!!!!
-	return 22.2;//Return early!!!!!
+	//LogMsg("Pass CalcWeightings().");//Temporary reporting!!!!!
+	//return 22.2;//Return early!!!!!
 
 	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
 	//front of it:
@@ -1759,6 +1759,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//For heterogeneous fuels we need to calculate the fuel bed level SAV:
 	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
+	LogMsg("Pass FuelBedSAV().");//Temporary reporting!!!!!
+	return 44.4;//Return early!!!!!
 
 	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
 
