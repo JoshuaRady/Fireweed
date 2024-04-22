@@ -1767,8 +1767,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Reaction intensity:
 	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
 	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
-	LogMsg("Pass NetFuelLoad_Het().");//Temporary reporting!!!!!
-	return 66.6;//Return early!!!!!
+	//LogMsg("Pass NetFuelLoad_Het().");//Temporary reporting!!!!!
+	//return 66.6;//Return early!!!!!
 
 	//Heat content by live/dead fuel category:
 	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
@@ -1777,6 +1777,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	M_x_i[1] = M_x_1;
 	M_x_i[2] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
 	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
+	return 88.8;//Return early!!!!!
 
 	//Damping coefficients:
 	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
