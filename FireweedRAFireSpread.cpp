@@ -1727,11 +1727,15 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
 	double R;//Return value.
 
+	LogMsg("Starting SpreadRateRothermelAlbini_Het():")//Temporary!!!!!
+
 	//Parameter checking and processing:
 	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij))
 	{
 		Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
 	}
+	LogMsg("Pass SameLengths().");//Temporary reporting,
+	return 11.1;//Return early!!!!!
 
 	numFuelTypes = SAV_ij.size();
 
