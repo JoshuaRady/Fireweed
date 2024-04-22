@@ -1759,14 +1759,16 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//For heterogeneous fuels we need to calculate the fuel bed level SAV:
 	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
-	LogMsg("Pass FuelBedSAV().");//Temporary reporting!!!!!
-	return 44.4;//Return early!!!!!
+	//LogMsg("Pass FuelBedSAV().");//Temporary reporting!!!!!
+	//return 44.4;//Return early!!!!!
 
 	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
 
 	//Reaction intensity:
 	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
 	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
+	LogMsg("Pass NetFuelLoad_Het().");//Temporary reporting!!!!!
+	return 66.6;//Return early!!!!!
 
 	//Heat content by live/dead fuel category:
 	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
