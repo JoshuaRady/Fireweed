@@ -1723,7 +1723,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	double meanPackingRatio, fuelBedSAV, optPackingRatio;
 	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
 	double I_R, heatSink;
-	std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {0, 0};//Live/dead intermediates.
+	std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {2, 0};//Live/dead intermediates.
 	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
 	double R;//Return value.
 
@@ -1772,14 +1772,14 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//Heat content by live/dead fuel category:
 	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
-	LogMsg("Pass LiveDeadHeatContent().");//Temporary reporting,
-	return 84.2;//Return early!!!!!
+	//LogMsg("Pass LiveDeadHeatContent().");//Temporary reporting,
+	//return 84.2;//Return early!!!!!
 
 	//The live fuel moisture of extinction must be calculated:
 	M_x_i[Dead] = M_x_1;
 	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
 	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
-	return 88.8;//Return early!!!!!
+	//return 88.8;//Return early!!!!!
 
 	//Damping coefficients:
 	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
@@ -1791,7 +1791,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
 	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
 	LogMsg("Pass SlopeFactor().");//Temporary reporting,
-	return 77.7;
+	//return 77.7;
 
 	//Apply wind limit check:
 	if (useWindLimit)
