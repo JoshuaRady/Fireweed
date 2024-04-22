@@ -850,7 +850,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	LogMsg("M_x_1 = ", M_x_1);
 	LogMsg("w_o_ij = ", w_o_ij);
 	LogMsg("SAV_ij = ", SAV_ij);
-	LogMsg("liveDead = ", liveDead);
+	//LogMsg("liveDead = ", liveDead);
 
 	if (!SameLengths(M_f_ij, w_o_ij, SAV_ij, liveDead))
 	{
