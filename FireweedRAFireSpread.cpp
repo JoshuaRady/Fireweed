@@ -1734,7 +1734,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	double meanPackingRatio, fuelBedSAV, optPackingRatio;
 	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
 	double I_R, heatSink;
-	std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {2, 0};//Live/dead intermediates.
+	//std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {2, 0};//Live/dead intermediates.
+	std::vector <double> w_n_i = {2, 0}, h_i(2, 0), M_x_i = h_i, eta_M_i = h_i, eta_s_i = h_i, heatSink_i = h_i;//Live/dead intermediates.
 	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
 	double R;//Return value.
 
