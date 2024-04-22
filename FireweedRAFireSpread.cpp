@@ -846,10 +846,10 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	double M_x_2;//Return value.
 
 	//Temporary reporting:
-	LogMsg("M_f_ij = ", M_f_ij);
-	LogMsg("M_x_1 = ", M_x_1);
-	LogMsg("w_o_ij = ", w_o_ij);
-	LogMsg("SAV_ij = ", SAV_ij);
+// 	LogMsg("M_f_ij = ", M_f_ij);
+// 	LogMsg("M_x_1 = ", M_x_1);
+// 	LogMsg("w_o_ij = ", w_o_ij);
+// 	LogMsg("SAV_ij = ", SAV_ij);
 	//LogMsg("liveDead = ", liveDead);
 
 	if (!SameLengths(M_f_ij, w_o_ij, SAV_ij, liveDead))
@@ -867,7 +867,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 
 	numFuelTypes = M_f_ij.size();
 	LogMsg("Pass intro().");//Temporary reporting.
-	return 22.2;//Return early!!!!!
+	//return 22.2;//Return early!!!!!
 
 	//Changing the equations is more complicated than changing the inputs.
 	if (units == Metric)
@@ -879,7 +879,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 		}
 	}
 	LogMsg("Pass units().");//Temporary reporting,
-	return 33.3;//Return early!!!!!
+	//return 33.3;//Return early!!!!!
 
 	//Calculate dead:live loading ratio, notated W:
 	//Albini 1976 pg. 16:
@@ -1792,7 +1792,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	LogMsg("Pass M_x_i[Dead].");//Temporary reporting,
 	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
 	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
-	return 88.8;//Return early!!!!!
+	//return 88.8;//Return early!!!!!
 
 	//Damping coefficients:
 	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
