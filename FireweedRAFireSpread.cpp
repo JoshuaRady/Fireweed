@@ -867,6 +867,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 
 	numFuelTypes = M_f_ij.size();
 	LogMsg("Pass intro().");//Temporary reporting.
+	return 22.2;//Return early!!!!!
 
 	//Changing the equations is more complicated than changing the inputs.
 	if (units == Metric)
