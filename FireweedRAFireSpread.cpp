@@ -1734,8 +1734,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	{
 		Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
 	}
-	LogMsg("Pass SameLengths().");//Temporary reporting,
-	return 11.1;//Return early!!!!!
+	//LogMsg("Pass SameLengths().");//Temporary reporting,
+	//return 11.1;//Return early!!!!!
 
 	numFuelTypes = SAV_ij.size();
 
@@ -1746,6 +1746,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//Calculate the weights:
 	weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
+	LogMsg("Pass CalcWeightings().");//Temporary reporting!!!!!
+	return 22.2;//Return early!!!!!
 
 	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
 	//front of it:
