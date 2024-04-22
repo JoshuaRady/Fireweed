@@ -845,6 +845,13 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	double M_f_dead;
 	double M_x_2;//Return value.
 
+	//Temporary reporting:
+	LogMsg("M_f_ij = ", M_f_ij);
+	LogMsg("M_x_1 = ", M_x_1);
+	LogMsg("w_o_ij = ", w_o_ij);
+	LogMsg("SAV_ij = ", SAV_ij);
+	LogMsg("liveDead = ", liveDead);
+
 	if (!SameLengths(M_f_ij, w_o_ij, SAV_ij, liveDead))
 	{
 		Stop("LiveFuelMoistureOfExtinction() expects arguments of the same length.");
@@ -859,6 +866,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	}
 
 	numFuelTypes = M_f_ij.size();
+	LogMsg("Pass intro().");//Temporary reporting.
 
 	//Changing the equations is more complicated than changing the inputs.
 	if (units == Metric)
@@ -869,6 +877,8 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 			SAV_ij[k] = SAV_ij[k] * cmPerFt;//1/cm to 1/ft
 		}
 	}
+	LogMsg("Pass units().");//Temporary reporting,
+	return 33.3;//Return early!!!!!
 
 	//Calculate dead:live loading ratio, notated W:
 	//Albini 1976 pg. 16:
@@ -1777,6 +1787,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//The live fuel moisture of extinction must be calculated:
 	M_x_i[Dead] = M_x_1;
+	LogMsg("Pass M_x_i[Dead].");//Temporary reporting,
 	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
 	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
 	return 88.8;//Return early!!!!!
