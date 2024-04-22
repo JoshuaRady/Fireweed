@@ -1779,7 +1779,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	M_x_i[Dead] = M_x_1;
 	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
 	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
-	//return 88.8;//Return early!!!!!
+	return 88.8;//Return early!!!!!
 
 	//Damping coefficients:
 	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
