@@ -888,7 +888,7 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	//If the loading for the live fuel categories are all 0 or live categories are missing liveSum will
 	//be zero.  The ratio W will be therefore also be zero.  This in turn will result in M_x_2 = M_x_1.
 	//While not conceptual meaningful this has no has no mathematical consequence downstream.  Forcing
-	//the value to NA or 0 would cause mathematical problems downstream..
+	//the value to NA or 0 would cause mathematical problems downstream.
 
 	W = liveSum / deadSum;//Unitless ratio.
 
@@ -1772,6 +1772,8 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//Heat content by live/dead fuel category:
 	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
+	LogMsg("Pass LiveDeadHeatContent().");//Temporary reporting,
+	return 84.2;//Return early!!!!!
 
 	//The live fuel moisture of extinction must be calculated:
 	M_x_i[Dead] = M_x_1;
