@@ -1264,7 +1264,7 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 	//These are combined to produce the optimal reaction velocity (min^-1):
 	//Rothermel 1972 equation 38:
 	//Γ' = Γ'max(β/βop)^A exp[A(1 - β/βop)]
-	GammaPrime = GammaPrimeMax * pow((packingRatio/optPackingRatio), A)  *
+	GammaPrime = GammaPrimeMax * pow((packingRatio/optPackingRatio), A) *
 		exp(A * (1 - packingRatio/optPackingRatio));
 
 	return GammaPrime;
@@ -1739,7 +1739,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
 	double R;//Return value.
 
-	LogMsg("Starting SpreadRateRothermelAlbini_Het().");//Temporary!!!!!
+	//LogMsg("Starting SpreadRateRothermelAlbini_Het().");//Temporary!!!!!
 
 	//Parameter checking and processing:
 	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij))
@@ -1777,6 +1777,9 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
 
 	//Reaction intensity:
+	LogMsg("Mean packing ratio =", meanPackingRatio);
+	LogMsg("Fuel bed SAV =", fuelBedSAV);
+	
 	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
 	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
 	//LogMsg("Pass NetFuelLoad_Het().");//Temporary reporting!!!!!
@@ -1789,9 +1792,9 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//The live fuel moisture of extinction must be calculated:
 	M_x_i[Dead] = M_x_1;
-	LogMsg("Pass M_x_i[Dead].");//Temporary reporting,
+	//("Pass M_x_i[Dead].");//Temporary reporting,
 	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
-	LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
+	//LogMsg("Pass LiveFuelMoistureOfExtinction().");//Temporary reporting,
 	//return 88.8;//Return early!!!!!
 
 	//Damping coefficients:
@@ -1803,7 +1806,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Other numerator terms:
 	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
 	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
-	LogMsg("Pass SlopeFactor().");//Temporary reporting,
+	//("Pass SlopeFactor().");//Temporary reporting,
 	//return 77.7;
 
 	//Apply wind limit check:
@@ -1822,7 +1825,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth);
 	Q_ig_ij = HeatOfPreignition(M_f_ij);
-	LogMsg("Pass HeatOfPreignition().");//Temporary reporting,
+	//LogMsg("Pass HeatOfPreignition().");//Temporary reporting,
 
 	//We'll do it in two steps:
 	//Weight and size class:
@@ -1851,7 +1854,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Rate of spread = heat source / heat sink
 	//R = I_Rξ(1 + φw + φs) / ρbεQig
 	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
-	LogMsg("R calculated().");//Temporary reporting,
+	//LogMsg("R calculated().");//Temporary reporting,
 
 	//For debugging:
 	if (debug)
