@@ -259,7 +259,9 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 {
 	int numLoadings, numDensities;
 	double meanPackingRatio;//Return value.
-	std::vector<double> x;//Intermediate calculation.
+	std::vector<double> x_ij(w_o_ij.size(), 0);//Intermediate calculation.
+	//Or:
+	//double x;//Intermediate accumulator.
 
 	//Parameter checking:
 	numLoadings = w_o_ij.size();
@@ -283,10 +285,12 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 	//x = w_o_ij / rho_p_ij
 	for (int i = 0; i < x.size(); i++)
 	{
-		x[i] = w_o_ij[i] / rho_p_ij[i];
+		x_ij[i] = w_o_ij[i] / rho_p_ij[i];
+		//Or:
+		//x += w_o_ij[i] / rho_p_ij[i];
 	}
 
-	meanPackingRatio = std::accumulate(x.begin(), x.end(), 0.0) / fuelBedDepth;//AKA beta_bar
+	meanPackingRatio = std::accumulate(x_ij.begin(), x_ij.end(), 0.0) / fuelBedDepth;//AKA beta_bar
 	return meanPackingRatio;
 }
 
