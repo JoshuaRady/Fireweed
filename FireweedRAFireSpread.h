@@ -179,6 +179,7 @@ bool FloatCompare(double val1, double val2, double precision = 0.0001);
 void LogMsg(const char* message);
 void LogMsg(const char* message, double value);
 void LogMsg(const char* message, std::vector<double> value);
+void LogMsg(const char* message, std::vector<int> value);
 void Warning(const char* message);
 void Stop(const char* message);
 

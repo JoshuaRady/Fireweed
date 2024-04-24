@@ -990,7 +990,7 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 	//LogMsg("eta_s_i initial = ", eta_s_i);//Temporary !!!!!
 	LogMsg("S_e_ij = ", S_e_ij);//Temporary !!!!!
 	LogMsg("f_ij = ", f_ij);//Temporary !!!!!
-	//LogMsg("liveDead = ", liveDead);//Temporary !!!!!
+	LogMsg("liveDead = ", liveDead);//Temporary !!!!!
 
 	//Parameter checking:
 	if (!SameLengths(S_e_ij, f_ij, liveDead))
@@ -2185,6 +2185,19 @@ void LogMsg(const char* message, double value)
 
 //Log a neutral message with a numeric vector:
 void LogMsg(const char* message, std::vector<double> value)
+{
+	std::cout << message << " ";
+
+	for (int i = 0; i < (value.size() - 1); i++)
+	{
+		std::cout << value[i] << ", ";
+	}
+
+	std::cout << value[value.size() - 1] << "\n";
+}
+
+//Log a neutral message with a numeric vector:
+void LogMsg(const char* message, std::vector<int> value)
 {
 	std::cout << message << " ";
 
