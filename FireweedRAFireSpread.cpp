@@ -259,18 +259,15 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 {
 	int numLoadings, numDensities;
 	double meanPackingRatio;//Return value.
-	std::vector<double> x_ij(w_o_ij.size(), 0);//Intermediate calculation.
-	//Or:
-	//double x;//Intermediate accumulator.
+	double x;//Intermediate accumulator.
 
 	//Parameter checking:
 	numLoadings = w_o_ij.size();
 	numDensities = rho_p_ij.size();
 
-	//If only one particle density is provided assume that is it the same for all fuel classes:
+	//If only one particle density is provided assume that it is the same for all fuel classes:
 	if (numDensities == 1)
 	{
-		//rho_p_ij.resize(numLoadings, val = rho_p_ij[0])
 		rho_p_ij.resize(numLoadings, rho_p_ij[0]);
 	}
 	else//Otherwise one should be provided for each fuel class.
@@ -281,16 +278,14 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 		}
 	}
 
-	//Calculate w_o / rho_p for each fuel element:
+	//Calculate w_o / rho_p for each fuel element and accumulate:
 	//x = w_o_ij / rho_p_ij
 	for (int i = 0; i < x_ij.size(); i++)
 	{
-		x_ij[i] = w_o_ij[i] / rho_p_ij[i];
-		//Or:
-		//x += w_o_ij[i] / rho_p_ij[i];
+		x += w_o_ij[i] / rho_p_ij[i];
 	}
 
-	meanPackingRatio = std::accumulate(x_ij.begin(), x_ij.end(), 0.0) / fuelBedDepth;//AKA beta_bar
+	meanPackingRatio = x / fuelBedDepth;//AKA beta_bar
 	return meanPackingRatio;
 }
 
@@ -1727,8 +1722,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	double meanPackingRatio, fuelBedSAV, optPackingRatio;
 	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
 	double I_R, heatSink;
-	//std::vector <double> w_n_i, h_i, M_x_i, eta_M_i, eta_s_i, heatSink_i = {2, 0};//Live/dead intermediates.
-	std::vector <double> w_n_i = {2, 0}, h_i(2, 0), M_x_i = h_i, eta_M_i = h_i, eta_s_i = h_i, heatSink_i = h_i;//Live/dead intermediates.
+	std::vector <double> w_n_i(2, 0), h_i(2, 0), M_x_i(2, 0), eta_M_i(2, 0), eta_s_i(2, 0), heatSink_i(2, 0);//Live/dead intermediates.
 	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
 	double R;//Return value.
 
