@@ -987,7 +987,10 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 	double numFuelTypes;
 	double S_e_i[2] = {0, 0};//Effective mineral content by live / dead category.
 	std::vector <double> eta_s_i(2, 0);//Return value.
-	LogMsg("eta_s_i initial = ", eta_s_i);
+	//LogMsg("eta_s_i initial = ", eta_s_i);//Temporary !!!!!
+	LogMsg("S_e_ij = ", S_e_ij);//Temporary !!!!!
+	LogMsg("f_ij = ", f_ij);//Temporary !!!!!
+	//LogMsg("liveDead = ", liveDead);//Temporary !!!!!
 
 	//Parameter checking:
 	if (!SameLengths(S_e_ij, f_ij, liveDead))
@@ -1000,23 +1003,24 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 	}
 
 	numFuelTypes = S_e_ij.size();//Types = sum of size classes in both categories.
-	LogMsg("numFuelTypes =", numFuelTypes);
+	//LogMsg("numFuelTypes =", numFuelTypes);//Temporary !!!!!
 
 	//Calculate the weighted effective mineral content for each fuel category:
 	//(Se)i = Σj fij (Se)ij
 	for (int k; k < numFuelTypes; k++)
 	{
 		S_e_i[liveDead[k]] += f_ij[k] * S_e_ij[k];
+		LogMsg("S_e_i[liveDead[k]] =", S_e_i[liveDead[k]]);//Temporary !!!!!
 	}
-	LogMsg("S_e_i[0] =", S_e_i[0]);
-	LogMsg("S_e_i[1] =", S_e_i[1]);
+	//LogMsg("S_e_i[0] =", S_e_i[0]);//Temporary !!!!!
+	//LogMsg("S_e_i[1] =", S_e_i[1]);//Temporary !!!!!
 
 	//Caculate the mineral damping coefficient for each fuel category:
 	//(ηs)i = 0.174(Se)i^–0.19 (max = 1)
 	eta_s_i[Dead] = MineralDampingCoefficient_Homo(S_e_i[Dead]);
-	LogMsg("eta_s_i 1 = ", eta_s_i);
+	//LogMsg("eta_s_i 1 = ", eta_s_i);//Temporary !!!!!
 	eta_s_i[Live] = MineralDampingCoefficient_Homo(S_e_i[Live]);
-	LogMsg("eta_s_i 2 = ", eta_s_i);
+	//LogMsg("eta_s_i 2 = ", eta_s_i);//Temporary !!!!!
 
 	return eta_s_i;
 }
@@ -1788,9 +1792,9 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
 
 	//Reaction intensity:
-	LogMsg("Mean packing ratio =", meanPackingRatio);
-	LogMsg("Fuel bed SAV =", fuelBedSAV);
-	
+// 	LogMsg("Mean packing ratio =", meanPackingRatio);
+// 	LogMsg("Fuel bed SAV =", fuelBedSAV);
+// 	
 	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
 	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
 	//LogMsg("Pass NetFuelLoad_Het().");//Temporary reporting!!!!!
