@@ -1008,7 +1008,8 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 	{
 		S_e_i[liveDead[k]] += f_ij[k] * S_e_ij[k];
 	}
-	LogMsg("S_e_i =", S_e_i);
+	LogMsg("S_e_i[0] =", S_e_i[0]);
+	LogMsg("S_e_i[1] =", S_e_i[1]);
 
 	//Caculate the mineral damping coefficient for each fuel category:
 	//(ηs)i = 0.174(Se)i^–0.19 (max = 1)
