@@ -280,7 +280,7 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 
 	//Calculate w_o / rho_p for each fuel element and accumulate:
 	//x = w_o_ij / rho_p_ij
-	for (int i = 0; i < x_ij.size(); i++)
+	for (int i = 0; i < numLoadings; i++)
 	{
 		x += w_o_ij[i] / rho_p_ij[i];
 	}
