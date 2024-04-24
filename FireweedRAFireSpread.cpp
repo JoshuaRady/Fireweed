@@ -957,7 +957,7 @@ double MineralDampingCoefficient_Homo(double S_e)
 	}
 
 	eta_s = 0.174 * pow(S_e, -0.19);
-	LogMsg("eta_s =", eta_s);
+//	LogMsg("eta_s =", eta_s);//Temporary !!!!!
 
 	if (eta_s < 1.0)
 	{
@@ -988,9 +988,9 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 	double S_e_i[2] = {0, 0};//Effective mineral content by live / dead category.
 	std::vector <double> eta_s_i(2, 0);//Return value.
 	//LogMsg("eta_s_i initial = ", eta_s_i);//Temporary !!!!!
-	LogMsg("S_e_ij = ", S_e_ij);//Temporary !!!!!
-	LogMsg("f_ij = ", f_ij);//Temporary !!!!!
-	LogMsg("liveDead = ", liveDead);//Temporary !!!!!
+// 	LogMsg("S_e_ij = ", S_e_ij);//Temporary !!!!!
+// 	LogMsg("f_ij = ", f_ij);//Temporary !!!!!
+// 	LogMsg("liveDead = ", liveDead);//Temporary !!!!!
 
 	//Parameter checking:
 	if (!SameLengths(S_e_ij, f_ij, liveDead))
@@ -1007,7 +1007,7 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 
 	//Calculate the weighted effective mineral content for each fuel category:
 	//(Se)i = Σj fij (Se)ij
-	for (int k; k < numFuelTypes; k++)
+	for (int k = 0; k < numFuelTypes; k++)
 	{
 		S_e_i[liveDead[k]] += f_ij[k] * S_e_ij[k];
 		LogMsg("S_e_i[liveDead[k]] =", S_e_i[liveDead[k]]);//Temporary !!!!!
