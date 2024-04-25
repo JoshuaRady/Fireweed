@@ -35,8 +35,8 @@ struct FuelWeights {
 	std::vector<double> g_ij;
 };
 
-//The value of the live dead categories is forced to match the matching array indexes so they may be
-//used to access arrays of form X_i:
+//The values of the live dead categories are forced to match the matching array indexes so they may
+//be used to access arrays of the form X_i (values are language specific):
 //enum FuelCategory {Dead = 0, Live = 1};//Having some issues with casting this.
 const int Dead = 0;
 const int Live = 1;

@@ -121,6 +121,11 @@
 #This should not be set directly.  Use SetModelUnits().  If R allowed it this would be kept private.
 ModelUnits = "US"
 
+#The values of the live dead categories are forced to match the matching array indexes so they may
+#be used to access arrays of the form X_i (values are language specific):
+Dead = 0
+Live = 1
+
 #Unit Conversion Factors:---------------------------------------------------------------------------
 #Conversion factors marked with an asterisk are not used in this file.  They are provided for use by
 #calling code.
@@ -758,13 +763,13 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   }
   #Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
   #though higher might be possible so we add a little wiggle room:
-  if (!InRange(M_x_i[1], 0, 0.5))
+  if (!InRange(M_x_i[Dead], 0, 0.5))
   {
     stop("Invalid dead fuel moisture of extinction.")
   }
   #Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
   #is not physiologic:
-  if (!InRange(M_x_i[2], 0, 8))
+  if (!InRange(M_x_i[Live], 0, 8))
   {
     stop("Suspect live fuel moisture of extinction.")
   }
@@ -784,8 +789,8 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   #Rothermel 1972 equations 64,65:
   #(ηM)i = 1 – 2.59(rM)i + 5.11(rM)i2 – 3.52(rM)i3 (max = 1)
   eta_m_i = c(0,0)
-  eta_m_i[1] = MoistureDampingCoefficient_Homo(M_f_i[1], M_x_i[1])
-  eta_m_i[2] = MoistureDampingCoefficient_Homo(M_f_i[2], M_x_i[2])
+  eta_m_i[Dead] = MoistureDampingCoefficient_Homo(M_f_i[Dead], M_x_i[Dead])
+  eta_m_i[Live] = MoistureDampingCoefficient_Homo(M_f_i[Live], M_x_i[Live])
   
   return(eta_m_i)
 }
@@ -947,8 +952,8 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
   #Caculate the mineral damping coefficient for each fuel category:
   #(ηs)i = 0.174(Se)i^–0.19 (max = 1)
   eta_s_i = c(0,0)
-  eta_s_i[1] = MineralDampingCoefficient_Homo(S_e_i[1])
-  eta_s_i[2] = MineralDampingCoefficient_Homo(S_e_i[2])
+  eta_s_i[Dead] = MineralDampingCoefficient_Homo(S_e_i[Dead])
+  eta_s_i[Live] = MineralDampingCoefficient_Homo(S_e_i[Live])
   
   return(eta_s_i)
 }
@@ -1562,7 +1567,7 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
                                           S_T_ij = 0.0555,
                                           S_e_ij = 0.01,
                                           rho_p_ij = StdRho_p(),
-                                          liveDead = c(1,1,1,2,2),#Standard fuel model 5 classes.
+                                          liveDead = c(Dead, Dead, Dead, Live, Live),#Standard fuel model 5 classes.
                                           useWindLimit = FALSE,
                                           units = NULL,
                                           debug = FALSE)
@@ -1614,8 +1619,8 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
   
   #The live fuel moisture of extinction must be calculated:
   M_x_i = c(NA,NA)
-  M_x_i[1] = M_x_1
-  M_x_i[2] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
+  M_x_i[Dead] = M_x_1
+  M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead)
   
   #Damping coefficients:
   eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights$f_ij, liveDead)

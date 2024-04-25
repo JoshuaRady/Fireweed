@@ -384,7 +384,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	//Mean total surface area of the fuel:
 	//Rothermel equation 55:
 	//AT = ΣiAi
-	A_T = A_i[0] + A_i[1];//Single scalar value.
+	A_T = A_i[Dead] + A_i[Live];//Single scalar value.
 
 	//f_ij fuel class weighting factor:
 	//Rothermel equation 56:
@@ -403,8 +403,8 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	//fi fuel category (live/dead) weighting factor:
 	//Rothermel equation 57:
 	//fi = Ai/AT
-	wts.f_i[0] = A_i[0] / A_T;
-	wts.f_i[1] = A_i[1] / A_T;
+	wts.f_i[Dead] = A_i[Dead] / A_T;
+	wts.f_i[Live] = A_i[Live] / A_T;
 
 	//g_ij weighting factor:
 	//The final set of weights was added in Albini 1976 to get around a logical problem of using f_ij
@@ -513,7 +513,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	}
 
 	//f_i should always sum to 1:
-	if (!FloatCompare((wts.f_i[0] + wts.f_i[1]), 1))
+	if (!FloatCompare((wts.f_i[Dead] + wts.f_i[Live]), 1))
 	{
 		Stop("f_i does not sum to 1.");
 	}
@@ -634,7 +634,7 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
 	//Sum the live and dead components to get the final value:
 	//Rothermel 1972 equation 71:
 	//σ = Σi fiσi (~ over sigma and sigma sub i in original)
-	fuelBedSAV = (f_i[0] * SAV_i[0]) + (f_i[1] * SAV_i[1]);//Or:
+	fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);//Or:
 	//fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);
 
 	return fuelBedSAV;
@@ -1346,8 +1346,8 @@ double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
 		Stop("ReactionIntensity_Het() expects arguments of the same length.");
 	}
 
-	I_R = GammaPrime * ((w_n_i[0] * h_i[0] * eta_M_i[0] * eta_s_i[0]) +
-	                    (w_n_i[1] * h_i[1] * eta_M_i[1] * eta_s_i[1]));
+	I_R = GammaPrime * ((w_n_i[Dead] * h_i[Dead] * eta_M_i[Dead] * eta_s_i[Dead]) +
+	                    (w_n_i[Live] * h_i[Live] * eta_M_i[Live] * eta_s_i[Live]));
 
 	return I_R;
 }
@@ -1807,7 +1807,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	}
 
 	//Weigh and sum by live/dead category:
-	heatSink = rho_b_bar * ((weights.f_i[0] * heatSink_i[0]) + (weights.f_i[1] * heatSink_i[1]));
+	heatSink = rho_b_bar * ((weights.f_i[Dead] * heatSink_i[Dead]) + (weights.f_i[Live] * heatSink_i[Live]));
 
 	//Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
 	//Rothermel 1972 equation 75:
