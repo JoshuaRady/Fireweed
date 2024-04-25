@@ -1672,7 +1672,7 @@ extern "C" void SpreadRateRothermelAlbini_HomoR(const double* SAV, const double*
 //M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 //liveDead = An array indicating if each index in each of the other input variables represents a
 //	dead (1) or live (2) fuel category. Note: This is placed later in the argument list to allow for
-//	a default value.
+//	a default value.  If omitted it is assumed a standard fuel model with 5 fuel types is in use.
 //
 //Environmental:
 //M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
@@ -1724,15 +1724,12 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
 	double R;//Return value.
 
 	//Parameter checking and processing:
-	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij))
+	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij, liveDead))
 	{
 		Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
 	}
 
 	numFuelTypes = SAV_ij.size();
-
-	//Truncate liveDead to match the number of classes provided.  This may assume too much!:
-// 	liveDead = liveDead[1:numFuelTypes]
 
 	//Terms used in numerator and denominator:
 
