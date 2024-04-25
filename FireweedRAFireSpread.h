@@ -35,11 +35,11 @@ struct FuelWeights {
 	std::vector<double> g_ij;
 };
 
-//The value of these two categories is forced to match the matching array indexes so they may be
+//The value of the live dead categories is forced to match the matching array indexes so they may be
 //used to access arrays of form X_i:
 //enum FuelCategory {Dead = 0, Live = 1};//Having some issues with casting this.
-const int Dead = 0;//Temporary?????
-const int Live = 1;//Temporary?????
+const int Dead = 0;
+const int Live = 1;
 
 //Bulk Density:
 double BulkDensity(double w_o, double fuelBedDepth);
@@ -129,7 +129,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> S_T_ij,
                                      std::vector <double> S_e_ij,
                                      std::vector <double> rho_p_ij,
-                                     std::vector <int> liveDead = {0,0,0,1,1},//Standard fuel model 5 classes.
+                                     std::vector <int> liveDead = {Dead, Dead, Dead, Live, Live},//Standard fuel model 5 classes.
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);
@@ -143,7 +143,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      double S_T = 0.0555,
                                      double S_e = 0.01,
                                      double rho_p = StdRho_p(),
-                                     std::vector <int> liveDead = {0,0,0,1,1},//Standard fuel model 5 classes.
+                                     std::vector <int> liveDead = {Dead, Dead, Dead, Live, Live},//Standard fuel model 5 classes.
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);

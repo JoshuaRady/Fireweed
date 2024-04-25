@@ -379,7 +379,7 @@ OptimumPackingRatio <- function(cSAV, units = ModelUnits)
 #w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 #rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) fuel category.
+#  dead or live fuel category.
 #
 #Output units: unitless weighting factors
 #Input units cancel out for calculations.  Metric conversion only needed for SAV sorting.
@@ -594,7 +594,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
 #f_ij = Weighting factors for each fuel type (dimensionless).
 #f_i = Weighting factors for each fuel live/dead category (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) fuel category.
+#  dead or live fuel category.
 #
 #Output units: ft^2/ft^3 | cm^2/cm^3
 #The inputs carry the units.  No metric conversions are needed.
@@ -742,7 +742,7 @@ MoistureDampingCoefficient_Homo <- function(M_f, M_x)
 #M_x_i = Moisture of extinction each fuel category (fraction: water weight/dry fuel weight).
 #f_ij = Weighting factors for each fuel type (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) fuel category.
+#  dead or live fuel category.
 #
 #Output units: Dimensionless coefficient (array length 2)
 #Input units cancel out.  No metric conversion needed.
@@ -802,7 +802,7 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
 #w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 #SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) fuel category.
+#  dead or live fuel category.
 #
 #Output units: fraction, water weight/dry fuel weight
 LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead,
@@ -1221,7 +1221,7 @@ OptimumReactionVelocity <- function(packingRatio, cSAV, units = ModelUnits)
 #h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
 #f_ij = Weighting factors for each fuel type (dimensionless).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) fuel category.
+#  dead or live fuel category.
 #
 #Output units: btu/lb | kJ/kg
 #Whatever units are input, the same will come out.  No unit conversions needed.
@@ -1524,8 +1524,8 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
 #fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 #M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 #liveDead = An array indicating if each index in each of the other input variables represents a
-#  dead (1) or live (2) fuel category. Note: This is placed later in the argument list to allow for
-#  a default value.
+#  dead or live fuel category. Note: This is placed later in the argument list to allow for a
+#  default value.
 #
 #Environmental:
 #M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).

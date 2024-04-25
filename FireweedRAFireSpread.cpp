@@ -329,7 +329,7 @@ double OptimumPackingRatio(double cSAV, UnitsType units)// = ModelUnits
 //w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 //rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//	dead (1) or live (2) fuel category.
+//	dead or live fuel category.
 //
 //Output units: unitless weighting factors
 //Input units cancel out for calculations.  Metric conversion only needed for SAV sorting.
@@ -599,7 +599,7 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //f_i = Weighting factors for each fuel live/dead category (dimensionless).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//	dead (1) or live (2) fuel category.
+//	dead or live fuel category.
 //
 //Output units: ft^2/ft^3 | cm^2/cm^3
 //The inputs carry the units.  No metric conversions are needed.
@@ -760,7 +760,7 @@ double MoistureDampingCoefficient_Homo(double M_f, double M_x)
 //M_x_i = Moisture of extinction each fuel category (fraction: water weight/dry fuel weight).
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//	dead (1) or live (2) fuel category.
+//	dead or live fuel category.
 //
 //Output units: Dimensionless coefficient (array length 2)
 //Input units cancel out.  No metric conversion needed.
@@ -825,7 +825,7 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 //w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 //SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//	dead (1) or live (2) fuel category.
+//	dead or live fuel category.
 //
 //Output units: fraction, water weight/dry fuel weight
 double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
@@ -1264,7 +1264,7 @@ double OptimumReactionVelocity(double packingRatio, double cSAV, UnitsType units
 //h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//	dead (1) or live (2) fuel category.
+//	dead or live fuel category.
 //
 //Output units: btu/lb | kJ/kg
 //Whatever units are input, the same will come out.  No unit conversions needed.
@@ -1671,8 +1671,8 @@ extern "C" void SpreadRateRothermelAlbini_HomoR(const double* SAV, const double*
 //fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 //M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 //liveDead = An array indicating if each index in each of the other input variables represents a
-//	dead (1) or live (2) fuel category. Note: This is placed later in the argument list to allow for
-//	a default value.  If omitted it is assumed a standard fuel model with 5 fuel types is in use.
+//	dead or live fuel category.  Note: This is placed later in the argument list to allow for a
+//	default value.  If omitted it is assumed a standard fuel model with 5 fuel types is in use.
 //
 //Environmental:
 //M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
