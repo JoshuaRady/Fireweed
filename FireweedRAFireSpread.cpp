@@ -296,24 +296,24 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 //βop = 3.348(σ)^-0.8189
 //
 //Input variables / parameters:
-//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//cSAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //	For heterogeneous fuels the SAV of the fuel bed / complex is used.
 //
 //Output units: Dimensionless ratio
-double OptimumPackingRatio(double SAV, UnitsType units)// = ModelUnits
+double OptimumPackingRatio(double cSAV, UnitsType units)// = ModelUnits
 {
 	double optPackingRatio;//Return value.
 
 	if (units == US)
 	{
-		optPackingRatio = 3.348 * pow(SAV, -0.8189);
+		optPackingRatio = 3.348 * pow(cSAV, -0.8189);
 	}
 	else// if (units == "Metric")
 	{
 		//Wilson 1980 gives:
 		//optPackingRatio = 0.219685 * SAV^-0.8189
 		//Tests show that this is pretty good but I was able to calculate a better conversion as follows:
-		optPackingRatio = 0.2039509 * pow(SAV, -0.8189);
+		optPackingRatio = 0.2039509 * pow(cSAV, -0.8189);
 	}
 
 	return optPackingRatio;
@@ -1026,7 +1026,7 @@ double SlopeFactor(double packingRatio, double slopeSteepness)
 //(propagating flux ratio specifically).  Same for homegenous and heterogeneous fuels.
 //
 //Input variables / parameters:
-//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//cSAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //packingRatio = Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
 //	(dimensionless).
 //optPackingRatio = Optimum packing ratio (dimensionless).
@@ -1038,15 +1038,15 @@ double SlopeFactor(double packingRatio, double slopeSteepness)
 //Note: It is not possible to calculate if a wind limit is indicated internal to this function
 //and not all authors agree that a wind limit should be used.  U should be capped, if deemed
 //appropriate prior to passing it in to this function.
-double WindFactor(double SAV, double packingRatio, double optPackingRatio, double U,
+double WindFactor(double cSAV, double packingRatio, double optPackingRatio, double U,
                   UnitsType units)
 {
 	double C, B, E;//Partial terms.
 	double phi_w;//Return value.
 
-	C = WindFactorC(SAV, units);
-	B = WindFactorB(SAV, units);
-	E = WindFactorE(SAV, units);
+	C = WindFactorC(cSAV, units);
+	B = WindFactorB(cSAV, units);
+	E = WindFactorE(cSAV, units);
 
 	if (units == US)
 	{
@@ -1071,7 +1071,7 @@ double WindFactor(double SAV, double packingRatio, double optPackingRatio, doubl
 //Having a default for units argument is probably unnecessary since these will probably never be
 //called directly.
 
-double WindFactorC(double SAV, UnitsType units)
+double WindFactorC(double cSAV, UnitsType units)
 {
 	double C;//Return value.
 
@@ -1080,18 +1080,18 @@ double WindFactorC(double SAV, UnitsType units)
 		//C = unnamed term
 		//Rothermel 1972 equation 48,82:
 		//C = 7.47exp(-0.133σ^0.55)
-		C = 7.47 * exp(-0.133 * pow(SAV, 0.55));
+		C = 7.47 * exp(-0.133 * pow(cSAV, 0.55));
 	}
 	else
 	{
-		C = 7.47 * exp(-0.8710837 * pow(SAV, 0.55));//-0.133 * cmPerFt^0.55 = -0.8710837
+		C = 7.47 * exp(-0.8710837 * pow(cSAV, 0.55));//-0.133 * cmPerFt^0.55 = -0.8710837
 		//Wilson 1980 uses:
 		//C = 7.47 * exp(-0.8711 * SAV^0.55)
 	}
 	return C;
 }
 
-double WindFactorB(double SAV, UnitsType units)
+double WindFactorB(double cSAV, UnitsType units)
 {
 	double B;//Return value.
 
@@ -1100,18 +1100,18 @@ double WindFactorB(double SAV, UnitsType units)
 		//B = unnamed term
 		//Rothermel 1972 equation 49,83:
 		//B = 0.02526σ^0.54
-		B = 0.02526 * pow(SAV, 0.54);
+		B = 0.02526 * pow(cSAV, 0.54);
 	}
 	else
 	{
-		B = 0.1598827 * pow(SAV, 0.54);//0.02526 * cmPerFt^0.54 = 0.1598827
+		B = 0.1598827 * pow(cSAV, 0.54);//0.02526 * cmPerFt^0.54 = 0.1598827
 		//Wilson 1980 uses:
 		//B = 0.15988 * SAV^0.54
 	}
 	return B;
 }
 
-double WindFactorE(double SAV, UnitsType units)
+double WindFactorE(double cSAV, UnitsType units)
 {
 	double E;//Return value.
 
@@ -1120,11 +1120,11 @@ double WindFactorE(double SAV, UnitsType units)
 		//E = unnamed term
 		//Rothermel 1972 equation 50,84:
 		//E = 0.715exp(-3.59×10^-4 σ)
-		E = 0.715 * exp(-0.000359 * SAV);
+		E = 0.715 * exp(-0.000359 * cSAV);
 	}
 	else
 	{
-		E = 0.715 * exp(-0.01094232 * SAV);//-0.000359 * cmPerFt = -0.01094232
+		E = 0.715 * exp(-0.01094232 * cSAV);//-0.000359 * cmPerFt = -0.01094232
 		//Wilson 1980 uses:
 		//E = 0.715 * exp(-0.01094 * SAV)
 	}
@@ -1136,12 +1136,12 @@ double WindFactorE(double SAV, UnitsType units)
 //for verification purposes and is not currently needed to compute model outputs.
 //Note: This currently does not include the unit conversion of U when U is metric in A.  Since A is
 //used for diagnostic purposes that seems the correct approach.
-double WindFactorA(double SAV, double packingRatio, double optPackingRatio, UnitsType units)
+double WindFactorA(double cSAV, double packingRatio, double optPackingRatio, UnitsType units)
 {
 	double C, E, A;//Partial terms.
 
-	C = WindFactorC(SAV, units);
-	E = WindFactorE(SAV, units);
+	C = WindFactorC(cSAV, units);
+	E = WindFactorE(cSAV, units);
 	A = C * pow((packingRatio / optPackingRatio), -E);
 	return A;
 }
@@ -1203,11 +1203,11 @@ double WindLimit(double U, double I_R, UnitsType units)
 //β = (Mean) Packing ratio, the fraction of the fuel bed volume occupied by fuel (dimensionless).
 //packingRatio = (Mean) Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
 //	(dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
-//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//cSAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //	For heterogeneous fuels the SAV of the fuel bed / complex is used.
 //
 //Output units: min^-1
-double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
+double OptimumReactionVelocity(double packingRatio, double cSAV, UnitsType units)
 {
 	double optPackingRatio;
 	double A;//Intermediate.
@@ -1220,29 +1220,29 @@ double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units)
 	//Γ'max = σ^1.5/(495 + 0.0594σ^1.5)
 	if (units == US)
 	{
-		GammaPrimeMax = pow(SAV, 1.5) / (495 + 0.0594 * pow(SAV, 1.5));
+		GammaPrimeMax = pow(cSAV, 1.5) / (495 + 0.0594 * pow(cSAV, 1.5));
 		//Or equivalently:
-		//GammaPrimeMax = 1 / (0.0594 * 495 / SAV^1.5)
+		//GammaPrimeMax = 1 / (0.0594 * 495 / cSAV^1.5)
 	}
 	else
 	{
-		GammaPrimeMax = 1 / (0.0594 + 2.941594 / pow(SAV, 1.5));
+		GammaPrimeMax = 1 / (0.0594 + 2.941594 / pow(cSAV, 1.5));
 		//Wilson 1980 uses:
 		//GammaPrimeMax = (0.0591 + 2.926 * SAVcm^-1.5)^-1 = 1 / (0.0591 + 2.926 / SAVcm^1.5)
 	}
 
-	optPackingRatio = OptimumPackingRatio(SAV, units);
+	optPackingRatio = OptimumPackingRatio(cSAV, units);
 
 	//"Arbitrary" variable:
 	//Albini 1976 pg. 15:
 	//A = 133σ^-0.7913
 	if (units == US)
 	{
-		A = 133 * pow(SAV, -0.7913);
+		A = 133 * pow(cSAV, -0.7913);
 	}
 	else
 	{
-		A = 8.903291 * pow(SAV, -0.7913);
+		A = 8.903291 * pow(cSAV, -0.7913);
 		//Wilson 1980 uses:
 		//A = 8.9033 * SAV^-0.7913
 	}
@@ -1362,22 +1362,21 @@ double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
 //Input variables / parameters:
 //packingRatio = (Mean) Packing ratio (β), the fraction of the fuel bed volume occupied by fuel
 //	(dimensionless). For heterogeneous fuels the mean packing ratio is passed in.
-//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//cSAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //	For heterogeneous fuels the fuel bed level SAV is used.
 //
 //Output units: Dimensionless proportion
-//R: PropagatingFluxRatio <- function(packingRatio, SAV, units = ModelUnits)
-double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units)
+double PropagatingFluxRatio(double packingRatio, double cSAV, UnitsType units)
 {
 	double xi = 0;//Output
 
 	if (units == US)
 	{
-	  xi = pow((192 + 0.2595 * SAV), -1) * exp((0.792 + 0.681 * pow(SAV, 0.5)) * (packingRatio + 0.1));
+	  xi = pow((192 + 0.2595 * cSAV), -1) * exp((0.792 + 0.681 * pow(cSAV, 0.5)) * (packingRatio + 0.1));
 	}
 	else
 	{
-		xi = pow((192 + 7.90956 * SAV), -1) * exp((0.792 + 3.759712 * pow(SAV, 0.5)) * (packingRatio + 0.1));
+		xi = pow((192 + 7.90956 * cSAV), -1) * exp((0.792 + 3.759712 * pow(cSAV, 0.5)) * (packingRatio + 0.1));
 		//Wilson 1980 uses:
 		//xi = (192 + 7.9095 * SAV)^-1 * exp((0.792 + 3.7597 * SAV^0.5) * (packingRatio + 0.1))
 	}
@@ -1387,9 +1386,9 @@ double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units)
 
 //This is a wrapper for PropagatingFluxRatio() that allows it to be called from R:
 //The primary reason for providing this wrapper is for verification testing.
-extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* SAV, double* xi)
+extern "C" void PropagatingFluxRatioR(const double* packingRatio, const double* cSAV, double* xi)
 {
-	*xi = PropagatingFluxRatio(*packingRatio, *SAV);
+	*xi = PropagatingFluxRatio(*packingRatio, *cSAV);
 }
 
 //Heat Sink Components:-----------------------------------------------------------------------------
@@ -2191,22 +2190,22 @@ to calculate additional fire front properties.  See Andrews 2018 section 4 for m
 //meanPackingRatio = Mean packing ratio (beta_bar) (dimensionless ratio).
 //optPackingRatio = Optimum packing ratio (dimensionless).
 //	 Note: optimum packing ratio is a function of SAV.
-//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//cSAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //
 //Output: effective wind speed at midflame height (ft/min | m/min)
 //The functions called handle the units so no conversions need to be done here.
 //
 //Note: This is included for completeness.  It is not currently used by any other functions.
 double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
-                          double optPackingRatio, double SAV, UnitsType units)
+                          double optPackingRatio, double cSAV, UnitsType units)
 {
 	double C, B, E;//Wind factor components.
 	double phi_E;//Effective wind factor.
 	double U_E;//Return value.
 
-	C = WindFactorC(SAV, units);
-	B = WindFactorB(SAV, units);
-	E = WindFactorE(SAV, units);
+	C = WindFactorC(cSAV, units);
+	B = WindFactorB(cSAV, units);
+	E = WindFactorE(cSAV, units);
 
 	//Effective wind factor:
 	//Albini 1976(b) pg. 90:
@@ -2229,10 +2228,10 @@ double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPacki
 //This can be used to help calculate energy transfer to soil.
 //
 //Input variables / parameters:
-//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+//cSAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
 //
 //Output units: minutes
-double ResidenceTime(double SAV, UnitsType units)//ResidenceTimeAnderson
+double ResidenceTime(double cSAV, UnitsType units)//ResidenceTimeAnderson
 {
 	double t_r;//Returen value.
 
@@ -2240,11 +2239,11 @@ double ResidenceTime(double SAV, UnitsType units)//ResidenceTimeAnderson
 	{
 		//The original equation predicts the residence time as 8 times the fuel diameter in inches.
 		//We use the Rothermel relationship between diameter and SAV, d = 48/SAV:
-		t_r = 384 / SAV;
+		t_r = 384 / cSAV;
 	}
 	else
 	{
-		t_r = 12.59843 / SAV;//384 / cmPerFt = 12.59843
+		t_r = 12.59843 / cSAV;//384 / cmPerFt = 12.59843
 		//Wilson 1980 & Andrews 2018 use 12.6 in the alternative formulation of Byram's fireline 
 		//intensity.  See ByramsFirelineIntensity().
 	}

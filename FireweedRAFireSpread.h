@@ -48,7 +48,7 @@ double MeanBulkDensity(std::vector<double> w_o_ij, double fuelBedDepth);
 //Packing Ratio:
 double PackingRatio(double rho_b, double rho_p);
 double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij, double fuelBedDepth);
-double OptimumPackingRatio(double SAV, UnitsType units = ModelUnits);
+double OptimumPackingRatio(double cSAV, UnitsType units = ModelUnits);
 
 //Weighting Factors:
 FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_ij,
@@ -82,24 +82,24 @@ std::vector <double> MineralDampingCoefficient_Het(std::vector <double> S_e_ij,
 
 //Slope and Wind Factors:
 double SlopeFactor(double packingRatio, double slopeSteepness);
-double WindFactor(double SAV, double packingRatio, double optPackingRatio, double U,
+double WindFactor(double cSAV, double packingRatio, double optPackingRatio, double U,
                   UnitsType units = ModelUnits);
-double WindFactorC(double SAV, UnitsType units = ModelUnits);
-double WindFactorB(double SAV, UnitsType units = ModelUnits);
-double WindFactorE(double SAV, UnitsType units = ModelUnits);
-double WindFactorA(double SAV, double packingRatio, double optPackingRatio,
+double WindFactorC(double cSAV, UnitsType units = ModelUnits);
+double WindFactorB(double cSAV, UnitsType units = ModelUnits);
+double WindFactorE(double cSAV, UnitsType units = ModelUnits);
+double WindFactorA(double cSAV, double packingRatio, double optPackingRatio,
                    UnitsType units = ModelUnits);
 double WindLimit(double U, double I_R, UnitsType units = ModelUnits);
 
 //Heat Source Components:
-double OptimumReactionVelocity(double packingRatio, double SAV, UnitsType units = ModelUnits);
+double OptimumReactionVelocity(double packingRatio, double cSAV, UnitsType units = ModelUnits);
 std::vector <double> LiveDeadHeatContent(std::vector <double> h_ij, std::vector <double> f_ij,
                                          std::vector <int> liveDead);
 double ReactionIntensity_Homo(double GammaPrime, double w_n, double h, double eta_M, double eta_s);
 double ReactionIntensity_Het(double GammaPrime, std::vector <double> w_n_i,
                              std::vector <double> h_i, std::vector <double> eta_M_i,
                              std::vector <double> eta_s_i);
-double PropagatingFluxRatio(double packingRatio, double SAV, UnitsType units = ModelUnits);
+double PropagatingFluxRatio(double packingRatio, double cSAV, UnitsType units = ModelUnits);
 
 //Heat Sink Components:
 double EffectiveHeatingNumber(double SAV, UnitsType units = ModelUnits);
@@ -185,8 +185,8 @@ void Stop(const char* message);
 
 //Related Fire Property Equations:
 double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
-                          double optPackingRatio, double SAV, UnitsType units = ModelUnits);
-double ResidenceTime(double SAV, UnitsType units = ModelUnits);
+                          double optPackingRatio, double cSAV, UnitsType units = ModelUnits);
+double ResidenceTime(double cSAV, UnitsType units = ModelUnits);
 double HeatPerUnitArea(double I_R, double t_r);
 double ByramsFirelineIntensity(double H_A, double R);
 double ByramsFlameLength(double I_B, UnitsType units = ModelUnits);
