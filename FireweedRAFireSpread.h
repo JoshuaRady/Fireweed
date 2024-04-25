@@ -129,7 +129,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> S_T_ij,
                                      std::vector <double> S_e_ij,
                                      std::vector <double> rho_p_ij,
-                                     std::vector <int> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
+                                     std::vector <int> liveDead = {0,0,0,1,1},//Standard fuel model 5 classes.
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);
@@ -143,7 +143,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      double S_T = 0.0555,
                                      double S_e = 0.01,
                                      double rho_p = StdRho_p(),
-                                     std::vector <int> liveDead = {1,1,1,2,2},//Standard fuel model 5 classes.
+                                     std::vector <int> liveDead = {0,0,0,1,1},//Standard fuel model 5 classes.
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);
