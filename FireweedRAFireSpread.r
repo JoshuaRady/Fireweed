@@ -123,8 +123,8 @@ ModelUnits = "US"
 
 #The values of the live dead categories are forced to match the matching array indexes so they may
 #be used to access arrays of the form X_i (values are language specific):
-Dead = 0
-Live = 1
+Dead = 1
+Live = 2
 
 #Unit Conversion Factors:---------------------------------------------------------------------------
 #Conversion factors marked with an asterisk are not used in this file.  They are provided for use by
