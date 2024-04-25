@@ -1525,7 +1525,7 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
 #M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 #liveDead = An array indicating if each index in each of the other input variables represents a
 #  dead or live fuel category. Note: This is placed later in the argument list to allow for a
-#  default value.
+#  default value.  If omitted it is assumed a standard fuel model with 5 fuel types is in use.
 #
 #Environmental:
 #M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
@@ -1575,13 +1575,10 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
   #Parameter checking and processing:
   if (!SameLengths(SAV_ij, w_o_ij, M_f_ij))
   {
-    stop("SpreadRateRothermelAlbini_Het() expects arguments SAV_ij, w_o_ij, M_f_ij to be of the same length.")
+    stop("SpreadRateRothermelAlbini_Het() expects arguments SAV_ij, w_o_ij, M_f_ij, and liveDead to be of the same length.")
   }
   
   numFuelTypes = length(SAV_ij)
-  
-  #Truncate liveDead to match the number of classes provided.  This may assume too much!:
-  liveDead = liveDead[1:numFuelTypes]
   
   #For the heat content, total mineral content, effective mineral content, and fuel particle density
   #allow the value for all types to to set with a single value:
