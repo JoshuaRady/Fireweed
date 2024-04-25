@@ -497,7 +497,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 
 	//Return value error checking:
 	//Note: if (sum(X) != 1) these comparisons can fail due to small floating point differences
-	//when we reassemble the weights.  FloatCompare() handle this problem.
+	//when we reassemble the weights.  FloatCompare() handles this problem.
 
 	//The dead fuel components of f_ij should always sum to 1:
 	if (!FloatCompare(SumByClass(wts.f_ij, liveDead, Dead), 1))
@@ -592,7 +592,7 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 
 //Fuel Bed Surface-area-to-volume Ratio:-------------------------------------------------------------
 //	For heterogeneous fuels a SAV for the entire fuel bed must be calculated.  This is frequently
-//referred to as the characteristic SAV.  It is a weighted average of the fuel component SAVs.
+//referred to as the characteristic SAV (cSAV).  It is a weighted average of the fuel component SAVs.
 //
 //Input variables / parameters:
 //SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
@@ -688,8 +688,6 @@ std::vector <double> NetFuelLoad_Het(std::vector <double> w_o_ij, std::vector <d
 	}
 
 	numFuelTypes = w_o_ij.size();
-
-	//w_n_ij.resize(numFuelTypes, 0);
 
 	for (int k = 0; k < numFuelTypes; k++)
 	{
