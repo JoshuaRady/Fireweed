@@ -2043,6 +2043,16 @@ bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector
 			SameLengths(arg1, arg5) && SameLengths(arg1, arg6) && SameLengths(arg1, arg7));
 }
 
+//7 doubles and an int vector:
+bool SameLengths(std::vector<double> dbl1, std::vector<double> dbl2, std::vector<double> dbl3,
+                 std::vector<double> dbl4, std::vector<double> dbl5, std::vector<double> dbl6,
+                 std::vector<double> dbl7, std::vector<int> int8)
+{
+	return (SameLengths(dbl1, dbl2) && SameLengths(dbl1, dbl3) && SameLengths(dbl1, dbl4) &&
+			SameLengths(dbl1, dbl5) && SameLengths(dbl1, dbl6) && SameLengths(dbl1, dbl7) &&
+			SameLengths(dbl1, int8));
+}
+
 //This utility checks that a value falls in a valid range.
 bool InRange(double value, double low, double high)
 {

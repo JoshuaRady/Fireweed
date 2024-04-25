@@ -164,6 +164,9 @@ bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
                  std::vector<double> arg4, std::vector<double> arg5, std::vector<double> arg6,
                  std::vector<double> arg7);
+bool SameLengths(std::vector<double> dbl1, std::vector<double> dbl2, std::vector<double> dbl3,
+                 std::vector<double> dbl4, std::vector<double> dbl5, std::vector<double> dbl6,
+                 std::vector<double> dbl7, std::vector<int> int8);
 
 bool InRange(double value, double low, double high);
 bool InRange(std::vector<double> value, double low, double high);
