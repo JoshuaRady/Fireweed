@@ -5,7 +5,7 @@
 #Reference: Proj. 11 Exp. 3, Proj. 11 Exp. 6, Proj. 11 Exp. 14
 #
 #Description:---------------------------------------------------------------------------------------
-#  This file is part of the Fireweed fire code library.  It contains an R implementation of the
+#  This file is part of the Fireweed fire code library.  It contains a R implementation of the
 #Rothermel fire spread model (Rothermel 1972) with the modifications of Albini (Albini 1976).
 #
 #  The Rothermel/Albini equations have been implemented in a form as close to the originals as was
@@ -283,7 +283,7 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)#Note: Argument orde
   numLoadings = length(w_o_ij)
   numDensities = length(rho_p_ij)
   
-  #If only one particle density is provided assume that is it the same for all fuel classes:
+  #If only one particle density is provided assume that it is the same for all fuel classes:
   if (numDensities == 1)
   {
     rho_p_ij = array(data = rho_p_ij, dim = numLoadings)
@@ -304,10 +304,10 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)#Note: Argument orde
     #Add value checking? > 0, < ?
   }
   
-  #Calculate w_o / rho_p for each fuel element:
-  x = w_o_ij / rho_p_ij
+  #Calculate w_o / rho_p for each fuel element and accumulate:
+  x = sum(w_o_ij / rho_p_ij)
   
-  meanPackingRatio = sum(x) / fuelBedDepth#AKA beta_bar
+  meanPackingRatio = x / fuelBedDepth#AKA beta_bar
   return(meanPackingRatio)
 }
 
@@ -587,7 +587,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
 
 #Fuel Bed Surface-area-to-volume Ratio:-------------------------------------------------------------
 #  For heterogeneous fuels a SAV for the entire fuel bed must be calculated.  This is frequently
-#referred to as the characteristic SAV.  It is a weighted average of the fuel component SAVs.
+#referred to as the characteristic SAV (cSAV).  It is a weighted average of the fuel component SAVs.
 #
 #Input variables / parameters:
 #SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
