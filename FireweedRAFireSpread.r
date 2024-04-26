@@ -1432,8 +1432,9 @@ HeatOfPreignition <- function(M_f, units = ModelUnits)
 #useWindLimit = Use the wind limit calculation or not.
 #units = Specify the class of units for the inputs.
 #debug = Print calculation component values.  This may be removed in the future.
+#components = Optionally return the intermediate component values calculated in generating the spread rate as well.
 #
-#Returns: R = rate of spread in ft/min | m/min.
+#Returns: R = rate of spread in ft/min | m/min. (And optionally component calculations.)
 SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
                                            M_f, U, slopeSteepness,
                                            heatContent = StdHeatContent(),#h
@@ -1441,7 +1442,8 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
                                            rho_p = StdRho_p(),
                                            useWindLimit = TRUE,
                                            units = NULL,
-                                           debug = FALSE)
+                                           debug = FALSE,
+                                           components = FALSE)#Name????? intermediates?
 {
   if (!is.null(units))
   {
@@ -1492,7 +1494,10 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
   #Rothermel 1972 equation 52:
   #Rate of spread = heat source / heat sink
   #R = I_R𝝃(1 + 𝜙w + 𝜙s) / ρbεQig
-  R = (I_R * xi * (1 + phi_w + phi_s)) / (rho_b * epsilon * Q_ig)
+  #R = (I_R * xi * (1 + phi_w + phi_s)) / (rho_b * epsilon * Q_ig)
+  heatSource = I_R * xi * (1 + phi_w + phi_s)
+  heatSink = rho_b * epsilon * Q_ig
+  R = heatSource / heatSink
   
   #For debugging:
   if (debug)
@@ -1507,14 +1512,30 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
     print(paste("xi =", xi))
     print(paste("phi_s =", phi_s))
     print(paste("phi_w =", phi_w))
-    print(paste("Heat source =", I_R * xi * (1 + phi_s + phi_w)))
+    print(paste("Heat source =", heatSource))
     print(paste("rho_b =", rho_b))
     print(paste("epsilon =", epsilon))
     print(paste("Qig =", Q_ig))
-    print(paste("Heat sink = ", rho_b * epsilon * Q_ig))
+    print(paste("Heat sink = ", heatSink))
   }
   
-  return(R)
+  if (components)
+  {
+    values = list(R = R,
+                  #Heat source components:
+                  GammaPrime = GammaPrime, w_n = w_n, h = heatContent, eta_M = eta_M,
+                  I_R = I_R, xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
+                  #Heat sink components:
+                  rho_b = rho_b, epsilon = epsilon, Q_ig = Q_ig, HeatSink = heatSink,
+                  #Other components that can be informative:
+                  cSAV = SAV,#With one fuel type cSAV = SAV.  Included for consistency with the heterogeneous output.
+                  PackingRatio = packingRatio, OptimumPR = optPackingRatio)
+    return(values)
+  }
+  else
+  {
+    return(R)
+  }
 }
 
 #Albini 1976 modified Rothermel spread model for heterogeneous fuels:
@@ -1551,8 +1572,9 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
 #useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
 #units = Specify the class of units for the inputs.
 #debug = Print calculation component values.  This may be removed in the future.
+#components = Optionally return the intermediate component values calculated in generating the spread rate as well.
 #
-#Returns: R = rate of spread in ft/min | m/min.
+#Returns: R = rate of spread in ft/min | m/min. (And optionally component calculations.)
 #
 #Note: This function takes a lot of arguments.  These parameters could be combined into fuel model
 #and environment objects.  Maintaining this generic interface will still need to be retained for
@@ -1570,7 +1592,8 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
                                           liveDead = c(Dead, Dead, Dead, Live, Live),#Standard fuel model 5 classes.
                                           useWindLimit = FALSE,
                                           units = NULL,
-                                          debug = FALSE)
+                                          debug = FALSE,
+                                          components = FALSE)
 {
   if (!is.null(units))
   {
@@ -1674,7 +1697,9 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
   #Rothermel 1972 equation 75:
   #Rate of spread = heat source / heat sink
   #R = I_Rξ(1 + φw + φs) / ρbεQig
-  R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink
+  #R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink
+  heatSource = I_R * xi * (1 + phi_s + phi_w)
+  R = heatSource / heatSink
   
   #For debugging:
   if (debug)
@@ -1695,7 +1720,26 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
     print(paste("Heat sink =", heatSink))
   }
   
-  return(R)
+  if (components)
+  {
+    values = list(R = R,
+                  Weights = weights,#Weights.
+                  #Heat source components:
+                  GammaPrime = GammaPrime, w_n_i = w_n_i, h_i = h_i, eta_M_i = eta_M_i, eta_s_i = eta_s_i,
+                  I_R = I_R,xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
+                  #Heat sink components:
+                  rho_b_bar = rho_b_bar, #epsilon = epsilon,
+                              Q_ig_ij = Q_ig_ij, HeatSink = heatSink,
+                  #Other components that can be informative:
+                  cSAV = fuelBedSAV,#CharteristicSAV
+                  MeanPackingRatio = meanPackingRatio, OptimumPR = optPackingRatio)
+                  #RelativePR = (meanPackingRatio / optPackingRatio),#Overkill?
+    return(values)
+  }
+  else
+  {
+    return(R)
+  }
 }
 
 #Utilities:-----------------------------------------------------------------------------------------
