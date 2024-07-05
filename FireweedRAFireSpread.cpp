@@ -2124,6 +2124,101 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 	return calcs;
 }
 
+/*This is a wrapper for SpreadCalcsRothermelAlbini_Het() that allows it to be called from R via .C():
+The number of fuel types must be provided as the size of the input data is not carried from R.
+
+Note: This interface is incomplete, only returning some of the internal calculations.  It is meant
+primarily for verification purposes.
+The code is almost completely copied from SpreadRateRothermelAlbini_HetR().*/
+extern "C" void SpreadCalcsRothermelAlbini_HetR(const double* SAV_ij, const double* w_o_ij,
+                                                const double* fuelBedDepth,const double* M_x_1,
+                                                const double*  M_f_ij, double* U,
+                                                double* slopeSteepness, double* h_ij,
+                                                double* S_T_ij, double* S_e_ij, double* rho_p_ij,
+                                                int* liveDead, const int* useWindLimit,
+                                                const int* units, const int* debug,
+                                                const int* numFuelTypes, double* R, double* I_R,
+                                                double* heatSource, double* heatSink)
+{
+	//Convert input arrays to vectors:
+	std::vector<double> SAV_ijVec(SAV_ij, SAV_ij + *numFuelTypes);
+	std::vector<double> w_o_ijVec(w_o_ij, w_o_ij + *numFuelTypes);
+
+	std::vector<double> M_f_ijVec(M_f_ij, M_f_ij + *numFuelTypes);
+	std::vector<double> h_ijVec(h_ij, h_ij + *numFuelTypes);
+	std::vector<double> S_T_ijVec(S_T_ij, S_T_ij + *numFuelTypes);
+	std::vector<double> S_e_ijVec(S_e_ij, S_e_ij + *numFuelTypes);
+
+	std::vector<double> rho_p_ijVec(rho_p_ij, rho_p_ij + *numFuelTypes);
+	std::vector<int> liveDeadVec(liveDead, liveDead + *numFuelTypes);
+
+	bool useWindLimitBool;
+	UnitsType cUnits;
+	bool debugBool;
+
+	SpreadCalcs calcs;
+
+	//Code repeated from CalcWeightingsR() and SpreadRateRothermelAlbini_HomoR()!!!!!
+
+	//The values used for live and dead differ from R to C++ (due to indexes).  Convert them:
+	for (int k = 0; k < *numFuelTypes; k++)
+	{
+		liveDeadVec[k] -= 1;
+	}
+
+	//R logicals are passed as integer values.  This should be seamless to the user:
+	if (*useWindLimit == 0)
+	{
+		useWindLimitBool = false;
+	}
+	else if (*useWindLimit == 1)
+	{
+		useWindLimitBool = true;
+	}
+	else//The NA value is possible it NAOK = TRUE in .C().
+	{
+		Stop("Invalid value passed for useWindLimit.");
+	}
+
+	//The R code uses a string for units, which can't be passed via .C().  We have to use something
+	//as an intermediate translation.  Using the numerical order of options seems as good as any.
+	if (*units == 1)
+	{
+		cUnits = US;
+	}
+	else if (*units == 2)
+	{
+		cUnits = Metric;
+	}
+	else
+	{
+		Stop("Invalid value passed for units.");//This may not be a R-safe way to abort.  Return an error?
+	}
+
+	if (*debug == 0)
+	{
+		debugBool = false;
+	}
+	else if (*debug == 1)
+	{
+		debugBool = true;
+	}
+	else//The NA value is possible it NAOK = TRUE in .C().
+	{
+		Stop("Invalid value passed for debugBool.");
+	}
+
+	calcs = SpreadCalcsRothermelAlbini_Het(SAV_ijVec, w_o_ijVec, *fuelBedDepth, *M_x_1, M_f_ijVec, *U,
+	                                   *slopeSteepness, h_ijVec, S_T_ijVec, S_e_ijVec, rho_p_ijVec,
+	                                   liveDeadVec, useWindLimitBool, cUnits, debugBool);
+	
+	//Return values:
+	*R = calcs.R;
+	*I_R = calcs.I_R;
+	*heatSource = calcs.heatSource;
+	*heatSink = calcs.heatSink;
+}
+
 //Utilities:----------------------------------------------------------------------------------------
 
 //Return the heat content (h) used in the 53 standard fuel models in the appropriate units:
