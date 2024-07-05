@@ -26,8 +26,8 @@ enum UnitsType {US, Metric};
 //private 
 UnitsType ModelUnits = US;
 
-//Fuel class weights from Albini ...
-//May be converted into a class.
+//Fuel class weights from Albini 1976:
+//This may be converted into a class.
 struct FuelWeights {
 	std::vector<double> f_ij;
 	//f_i will always be length 2 so we could use an array or initialize the length with a constructor. 
@@ -40,6 +40,38 @@ struct FuelWeights {
 //enum FuelCategory {Dead = 0, Live = 1};//Having some issues with casting this.
 const int Dead = 0;
 const int Live = 1;
+
+//A data structure that holds the intermediate calculations of the spread rate calculation:
+//This currently assumes heterogenous fuels.
+//The x_i variables could probably be safely made fixed arrays of length 2.  However if we were to
+//expand this to work with homogeneous fuels that could be a problem
+//A print() function could be useful.
+struct SpreadCalcs {//Name????? SpreadComponents
+	UnitsType units;//The unit type for the values.
+	double R;//Rate of spread in ft/min | m/min.
+	FuelWeights weights;//Weights.
+	//Heat source components:
+	double GammaPrime;//Optimum reaction velocity (min^-1).
+	std::vector <double> w_n_i;//Net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2).
+	std::vector <double> h_i;//Heat content for live/dead fuel (Btu/lb | kJ/kg).
+	std::vector <double> eta_M_i;//Moisture damping coefficient for live/dead fuel categories (unitless).
+	std::vector <double> eta_s_i;//Mineral damping coefficient for live/dead fuel categories (unitless).
+	double I_R;//Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
+	double xi;//Propagating flux ratio (dimensionless ratio).
+	double phi_s;//Slope factor (dimensionless).
+	double phi_w;//Wind factor (dimensionless).
+	double heatSource;
+	//Heat sink components:
+	double rho_b_bar;//Mean bulk density
+	//double epsilon;//Effective heating number.  Only calculated for homogeneous fuels!
+	std::vector <double> Q_ig_ij;//Head of preignition
+	double heatSink;
+	//Other components that can be informative:
+	double cSAV;//Fuel bed characteristic SAV
+	double meanPackingRatio;
+	double optimumPR;//Optimum packing ratio
+	//RelativePR = (meanPackingRatio / optPackingRatio),#Overkill?
+};
 
 //Bulk Density:
 double BulkDensity(double w_o, double fuelBedDepth);
@@ -147,6 +179,21 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);
+
+SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
+                                           std::vector <double> w_o_ij,
+                                           double fuelBedDepth,
+                                           double M_x_1,
+                                           std::vector <double> M_f_ij,
+                                           double U, double slopeSteepness,//Both could default to 0.
+                                           std::vector <double> h_ij,
+                                           std::vector <double> S_T_ij,
+                                           std::vector <double> S_e_ij,
+                                           std::vector <double> rho_p_ij,
+                                           std::vector <int> liveDead = {Dead, Dead, Dead, Live, Live},//Standard fuel model 5 classes.
+                                           bool useWindLimit = false,
+                                           UnitsType units = US,
+                                           bool debug = false);
 
 //Utilities:
 

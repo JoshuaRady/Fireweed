@@ -1714,127 +1714,133 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      UnitsType units,
                                      bool debug)
 {
-	int numFuelTypes;
-	FuelWeights weights;
-	double meanPackingRatio, fuelBedSAV, optPackingRatio;
-	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
-	double I_R, heatSink;
-	std::vector <double> w_n_i(2, 0), h_i(2, 0), M_x_i(2, 0), eta_M_i(2, 0), eta_s_i(2, 0), heatSink_i(2, 0);//Live/dead intermediates.
-	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
-	double R;//Return value.
+// 	int numFuelTypes;
+// 	FuelWeights weights;
+// 	double meanPackingRatio, fuelBedSAV, optPackingRatio;
+// 	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
+// 	double I_R, heatSink;
+// 	std::vector <double> w_n_i(2, 0), h_i(2, 0), M_x_i(2, 0), eta_M_i(2, 0), eta_s_i(2, 0), heatSink_i(2, 0);//Live/dead intermediates.
+// 	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
+// 	double R;//Return value.
+	SpreadCalcs calcs;
 
 	//Parameter checking and processing:
-	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij, liveDead))
-	{
-		Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
-	}
+// 	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij, liveDead))
+// 	{
+// 		Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
+// 	}
+// 
+// 	numFuelTypes = SAV_ij.size();
+// 
+// 	//Terms used in numerator and denominator:
+// 
+// 	//Calculate the weights:
+// 	weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
+// 
+// 	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
+// 	//front of it:
+// 	//Numerator of Rothermel 1972 equation 75:
+// 	//IR𝜉(1 + 𝜙w + 𝜙s)
+// 
+// 	//Note: The bulk density is not used to calculate the packing ratio in the heterogeneous form:
+// 	meanPackingRatio = MeanPackingRatio(w_o_ij, rho_p_ij, fuelBedDepth);//AKA beta_bar
+// 
+// 	//For heterogeneous fuels we need to calculate the fuel bed level SAV:
+// 	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
+// 
+// 	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
+// 
+// 	//Reaction intensity:
+// 	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
+// 	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
+// 
+// 	//Heat content by live/dead fuel category:
+// 	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
+// 
+// 	//The live fuel moisture of extinction must be calculated:
+// 	M_x_i[Dead] = M_x_1;
+// 	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
+// 
+// 	//Damping coefficients:
+// 	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
+// 	eta_s_i = MineralDampingCoefficient_Het(S_e_ij, weights.f_ij, liveDead);
+// 
+// 	I_R = ReactionIntensity_Het(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i);
+// 
+// 	//Other numerator terms:
+// 	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
+// 	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
+// 
+// 	//Apply wind limit check:
+// 	if (useWindLimit)
+// 	{
+// 		U = WindLimit(U, I_R);
+// 	}
+// 
+// 	phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units);
+// 
+// 	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
+// 	//kJ/m^3:
+// 	//The heat sink term is calculated using weights without calculating epsilon explicitly.
+// 	//Rothermel equation 77:
+// 	//ρbεQig = ρb Σi fi Σj fij[exp(-138/σij)](Qig)ij
+// 
+// 	rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth);
+// 	Q_ig_ij = HeatOfPreignition(M_f_ij);
+// 
+// 	//We'll do it in two steps:
+// 	//Weight and size class:
+// 	for (int k = 0; k < numFuelTypes; k++)
+// 	{
+// 		double savConst;
+// 
+// 		if (units == US)
+// 		{
+// 			savConst= -138;
+// 		}
+// 		else
+// 		{
+// 			savConst = -4.527559;
+// 		}
+// 
+// 		heatSink_i[liveDead[k]] = heatSink_i[liveDead[k]] +
+// 			weights.f_ij[k] * exp(savConst / SAV_ij[k]) * Q_ig_ij[k];
+// 	}
+// 
+// 	//Weigh and sum by live/dead category:
+// 	heatSink = rho_b_bar * ((weights.f_i[Dead] * heatSink_i[Dead]) + (weights.f_i[Live] * heatSink_i[Live]));
+// 
+// 	//Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
+// 	//Rothermel 1972 equation 75:
+// 	//Rate of spread = heat source / heat sink
+// 	//R = I_Rξ(1 + φw + φs) / ρbεQig
+// 	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
+// 
+// 	//For debugging:
+// 	if (debug)
+// 	{
+// 		LogMsg("Heterogeneous Spread Calc components:");
+// 		LogMsg("Weights f_ij =", weights.f_ij);
+// 		LogMsg("Weights f_i =", weights.f_i);
+// 		LogMsg("Weights g_ij =", weights.g_ij);
+// 		LogMsg("GammaPrime =", GammaPrime);
+// 		LogMsg("w_n_i =", w_n_i);
+// 		LogMsg("h_i =", h_i);
+// 		LogMsg("eta_M_i =", eta_M_i);
+// 		LogMsg("eta_s_i =", eta_s_i);
+// 		LogMsg("I_R =", I_R);
+// 		LogMsg("Heat source =", I_R * xi * (1 + phi_s + phi_w));
+// 		LogMsg("rho_b_bar =", rho_b_bar);
+// 		LogMsg("Q_ig_ij =", Q_ig_ij);
+// 		LogMsg("Heat sink =", heatSink);
+// 	}
 
-	numFuelTypes = SAV_ij.size();
+	calcs = SpreadCalcsRothermelAlbini_Het(SAV_ij, w_o_ij, fuelBedDepth, M_x_1, M_f_ij, U,
+	                                       slopeSteepness, h_ij, S_T_ij, S_e_ij, rho_p_ij, liveDead,
+	                                       useWindLimit, units, debug);
 
-	//Terms used in numerator and denominator:
-
-	//Calculate the weights:
-	weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
-
-	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
-	//front of it:
-	//Numerator of Rothermel 1972 equation 75:
-	//IR𝜉(1 + 𝜙w + 𝜙s)
-
-	//Note: The bulk density is not used to calculate the packing ratio in the heterogeneous form:
-	meanPackingRatio = MeanPackingRatio(w_o_ij, rho_p_ij, fuelBedDepth);//AKA beta_bar
-
-	//For heterogeneous fuels we need to calculate the fuel bed level SAV:
-	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
-
-	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
-
-	//Reaction intensity:
-	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
-	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
-
-	//Heat content by live/dead fuel category:
-	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
-
-	//The live fuel moisture of extinction must be calculated:
-	M_x_i[Dead] = M_x_1;
-	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
-
-	//Damping coefficients:
-	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
-	eta_s_i = MineralDampingCoefficient_Het(S_e_ij, weights.f_ij, liveDead);
-
-	I_R = ReactionIntensity_Het(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i);
-
-	//Other numerator terms:
-	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
-	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
-
-	//Apply wind limit check:
-	if (useWindLimit)
-	{
-		U = WindLimit(U, I_R);
-	}
-
-	phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units);
-
-	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
-	//kJ/m^3:
-	//The heat sink term is calculated using weights without calculating epsilon explicitly.
-	//Rothermel equation 77:
-	//ρbεQig = ρb Σi fi Σj fij[exp(-138/σij)](Qig)ij
-
-	rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth);
-	Q_ig_ij = HeatOfPreignition(M_f_ij);
-
-	//We'll do it in two steps:
-	//Weight and size class:
-	for (int k = 0; k < numFuelTypes; k++)
-	{
-		double savConst;
-
-		if (units == US)
-		{
-			savConst= -138;
-		}
-		else
-		{
-			savConst = -4.527559;
-		}
-
-		heatSink_i[liveDead[k]] = heatSink_i[liveDead[k]] +
-			weights.f_ij[k] * exp(savConst / SAV_ij[k]) * Q_ig_ij[k];
-	}
-
-	//Weigh and sum by live/dead category:
-	heatSink = rho_b_bar * ((weights.f_i[Dead] * heatSink_i[Dead]) + (weights.f_i[Live] * heatSink_i[Live]));
-
-	//Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
-	//Rothermel 1972 equation 75:
-	//Rate of spread = heat source / heat sink
-	//R = I_Rξ(1 + φw + φs) / ρbεQig
-	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
-
-	//For debugging:
-	if (debug)
-	{
-		LogMsg("Heterogeneous Spread Calc components:");
-		LogMsg("Weights f_ij =", weights.f_ij);
-		LogMsg("Weights f_i =", weights.f_i);
-		LogMsg("Weights g_ij =", weights.g_ij);
-		LogMsg("GammaPrime =", GammaPrime);
-		LogMsg("w_n_i =", w_n_i);
-		LogMsg("h_i =", h_i);
-		LogMsg("eta_M_i =", eta_M_i);
-		LogMsg("eta_s_i =", eta_s_i);
-		LogMsg("I_R =", I_R);
-		LogMsg("Heat source =", I_R * xi * (1 + phi_s + phi_w));
-		LogMsg("rho_b_bar =", rho_b_bar);
-		LogMsg("Q_ig_ij =", Q_ig_ij);
-		LogMsg("Heat sink =", heatSink);
-	}
-
-	return R;
+// 	return R;
+	return calcs.R;
 }
 
 //Allow the fuel particle properties to be set with single values or omitted.
@@ -1949,6 +1955,173 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	*R = SpreadRateRothermelAlbini_Het(SAV_ijVec, w_o_ijVec, *fuelBedDepth, *M_x_1, M_f_ijVec, *U,
 	                                   *slopeSteepness, h_ijVec, S_T_ijVec, S_e_ijVec, rho_p_ijVec,
 	                                   liveDeadVec, useWindLimitBool, cUnits, debugBool);
+}
+
+//This variant returns many of the component calculated values in the spread rate calculation.
+//The function parameters are the same as SpreadRateRothermelAlbini_Het().
+//
+//Returns: A SpreadCalcs object.
+//Note: To avoid code repetition this fucntion is called by the spread rate only functions.
+SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
+                                           std::vector <double> w_o_ij,
+                                           double fuelBedDepth,
+                                           double M_x_1,
+                                           std::vector <double> M_f_ij,
+                                           double U, double slopeSteepness,
+                                           std::vector <double> h_ij,
+                                           std::vector <double> S_T_ij,
+                                           std::vector <double> S_e_ij,
+                                           std::vector <double> rho_p_ij,
+                                           std::vector <int> liveDead,
+                                           bool useWindLimit,
+                                           UnitsType units,
+                                           bool debug)
+{
+	int numFuelTypes;
+	FuelWeights weights;
+	double meanPackingRatio, fuelBedSAV, optPackingRatio;
+	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
+	double I_R, heatSink;
+	std::vector <double> w_n_i(2, 0), h_i(2, 0), M_x_i(2, 0), eta_M_i(2, 0), eta_s_i(2, 0), heatSink_i(2, 0);//Live/dead intermediates.
+	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
+	double R;//Spread rate.
+	SpreadCalcs calcs;//Return value.
+
+	//Parameter checking and processing:
+	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij, liveDead))
+	{
+		//Stop("SpreadRateRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
+		Stop("SpreadXXXXRothermelAlbini_Het() expects fuel array arguments to be of the same length.");
+		//Could pass in the function name?
+	}
+
+	numFuelTypes = SAV_ij.size();
+
+	//Terms used in numerator and denominator:
+
+	//Calculate the weights:
+	weights = CalcWeightings(SAV_ij, w_o_ij, rho_p_ij, liveDead, units);
+
+	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
+	//front of it:
+	//Numerator of Rothermel 1972 equation 75:
+	//IR𝜉(1 + 𝜙w + 𝜙s)
+
+	//Note: The bulk density is not used to calculate the packing ratio in the heterogeneous form:
+	meanPackingRatio = MeanPackingRatio(w_o_ij, rho_p_ij, fuelBedDepth);//AKA beta_bar
+
+	//For heterogeneous fuels we need to calculate the fuel bed level SAV:
+	fuelBedSAV = FuelBedSAV(SAV_ij, weights.f_ij, weights.f_i, liveDead);
+
+	optPackingRatio = OptimumPackingRatio(fuelBedSAV);
+
+	//Reaction intensity:
+	GammaPrime = OptimumReactionVelocity(meanPackingRatio, fuelBedSAV);
+	w_n_i = NetFuelLoad_Het(w_o_ij, S_T_ij, weights.g_ij, liveDead);
+
+	//Heat content by live/dead fuel category:
+	h_i = LiveDeadHeatContent(h_ij, weights.f_ij, liveDead);
+
+	//The live fuel moisture of extinction must be calculated:
+	M_x_i[Dead] = M_x_1;
+	M_x_i[Live] = LiveFuelMoistureOfExtinction(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead);
+
+	//Damping coefficients:
+	eta_M_i = MoistureDampingCoefficient_Het(M_f_ij, M_x_i, weights.f_ij, liveDead);
+	eta_s_i = MineralDampingCoefficient_Het(S_e_ij, weights.f_ij, liveDead);
+
+	I_R = ReactionIntensity_Het(GammaPrime, w_n_i, h_i, eta_M_i, eta_s_i);
+
+	//Other numerator terms:
+	xi = PropagatingFluxRatio(meanPackingRatio, fuelBedSAV);
+	phi_s = SlopeFactor(meanPackingRatio, slopeSteepness);
+
+	//Apply wind limit check:
+	if (useWindLimit)
+	{
+		U = WindLimit(U, I_R);
+	}
+
+	phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units);
+
+	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
+	//kJ/m^3:
+	//The heat sink term is calculated using weights without calculating epsilon explicitly.
+	//Rothermel equation 77:
+	//ρbεQig = ρb Σi fi Σj fij[exp(-138/σij)](Qig)ij
+
+	rho_b_bar = MeanBulkDensity(w_o_ij, fuelBedDepth);
+	Q_ig_ij = HeatOfPreignition(M_f_ij);
+
+	//We'll do it in two steps:
+	//Weight and size class:
+	for (int k = 0; k < numFuelTypes; k++)
+	{
+		double savConst;
+
+		if (units == US)
+		{
+			savConst= -138;
+		}
+		else
+		{
+			savConst = -4.527559;
+		}
+
+		heatSink_i[liveDead[k]] = heatSink_i[liveDead[k]] +
+			weights.f_ij[k] * exp(savConst / SAV_ij[k]) * Q_ig_ij[k];
+	}
+
+	//Weigh and sum by live/dead category:
+	heatSink = rho_b_bar * ((weights.f_i[Dead] * heatSink_i[Dead]) + (weights.f_i[Live] * heatSink_i[Live]));
+
+	//Full spread calculation for heterogeneous fuels (same as homogeneous in this form):
+	//Rothermel 1972 equation 75:
+	//Rate of spread = heat source / heat sink
+	//R = I_Rξ(1 + φw + φs) / ρbεQig
+	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
+
+	//Pack the calculations into the struct:
+	calcs.units = units;
+	calcs.R = R;
+	calcs.weights = weights;
+	calcs.GammaPrime = GammaPrime;
+	calcs.w_n_i = w_n_i;
+	calcs.h_i = h_i;
+	calcs.eta_M_i = eta_M_i;
+	calcs.eta_s_i = eta_s_i;
+	calcs.I_R = I_R;
+	calcs.xi = xi;
+	calcs.phi_s = phi_s;
+	calcs.phi_w = phi_w;
+	calcs.heatSource = I_R * xi * (1 + phi_s + phi_w);
+	calcs.rho_b_bar = rho_b_bar;
+	calcs.Q_ig_ij = Q_ig_ij;
+	calcs.heatSink = heatSink;
+	calcs.cSAV = fuelBedSAV;
+	calcs.meanPackingRatio = meanPackingRatio;
+	calcs.optimumPR = optPackingRatio;
+	
+	//For debugging:
+	if (debug)
+	{
+		LogMsg("Heterogeneous Spread Calc components:");
+		LogMsg("Weights f_ij =", weights.f_ij);
+		LogMsg("Weights f_i =", weights.f_i);
+		LogMsg("Weights g_ij =", weights.g_ij);
+		LogMsg("GammaPrime =", GammaPrime);
+		LogMsg("w_n_i =", w_n_i);
+		LogMsg("h_i =", h_i);
+		LogMsg("eta_M_i =", eta_M_i);
+		LogMsg("eta_s_i =", eta_s_i);
+		LogMsg("I_R =", I_R);
+		LogMsg("Heat source =", calcs.heatSource);
+		LogMsg("rho_b_bar =", rho_b_bar);
+		LogMsg("Q_ig_ij =", Q_ig_ij);
+		LogMsg("Heat sink =", heatSink);
+	}
+
+	return calcs;
 }
 
 //Utilities:----------------------------------------------------------------------------------------
