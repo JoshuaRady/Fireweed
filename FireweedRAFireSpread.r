@@ -1574,7 +1574,7 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
 #debug = Print calculation component values.  This may be removed in the future.
 #components = Optionally return the intermediate component values calculated in generating the spread rate as well.
 #
-#Returns: R = rate of spread in ft/min | m/min. (And optionally component calculations.)
+#Returns: R = rate of spread in ft/min | m/min. (And optionally component calculations, see below.)
 #
 #Note: This function takes a lot of arguments.  These parameters could be combined into fuel model
 #and environment objects.  Maintaining this generic interface will still need to be retained for
@@ -1726,12 +1726,12 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
                   Weights = weights,#Weights.
                   #Heat source components:
                   GammaPrime = GammaPrime, w_n_i = w_n_i, h_i = h_i, eta_M_i = eta_M_i, eta_s_i = eta_s_i,
-                  I_R = I_R,xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
+                  I_R = I_R, xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
                   #Heat sink components:
                   rho_b_bar = rho_b_bar, #epsilon = epsilon,
                               Q_ig_ij = Q_ig_ij, HeatSink = heatSink,
                   #Other components that can be informative:
-                  cSAV = fuelBedSAV,#CharteristicSAV
+                  cSAV = fuelBedSAV,#Characteristic SAV
                   MeanPackingRatio = meanPackingRatio, OptimumPR = optPackingRatio)
                   #RelativePR = (meanPackingRatio / optPackingRatio),#Overkill?
     return(values)
