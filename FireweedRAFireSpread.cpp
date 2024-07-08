@@ -1017,6 +1017,12 @@ double SlopeFactor(double packingRatio, double slopeSteepness)
 {
 	double phi_s;
 
+	//Parameter checking:
+	if (!ValidProportion(slopeSteepness))
+	{
+		Stop("Slope steepness must be from 0-1.");
+	}
+
 	phi_s = 5.275 * pow(packingRatio, -0.3) * pow(slopeSteepness, 2);
 	return phi_s;
 }
@@ -2009,7 +2015,7 @@ The number of fuel types must be provided as the size of the input data is not c
 
 Note: This interface is incomplete, only returning some of the internal calculations.  It is meant
 primarily for verification purposes.
-The code is almost completely copied from SpreadRateRothermelAlbini_HetR().*/
+The code is almost completely duplicated from SpreadRateRothermelAlbini_HetR().*/
 extern "C" void SpreadCalcsRothermelAlbini_HetR(const double* SAV_ij, const double* w_o_ij,
                                                 const double* fuelBedDepth,const double* M_x_1,
                                                 const double*  M_f_ij, double* U,
