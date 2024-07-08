@@ -1,13 +1,15 @@
 <!-- ---------------------------------------------------------------------------
 FireweedVariableNotation.md
 Joshua M. Rady
-Woodwell Climate Reseach Center
+Woodwell Climate Research Center
 2024
+
+Note: This markdown document uses the GitHub markdown dialect and table extensions.
 ---------------------------------------------------------------------------- -->
 
 # Fireweed Notation Cross-reference
 
-The notation in the Rothermel & and Albini fire spread model and related publications can not be represented easily in the code.  This file provides a cross reference for notation between the original papers, two intermediate notations, and the notation used in the code.
+The notation of many variables in the Rothermel and Albini fire spread model and related publications can not be represented easily in plain text code.  This file provides a cross reference between the fully formated notation of the original papers, two intermediate notations, and the notation used in the code.  See the documentation in the code itself for further details of the notation scheme.  Variable descriptions and units are provided here for convenience and are also included in the internal documentation within the code.
 
 
 ## Fuel Particle Properties: 
