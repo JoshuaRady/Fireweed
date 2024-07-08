@@ -977,6 +977,12 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
 #Inputs are fractions which do not change with units.  Mo metric conversion required.
 SlopeFactor <- function(packingRatio, slopeSteepness)
 {
+  #Parameter checking:
+  if (!ValidProportion(slopeSteepness))
+  {
+    stop("Slope steepness must be from 0-1.")
+  }
+  
   phi_s = 5.275 * packingRatio^-0.3 * slopeSteepness^2
   return(phi_s)
 }
