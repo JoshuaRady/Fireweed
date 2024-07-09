@@ -595,7 +595,7 @@ extern "C" void CalcWeightingsR(const double* SAV_ij, const double* w_o_ij, cons
 //referred to as the characteristic SAV (cSAV).  It is a weighted average of the fuel component SAVs.
 //
 //Input variables / parameters:
-//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//SAV_ij = Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 //f_ij = Weighting factors for each fuel type (dimensionless).
 //f_i = Weighting factors for each fuel live/dead category (dimensionless).
 //liveDead = An array indicating if each index in each of the other input variables represents a
@@ -823,7 +823,7 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 //M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
 //M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 //w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
-//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//SAV_ij = Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 //liveDead = An array indicating if each index in each of the other input variables represents a
 //	dead or live fuel category.
 //
@@ -1672,7 +1672,7 @@ extern "C" void SpreadRateRothermelAlbini_HomoR(const double* SAV, const double*
 //rather than scalars.
 //
 //Fuel array:
-//SAV_ij =	Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+//SAV_ij = Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 //w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 //fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 //M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
