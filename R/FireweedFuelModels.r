@@ -11,20 +11,29 @@
 #
 #___________________________________________________________________________________________________
 
-#Copied from Proj_11_Exp_7_Analysis.r:
-#6/1/2023::
-#This version takes a path to the fuel model data, adds additional checks, adds NumClasses and Cured
-#members, and puts the data members in a prettier order. It expects draft 3 (D3) of the standard
-#fuel models spreadsheet with its updated column #names.
+#Find a fuel model in the specified file and return it as a fuel model object (list).
+#
+#Parameters:
+#modelID = The standard fuel model number, alphanumeric code, or index of the model requested.  If
+#  a number is passed and does not match a known model number it is interpreted as an index, that is
+#  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
+#fuelModelPath = The path to the CSV file containing the table of fuel models.
+#originalUnits = If true then the fuel model table file is in the original published United States
+#  customary units with loading in ton/acre.
+#expand = If true expand properties provided as single values to the length of fuel classes.
+#  (Should always be true?)
+#
 #ToDo:
-# - The function assumes the input data is in its original English units.  Add inputUnits parameter
-#to allow the input file to be in metric.
-# - There are some additional data members added by ApplyDynamicFuelCuring2() and
-#ApplyDynamicFuelCuring3() that ought to be added and intialized here.
-GetFuelModel4 <- function(modelID, fuelModelPath = FuelModelPathD3,#Could take a data frame too.
-                          originalUnits = TRUE, expand = TRUE)
+# - The function assumes the input data is in its original English units if originalUnits is true
+#  but there handling for when this is false is missing.  We could add an inputUnits parameter
+#  to allow the input file to be in metric or alter the parameter behavior.
+# - There is a question of whether to add M_f / M_f_ij to the data structure.
+#
+#Note: This expects draft 3 (D3) of the standard fuel models spreadsheet.
+GetFuelModelFromCSV <- function(modelID, fuelModelPath,
+                                originalUnits = TRUE, expand = TRUE)
 {
-  fuelModelDF = read.delim(fuelModelPath, skip = 3)#The par
+  fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
   
   #Find and extract the row representing the fuel model requested:
   if (is.numeric(modelID))
@@ -102,31 +111,31 @@ GetFuelModel4 <- function(modelID, fuelModelPath = FuelModelPathD3,#Could take a
     fuelModel$S_e_ij = rep(fuelModel$S_e, times = 5)
     fuelModel$rho_p_ij = rep(fuelModel$rho_p, times = 5)
     
-    #Remove the original scalars?
-    
-    fuelModel$M_x_1 = fuelModel$M_x#Temporary?
+    fuelModel$M_x_1 = fuelModel$M_x
   }
   
   fuelModel$liveDead = c(1,1,1,2,2)#Standard fuel models. Change to LiveDead?
   fuelModel$NumClasses = 5#length(fuelModel$liveDead)
-  fuelModel$Units = "English"
+  fuelModel$Units = "US"
   fuelModel$Cured = FALSE#Only relevant to dynamic fuel models.
   
   #Reorder members:
   fuelModel = fuelModel[c("Number", "Code", "Name",#Identification
-                          "Type",#Static vs. Dynamic (was Fuel.Model.Type)
-                          "w_o_ij", "SAV_ij",
+                          "Type",#Static vs. Dynamic
+                          "SAV_ij",
+                          "w_o_ij",
                           "delta",
-                          "M_x", "M_x_1",#These are the same and one should go.
-                          #Orignal and expanded paramter: Should scalars go?
+                          "liveDead",
+                          #For convenience homogeneous notation aliases are provided for the
+                          #moisture of extinction and fuel particle properties. (Scalars could go?)
+                          "M_x", "M_x_1",
                           "h", "h_ij",
-                          "rho_p", "rho_p_ij",
                           "S_T", "S_T_ij",
                           "S_e", "S_e_ij",
-                          #Added members not part of standard fule model:
-                          "liveDead", "NumClasses", "Units", "Cured",
-                          #Precalculated columns.  May be removed:
-                          #"Characteristic.SAV", "Bulk.density", "Relative.packing.ratio"
+                          "rho_p", "rho_p_ij",
+                          #Added members not part of standard fuel model:
+                          "NumClasses", "Units", "Cured",
+                          #Precalculated columns (could be removed):
                           "CharacteristicSAV", "BulkDensity", "RelativePackingRatio")]
   
   return(fuelModel)
