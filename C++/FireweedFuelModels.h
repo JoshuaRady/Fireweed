@@ -96,17 +96,23 @@ class FuelModel {
 	double bulkDensity;
 	double relativePackingRatio;
 
+	
 	void FuelModel();//Constructor.
 	
 	//Add unit conversion function.
 	//Add print method.
+	
+	private:
+	void Initialize();//Init(), InitBlank()?
+	void LoadFromCSV(const std::string& fuelModelTableFile, int modelNumber = -1,
+	                 std::string modelCode = "", bool originalUnits = true)
 };
 
 //External functions:
 
 FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,
-                              bool originalUnits = TRUE, bool expand = TRUE);
+                              bool originalUnits = true, bool expand = true);
 FuelModel GetFuelModelFromCSV(std::string modelCode, std::string fuelModelTableFile,
-                              bool originalUnits = TRUE, bool expand = TRUE);
+                              bool originalUnits = true, bool expand = true);
 
 #endif

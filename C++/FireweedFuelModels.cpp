@@ -25,7 +25,7 @@ spread model and related models.
  * default constructor labels it as such and puts it in a no fuel state that will produce no fire
  * behavior.
  */
-void FuelModel()
+void FuelModel::FuelModel()
 {
 	number = -1;//Set to impossible value.
 	code = "NA";//Alphanumeric code identifying the model.
@@ -43,53 +43,39 @@ void FuelModel()
 	relativePackingRatio = 0;
 }
 
-//External functions:
-//I think it makes the most sense to keep these functions outside the class.
 
-/** Fuel model table file format
- *
- * The fuel model input fiel contains data for the standard fuel models in a CSV format.
- * [The latest version is D3.]
- * The file starts with three lines of human readable header information followed by a machine
- * readable header line containing condensed column names.  The column names must match those
- * expected but the code below has been written to not assume a specific column order.
- *
- * Fields:
- * ...
- * All field values represent decimal (double) data other than the Number (int), Code (string
- * without whitespace), Name (string with whitespace), and Type (enum) fields.
- * 
- * Some models are do not have one or both live fuel classes.  This is indicated in the file as SAV
- * values of NA.  These values are converted to 0s in the FuelModel representation.  A SAV of 0 is
- * meaningless and was chosen because it can, unlike NA, be used in spread rate calculations without
- * causing problems.
- * The weights for any missing SAV class should always be zero [and we should enforce that!!!!!].
- *
- * [Find other notes on missing value notation.]
- *
- * ToDo:
- * - Consider adding version information or a format specifier to the file format.
- */
 
-/** Find a fuel model by number in the specified file and return it as a FuelModel object.
+//Private functions:--------------------------------------------------------------------------------
+
+/** Load a fuel model from the specified file.
  *
- * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param fuelModelTableFile The CSV file containing the table of fuel models.			Path?????
+ * @param modelNumber The standard fuel model number of the fuel model requested.  -1 if not used.
+ * @param modelCode The unique alphanumeric code of the fuel model requested.  Blank if not used.
  * @param originalUnits If true then the fuel model table file is in the original United States
  * customary units with loading in ton/acre..
  * @param expand If true expand properties provided as single values to the length of fuel classes. (Should always be true?)
  * 
  * Incomplete!!!!!
  */
-FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//fuelModelPath = 
-                              bool originalUnits, bool expand)//Neither yet used!
+void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPath = 
+                            int modelNumber, std::string modelCode,
+                            bool originalUnits)//, bool expand)//Neither yet used!
 {
-	std::string str;
 	char delimiter = ',';
-	FuelModel fm;//Return value.
+	std::string str;
+	//FuelModel fm;//Return value.
+
+
+	//Initialize members to a consistant state?????
+	this.Initialize();
+
+
+
+
 
 	//Open the file:
-	std::ifstream fmCSV("fuelModelTableFile");
+	std::ifstream fmCSV(fuelModelTableFile);
 	//Error handling?????
 
 	//Skip the first 3 lines, which are human readable column headers.
@@ -290,6 +276,55 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 	//units = ...
 
 	fmCSV.close();
+	//return fm;
+}
+
+//External functions:
+//I think it makes the most sense to keep these functions outside the class.
+
+/** Fuel model table file format
+ *
+ * The fuel model input fiel contains data for the standard fuel models in a CSV format.
+ * [The latest version is D3.]
+ * The file starts with three lines of human readable header information followed by a machine
+ * readable header line containing condensed column names.  The column names must match those
+ * expected but the code below has been written to not assume a specific column order.
+ *
+ * Fields:
+ * ...
+ * All field values represent decimal (double) data other than the Number (int), Code (string
+ * without whitespace), Name (string with whitespace), and Type (enum) fields.
+ * 
+ * Some models are do not have one or both live fuel classes.  This is indicated in the file as SAV
+ * values of NA.  These values are converted to 0s in the FuelModel representation.  A SAV of 0 is
+ * meaningless and was chosen because it can, unlike NA, be used in spread rate calculations without
+ * causing problems.
+ * The weights for any missing SAV class should always be zero [and we should enforce that!!!!!].
+ *
+ * [Find other notes on missing value notation.]
+ *
+ * ToDo:
+ * - Consider adding version information or a format specifier to the file format.
+ */
+
+/** Find a fuel model by number in the specified file and return it as a FuelModel object.
+ *
+ * @param modelNumber The standard fuel model number of the fuel model requested.
+ * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param originalUnits If true then the fuel model table file is in the original United States
+ * customary units with loading in ton/acre..
+ * @param expand If true expand properties provided as single values to the length of fuel classes. (Should always be true?)
+ * 
+ * Incomplete!!!!!
+ */
+FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//fuelModelPath = 
+                              bool originalUnits, bool expand)//Neither yet used!
+{
+	FuelModel fm;//Return value.
+
+
+
+
 	return fm;
 }
 
