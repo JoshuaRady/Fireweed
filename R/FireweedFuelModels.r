@@ -105,6 +105,11 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath,
   #Expand parameters with fixed values across all fuel classes:
   if (expand)
   {
+    #The standard values for these variables are whole numbers so they created as integers.  This
+    #doesn't cause issues in R but is a problem when they are passed into the C++ spread equations.
+    fuelModel$h = as.numeric(fuelModel$h)
+    fuelModel$rho_p = as.numeric(fuelModel$rho_p)
+    
     #It may be better to put zeros for classes not present:
     fuelModel$h_ij = rep(fuelModel$h, times = 5)
     fuelModel$S_T_ij = rep(fuelModel$S_T, times = 5)
@@ -114,7 +119,7 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath,
     fuelModel$M_x_1 = fuelModel$M_x
   }
   
-  fuelModel$liveDead = c(1,1,1,2,2)#Standard fuel models. Change to LiveDead?
+  fuelModel$liveDead = as.integer(c(1,1,1,2,2))#Standard fuel models. Change to LiveDead?
   fuelModel$NumClasses = 5#length(fuelModel$liveDead)
   fuelModel$Units = "US"
   fuelModel$Cured = FALSE#Only relevant to dynamic fuel models.
