@@ -16,6 +16,10 @@ model and related models.
 #include <vector>
 #include <string>
 
+//Globals:------------------------------------------------------------------------------------------
+enum FuelModelType {Static, Dynamic};
+
+
 /* @class FuelModel
  * @brief The FuelModel class represents the fuel properties and quantities necessary for a location.
  * [More?????]
@@ -43,7 +47,7 @@ class FuelModel {
 	int number;//The model's standard fuel model number.
 	std::string code;//Alphanumeric code identifying the model.
 	std::string name;//Descriptive name.
-	enum type;//Static or dynamic...
+	FuelModelType type;//Static vs. Dynamic
 
 	//Should add member to indicate units of fuel loading.
 
@@ -62,6 +66,7 @@ class FuelModel {
 
 	//The fuel moisture content (M_f, M_f_ij) is an environmental fuel property which is supplied
 	//separately from the fuel model but could be added to the object.
+	//It is also needed for curing/
 
 	//Fuel particle properties: 
 	
@@ -86,7 +91,7 @@ class FuelModel {
 	UnitsType units;//The model units.
 	bool cured;//For dynamic models, has curing been applied to the herbaceous fuels?
 	
-	//Calculated values: ...
+	//Precalculated columns (could be removed):
 	double cSAV;//Characteristic SAV of the fuel bed.
 	double bulkDensity;
 	double relativePackingRatio;
@@ -94,6 +99,7 @@ class FuelModel {
 	void FuelModel();//Constructor.
 	
 	//Add unit conversion function.
+	//Add print method.
 };
 
 //External functions:
