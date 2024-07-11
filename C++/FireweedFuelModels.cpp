@@ -46,6 +46,31 @@ void FuelModel()
 //External functions:
 //I think it makes the most sense to keep these functions outside the class.
 
+/** Fuel model table file format
+ *
+ * The fuel model input fiel contains data for the standard fuel models in a CSV format.
+ * [The latest version is D3.]
+ * The file starts with three lines of human readable header information followed by a machine
+ * readable header line containing condensed column names.  The column names must match those
+ * expected but the code below has been written to not assume a specific column order.
+ *
+ * Fields:
+ * ...
+ * All field values represent decimal (double) data other than the Number (int), Code (string
+ * without whitespace), Name (string with whitespace), and Type (enum) fields.
+ * 
+ * Some models are do not have one or both live fuel classes.  This is indicated in the file as SAV
+ * values of NA.  These values are converted to 0s in the FuelModel representation.  A SAV of 0 is
+ * meaningless and was chosen because it can, unlike NA, be used in spread rate calculations without
+ * causing problems.
+ * The weights for any missing SAV class should always be zero [and we should enforce that!!!!!].
+ *
+ * [Find other notes on missing value notation.]
+ *
+ * ToDo:
+ * - Consider adding version information or a format specifier to the file format.
+ */
+
 /** Find a fuel model by number in the specified file and return it as a FuelModel object.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
@@ -57,17 +82,15 @@ void FuelModel()
  * Incomplete!!!!!
  */
 FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//fuelModelPath = 
-                              bool originalUnits, bool expand)
+                              bool originalUnits, bool expand)//Neither yet used!
 {
 	std::string str;
-	//std::string delimiter = 
 	char delimiter = ',';
-	
-	FuelModel fm;
-	
+	FuelModel fm;//Return value.
 
 	//Open the file:
 	std::ifstream fmCSV("fuelModelTableFile");
+	//Error handling?????
 
 	//Skip the first 3 lines, which are human readable column headers.
 	for (i = 3; i > 0; i--)
@@ -85,8 +108,10 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 	bool found = false;
 	while(std::getline(fmCSV, str))
 	{
-		std::stringstream strStr(str);//This line.
+		std::stringstream strStr(str);//This line as a stream.
 		std::string field;//Or token
+
+		//Given the code devoted to making the column order agnostic below we ought to search for these:
 
 		//The first field is the fuel model number:
 		std::getline(strStr, field, delimiter);
@@ -95,7 +120,7 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 		//The second field is the fuel model code:
 		std::getline(strStr, field, delimiter);
 
-
+		//Add conditional for the selection method...
 
 		if (theModelNumber == modelNumber)
 		{
@@ -103,11 +128,11 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 			break;
 		}
 	}
-	
+
 	//Extract fields from the matching row:
 	if (found == true)
 	{
-		//std::vector<std::string> fields = SplitDelim(str, delimiter);
+		//This may ignore the fields pulled off above, which will cause the indexes to not match!!!!!
 		std::vector<std::string> fields = SplitDelim(strStr, delimiter);
 		
 		this.number = theModelNumber;
@@ -129,6 +154,8 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 		S_e_ij.resize(5);
 		rho_p_ij.resize(5);
 		
+		this.numClasses = 5;
+		
 		//Load the field values into the appropriate data members:
 		//This is a bit of extra processing that allows us the not worry about the field order.
 		for (j = 0; j < sizeof(feilds); j ++)
@@ -147,8 +174,10 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 				{
 					this.type = Dynamic;
 				}
-				//else//Error handling...
-				//{}
+				//else//Error handling:
+				//{
+				//	Error("Invalid value for fuel model type.")
+				//}
 			}
 			else if (colNames[j].compare("SAV_11"))
 			{
@@ -164,11 +193,25 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 			}
 			else if (colNames[j].compare("SAV_21"))
 			{
-				this.SAV_ij[3] = stof(fields[j]);
+				if fields[j].compare("NA")
+				{
+					this.SAV_ij[3] = 0.0;
+				}
+				else
+				{
+					this.SAV_ij[3] = stof(fields[j]);
+				}
 			}
 			else if (colNames[j].compare("SAV_22"))
 			{
-				this.SAV_ij[4] = stof(fields[j]);
+				if fields[j].compare("NA")
+				{
+					this.SAV_ij[4] = 0.0;
+				}
+				else
+				{
+					this.SAV_ij[4] = stof(fields[j]);
+				}
 			}
 			else if (colNames[j].compare("w_o_11"))
 			{
@@ -228,14 +271,23 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 			}
 			else//Unrecognized field.  Report it?
 			{
-				
+				//
 			}
 		}
 	}
-	//else...
-
+	else
+	{
+		//Not finding the fuel model is probably an error.  At the least we should warn that no
+		//match was found.
+	}
 
 	//Further processing... ?
+	
+	//originalUnits
+	
+	//Already set in defaults:
+	//this.cured = false;
+	//units = ...
 
 	fmCSV.close();
 	return fm;
@@ -243,7 +295,7 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
 
 /** Find a fuel model by alphanumeric code in the specified file and return it as a FuelModel object.
  *
- * @param modelNumber The unique alphanumeric code of the fuel model requested.
+ * @param modelCode The unique alphanumeric code of the fuel model requested.
  * @param fuelModelTableFile The CSV file containing the table of fuel models.
  * @param originalUnits If true then the fuel model table file is in the original United States customary units.
  * @param expand If true expand properties provided as single values to the length of fuel classes. (Should always be true?)
