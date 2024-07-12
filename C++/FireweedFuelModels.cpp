@@ -12,6 +12,31 @@ spread model and related models.
 
 ***************************************************************************************************/
 
+/** Fuel model table file format
+ *
+ * The fuel model input fiel contains data for the standard fuel models in a CSV format.
+ * [The latest version is D3.]
+ * The file starts with three lines of human readable header information followed by a machine
+ * readable header line containing condensed column names.  The column names must match those
+ * expected but the code below has been written to not assume a specific column order.
+ *
+ * Fields:
+ * ...
+ * All field values represent decimal (double) data other than the Number (int), Code (string
+ * without whitespace), Name (string with whitespace), and Type (enum) fields.
+ * 
+ * Some models are do not have one or both live fuel classes.  This is indicated in the file as SAV
+ * values of NA.  These values are converted to 0s in the FuelModel representation.  A SAV of 0 is
+ * meaningless and was chosen because it can, unlike NA, be used in spread rate calculations without
+ * causing problems.
+ * The weights for any missing SAV class should always be zero [and we should enforce that!!!!!].
+ *
+ * [Find other notes on missing value notation.]
+ *
+ * ToDo:
+ * - Consider adding version information or a format specifier to the file format.
+ */
+
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -43,7 +68,37 @@ void FuelModel::FuelModel()
 	relativePackingRatio = 0;
 }
 
+/** File constructor: Initialize the fuel model specified by number from the specified file.
+ *
+ * @param modelNumber The standard fuel model number of the fuel model requested.
+ * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param originalUnits If true then the fuel model table file is in the original United States
+ * customary units with loading in ton/acre..			[Not quite right!!!!!]
+ */
+void FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
+                          bool originalUnits)
+{
+	//Initialize members to a consistant state?????
+	//this.Initialize();
+	
+	this.LoadFromCSV(fuelModelTableFile, modelNumber. "", originalUnits);
+}
 
+/** File constructor: Initialize the fuel model specified by code from the specified file.
+ *
+ * @param modelNumber The standard fuel model number of the fuel model requested.
+ * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param originalUnits If true then the fuel model table file is in the original United States
+ * customary units with loading in ton/acre..			[Not quite right!!!!!]
+ */
+void FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
+                          bool originalUnits)
+{
+	//Initialize members to a consistant state?????
+	//this.Initialize();
+	
+	this.LoadFromCSV(fuelModelTableFile, -1, modelCode, originalUnits);
+}
 
 //Private functions:--------------------------------------------------------------------------------
 
@@ -56,22 +111,19 @@ void FuelModel::FuelModel()
  * customary units with loading in ton/acre..
  * @param expand If true expand properties provided as single values to the length of fuel classes. (Should always be true?)
  * 
- * Incomplete!!!!!
+ * Only the modelNumber or the modelCode should be passed in.  This is enforced through the calling
+ * code. 
  */
 void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPath = 
                             int modelNumber, std::string modelCode,
                             bool originalUnits)//, bool expand)//Neither yet used!
 {
 	char delimiter = ',';
-	std::string str;
-	//FuelModel fm;//Return value.
+	std::string str;//To hold lines...
 
 
 	//Initialize members to a consistant state?????
-	this.Initialize();
-
-
-
+	//this.Initialize();
 
 
 	//Open the file:
@@ -106,12 +158,23 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//The second field is the fuel model code:
 		std::getline(strStr, field, delimiter);
 
-		//Add conditional for the selection method...
-
-		if (theModelNumber == modelNumber)
+		//Choose the selection method:
+		if (modelNumber != -1)//Search with the model number:
 		{
-			found = true;
-			break;
+			//We could pre-check that the model number is in the range of valid values.
+			if (theModelNumber == modelNumber)
+			{
+				found = true;
+				break;
+			}
+		}
+		else//If an invalid model number was passed search using the model code:
+		{
+			if (modelCode.compare(field))
+			{
+				found = true;
+				break;
+			}
 		}
 	}
 
@@ -267,45 +330,21 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//match was found.
 	}
 
-	//Further processing... ?
-	
-	//originalUnits
+	//The units of some parameters are different in the table than the model equations:
+	if (originalUnits)
+	{
+		this.w_o_ij = this.w_o_ij * lbsPerTon / ft2PerAcre#)//ton/acre to lb/ft^2
+    	this.M_x_1 = this.M_x_1 / 100//% to fraction
+	}
 	
 	//Already set in defaults:
-	//this.cured = false;
-	//units = ...
+	units = US;//Assumed to always be the case for now.
+	this.cured = false;
 
 	fmCSV.close();
-	//return fm;
 }
 
-//External functions:
-//I think it makes the most sense to keep these functions outside the class.
-
-/** Fuel model table file format
- *
- * The fuel model input fiel contains data for the standard fuel models in a CSV format.
- * [The latest version is D3.]
- * The file starts with three lines of human readable header information followed by a machine
- * readable header line containing condensed column names.  The column names must match those
- * expected but the code below has been written to not assume a specific column order.
- *
- * Fields:
- * ...
- * All field values represent decimal (double) data other than the Number (int), Code (string
- * without whitespace), Name (string with whitespace), and Type (enum) fields.
- * 
- * Some models are do not have one or both live fuel classes.  This is indicated in the file as SAV
- * values of NA.  These values are converted to 0s in the FuelModel representation.  A SAV of 0 is
- * meaningless and was chosen because it can, unlike NA, be used in spread rate calculations without
- * causing problems.
- * The weights for any missing SAV class should always be zero [and we should enforce that!!!!!].
- *
- * [Find other notes on missing value notation.]
- *
- * ToDo:
- * - Consider adding version information or a format specifier to the file format.
- */
+//External functions:-------------------------------------------------------------------------------
 
 /** Find a fuel model by number in the specified file and return it as a FuelModel object.
  *
@@ -313,17 +352,11 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
  * @param fuelModelTableFile The CSV file containing the table of fuel models.
  * @param originalUnits If true then the fuel model table file is in the original United States
  * customary units with loading in ton/acre..
- * @param expand If true expand properties provided as single values to the length of fuel classes. (Should always be true?)
- * 
- * Incomplete!!!!!
  */
-FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//fuelModelPath = 
-                              bool originalUnits, bool expand)//Neither yet used!
+FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNumber,
+                              bool originalUnits)
 {
-	FuelModel fm;//Return value.
-
-
-
+	FuelModel fm(fuelModelTableFile, modelNumber, originalUnits);
 
 	return fm;
 }
@@ -333,18 +366,11 @@ FuelModel GetFuelModelFromCSV(int modelNumber, std::string fuelModelTableFile,//
  * @param modelCode The unique alphanumeric code of the fuel model requested.
  * @param fuelModelTableFile The CSV file containing the table of fuel models.
  * @param originalUnits If true then the fuel model table file is in the original United States customary units.
- * @param expand If true expand properties provided as single values to the length of fuel classes. (Should always be true?)
- *
- * I think it makes the most sense to keep these functions outside the class.
- * 
- * Incomplete!!!!!
  */
-FuelModel GetFuelModelFromCSV(std::string modelCode, std::string fuelModelTableFile,
-                              bool originalUnits, bool expand)
+FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string modelCode, 
+                              bool originalUnits)
 {
-	FuelModel fm;
-
-	//...
+	FuelModel fm(fuelModelTableFile, modelCode, originalUnits);
 
 	return fm;
 }
