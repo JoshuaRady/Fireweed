@@ -17,9 +17,9 @@ implementing the Rothermel fire spread model (Rothermel 1972) with the modificat
 #include <vector>
 #include <numeric>
 #include <iostream>//std::cout
+#include "FireweedUnits.h."
 
 //Globals:------------------------------------------------------------------------------------------
-enum UnitsType {US, Metric};
 
 //Specify the units to use.  The default is United States customary units.
 //This should not be set directly.  Use SetModelUnits().

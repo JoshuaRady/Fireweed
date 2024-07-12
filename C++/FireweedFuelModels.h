@@ -15,6 +15,7 @@ model and related models.
 
 #include <vector>
 #include <string>
+#include "FireweedUnits.h."
 
 //Globals:------------------------------------------------------------------------------------------
 enum FuelModelType {Static, Dynamic};

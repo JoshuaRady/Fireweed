@@ -1,0 +1,61 @@
+/***************************************************************************************************
+FireweedUnits.h
+Programmed by: Joshua M. Rady
+Woodwell Climate Research Center
+Started: 7/12/2024
+Reference: Proj. 11 Exp. 19
+
+	This file is part of the Fireweed wildfire code library.
+	This header file defines unit constants conversion factors used in the library.
+
+***************************************************************************************************/
+#ifndef FIREWEEDUNITS_H
+#define FIREWEEDUNITS_H
+
+/** UnitsType
+ *
+ * A type to specify the units to be used or in use.
+ */
+enum UnitsType {US, Metric};
+
+//--------------------------------------------------------------------------------------------------
+/** Unit Conversion Factors
+ *
+ * Conversion factors marked with an asterisk are not (yet) used in this library directly.  They are
+ * provided for use by calling code.
+ *
+ * It might be better to have a interface of some sort to request conversion factors from.
+ */
+
+//Length: (exact per international yard and pound act)
+const double cmPerIn = 2.54;
+const double cmPerFt = 30.48;
+const double mPerFt = 0.3048;
+const double ftPerM = 3.28084;//1 / mPerFt
+const int ftPerMi = 5280;//* for conversion of windspeed (U, MPH * ftPerMi / 60 = ft/min)
+
+//SAV is in ft^2/ft^3 = 1/ft or cm^2/cm^3 = 1/cm
+//Therefore units convert: ft^2/ft^3 * cmPerFt^2/cmPerFt^2 = 1/ft * 1/cmPerFt = 1/cm
+//So: SAVft * 1/cmPerFt = SAVft / cmPerFt = SAVcm
+
+//Area:
+const double ft2PerAcre = 43560;//*
+
+//Mass:
+const double kgPerLb = 0.453592;
+const int lbsPerTon = 2000;//*
+
+//Density:
+const double lbPerFtCuToKgPerMCu = 16.0185;//kgPerLb * (ftPerM)^3, 16.01846337396
+
+//JPerBtu = 1055.06 or 1,054.35
+/*The definition of a BTU can vary resulting in several different conversion factors.  Wilson 1980
+seems to have used a value close to the themochemical value of 1.05435 J/BTU, based on his heat of
+preignition conversion.  We will use that to be consistent with his converted constant values.
+The IT value of 1.05506 would be a reasonable alternative.*/
+const double kJPerBtu = 1.05435;
+
+//tons/ac -> lb/ft^2: (See fuel loading note in FireweedFuelModels.cpp.)
+const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;//*
+
+#endif
