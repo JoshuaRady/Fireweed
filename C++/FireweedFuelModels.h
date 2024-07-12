@@ -17,9 +17,19 @@ model and related models.
 #include <string>
 #include "FireweedUnits.h."
 
-//Globals:------------------------------------------------------------------------------------------
+//Constants and Flags:------------------------------------------------------------------------------
 enum FuelModelType {Static, Dynamic};
 
+/* Fuel Category Constants
+ *
+ * The values of the live dead categories are forced to match the matching array indexes so they may
+ * be used to access arrays of the form X_i (values are language specific).
+ *
+ * Note: These are temporarily duplicated from FireweedRAFireSpread.h.
+*/
+//enum FuelCategory {Dead = 0, Live = 1};//Having some issues with casting this.
+const int Dead = 0;
+const int Live = 1;
 
 /* @class FuelModel
  * @brief The FuelModel class represents the fuel properties and quantities necessary for a location.
