@@ -120,8 +120,13 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath, originalUnits = TRUE)
   fuelModel$Cured = FALSE#Only relevant to dynamic fuel models.
   
   #Reorder members:
-  fuelModel = fuelModel[c("Number", "Code", "Name",#Identification
+  fuelModel = fuelModel[c("Number", "Code", "Name",#Fuel model identifiers:
+                          #Model model properties:
                           "Type",#Static vs. Dynamic
+                          "Units",#The model units type.
+                          "Cured",
+                          "NumClasses",
+                          #Fuel model parameters / data members:
                           "SAV_ij",
                           "w_o_ij",
                           "delta",
@@ -133,8 +138,6 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath, originalUnits = TRUE)
                           "S_T", "S_T_ij",
                           "S_e", "S_e_ij",
                           "rho_p", "rho_p_ij",
-                          #Added members not part of standard fuel model:
-                          "NumClasses", "Units", "Cured",
                           #Precalculated columns (could be removed):
                           "CharacteristicSAV", "BulkDensity", "RelativePackingRatio")]
   

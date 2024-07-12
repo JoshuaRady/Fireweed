@@ -53,33 +53,37 @@ const int Live = 1;
 class FuelModel {
 	public:
 
-	//Fuel model identifiers and properties:
+	//Fuel model identifiers:
 	//Together the model number and code represent different model IDs.  For the 13 the code ~ number.
 	int number;//The model's standard fuel model number.
 	std::string code;//Alphanumeric code identifying the model.
 	std::string name;//Descriptive name.
+	
+	//Model model properties:
 	FuelModelType type;//Static vs. Dynamic
-
+	UnitsType units;//The model units type.
 	//Should add member to indicate units of fuel loading.
+	bool cured;//For dynamic models, has curing been applied to the herbaceous fuels?
+	int numClasses;//The number of fuel classes.  Can be inferred but...
 
-	//Fuel model data members:
+	//Fuel model parameters / data members:
 
 	//Fuel array:
 	std::vector <double> SAV_ij;//Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 
 	std::vector <double> w_o_ij,//An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 	double delta;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
-	int liveDead;//The live / dead category of each fuel class.   Include constants!!!!!
+	int liveDead;//The live / dead category of each fuel class.
 
 	//Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 	double M_x_1;
-	double& M_x = M_x_1;	
+	double& M_x = M_x_1;
 
 	//The fuel moisture content (M_f, M_f_ij) is an environmental fuel property which is supplied
 	//separately from the fuel model but could be added to the object.
 	//It is also needed for curing/
 
-	//Fuel particle properties: 
+	//Fuel particle properties:
 	
 	//Heat content of the fuel types (Btu/lb | kJ/kg):
 	std::vector <double> h_ij;
@@ -97,11 +101,6 @@ class FuelModel {
 	std::vector <double> rho_p_ij;
 	double& rho_p[0];
 
-	//Other: Move up?
-	int numClasses;//The number of fuel classes.  Can be inferred but...
-	UnitsType units;//The model units.
-	bool cured;//For dynamic models, has curing been applied to the herbaceous fuels?
-	
 	//Precalculated columns (could be removed):
 	double cSAV;//Characteristic SAV of the fuel bed.
 	double bulkDensity;
