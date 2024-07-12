@@ -48,21 +48,33 @@ spread model and related models.
  *
  * A fuel model needs to initialized with data.  A new fuel model will be empty of data.  The
  * default constructor labels it as such and puts it in a no fuel state that will produce no fire
- * behavior.
+ * behavior (spread rate of zero).
+ * 
+ * Could move to initializer.
  */
 void FuelModel::FuelModel()
 {
+	//Alternatively we could default the IDs to one of the nonburnable fuel models:
 	number = -1;//Set to impossible value.
 	code = "NA";//Alphanumeric code identifying the model.
 	name "Empty fuel model";//Descriptive name.
-	//type = ;
-	
-	numClasses = 0;
+	type = Static;
 	units = "US";//Default to the units of the original papers.
 	cured = FALSE;
-	
-	//Setting everything to 0 should allow the spread rate calculations to complete with a spread rate of zero.
-	
+	numClasses = 5;//Standard fuel model.
+
+	SAV_ij.resize(5, 0);//All fuel classes are absent.
+	w_o_ij.resize(5, 0);//Important.
+
+	delta = 0;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+	liveDead.assign({Dead, Dead, Dead, Live, Live});//Standard fuel model.
+	M_x_1 = 50;//Tough to choose a default here.  50% for now.
+
+	h_ij.resize(5, 8000);//Standard for all but one standard fuel model.
+	S_T_ij.resize(5, 0.0555);//Standard for all standard fuel models.
+	S_e_ij.resize(5, 0.010);//Standard for all standard fuel models.
+	rho_p_ij.resize(5, 32);//Standard for all standard fuel models.
+
 	cSAV = 0;
 	bulkDensity = 0;
 	relativePackingRatio = 0;
@@ -120,11 +132,6 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 {
 	char delimiter = ',';
 	std::string str;//To hold lines...
-
-
-	//Initialize members to a consistant state?????
-	//this.Initialize();
-
 
 	//Open the file:
 	std::ifstream fmCSV(fuelModelTableFile);

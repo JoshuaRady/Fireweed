@@ -73,7 +73,7 @@ class FuelModel {
 
 	std::vector <double> w_o_ij,//An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 	double delta;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
-	int liveDead;//The live / dead category of each fuel class.
+	std::vector <int> liveDead;//The live / dead category of each fuel class.
 
 	//Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 	double M_x_1;
