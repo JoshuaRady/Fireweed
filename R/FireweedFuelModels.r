@@ -20,8 +20,6 @@
 #fuelModelPath = The path to the CSV file containing the table of fuel models.
 #originalUnits = If true then the fuel model table file is in the original published United States
 #  customary units with loading in ton/acre.
-#expand = If true expand properties provided as single values to the length of fuel classes.
-#  (Should always be true?)
 #
 #ToDo:
 # - The function assumes the input data is in its original English units if originalUnits is true
@@ -30,8 +28,7 @@
 # - There is a question of whether to add M_f / M_f_ij to the data structure.
 #
 #Note: This expects draft 3 (D3) of the standard fuel models spreadsheet.
-GetFuelModelFromCSV <- function(modelID, fuelModelPath,
-                                originalUnits = TRUE, expand = TRUE)
+GetFuelModelFromCSV <- function(modelID, fuelModelPath, originalUnits = TRUE)
 {
   fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
   
@@ -103,22 +100,20 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath,
   }
   
   #Expand parameters with fixed values across all fuel classes:
-  if (expand)
-  {
-    #The standard values for these variables are whole numbers so they created as integers.  This
-    #doesn't cause issues in R but is a problem when they are passed into the C++ spread equations.
-    fuelModel$h = as.numeric(fuelModel$h)
-    fuelModel$rho_p = as.numeric(fuelModel$rho_p)
-    
-    #It may be better to put zeros for classes not present:
-    fuelModel$h_ij = rep(fuelModel$h, times = 5)
-    fuelModel$S_T_ij = rep(fuelModel$S_T, times = 5)
-    fuelModel$S_e_ij = rep(fuelModel$S_e, times = 5)
-    fuelModel$rho_p_ij = rep(fuelModel$rho_p, times = 5)
-    
-    fuelModel$M_x_1 = fuelModel$M_x
-  }
+  #The standard values for these variables are whole numbers so they created as integers.  This
+  #doesn't cause issues in R but is a problem when they are passed into the C++ spread equations.
+  fuelModel$h = as.numeric(fuelModel$h)
+  fuelModel$rho_p = as.numeric(fuelModel$rho_p)
   
+  #It may be better to put zeros for classes not present:
+  fuelModel$h_ij = rep(fuelModel$h, times = 5)
+  fuelModel$S_T_ij = rep(fuelModel$S_T, times = 5)
+  fuelModel$S_e_ij = rep(fuelModel$S_e, times = 5)
+  fuelModel$rho_p_ij = rep(fuelModel$rho_p, times = 5)
+  
+  fuelModel$M_x_1 = fuelModel$M_x
+  
+  #Other:
   fuelModel$liveDead = as.integer(c(1,1,1,2,2))#Standard fuel models. Change to LiveDead?
   fuelModel$NumClasses = 5#length(fuelModel$liveDead)
   fuelModel$Units = "US"
