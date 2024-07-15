@@ -120,15 +120,20 @@ void FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string mod
  * @param modelNumber The standard fuel model number of the fuel model requested.  -1 if not used.
  * @param modelCode The unique alphanumeric code of the fuel model requested.  Blank if not used.
  * @param originalUnits If true then the fuel model table file is in the original United States
- * customary units with loading in ton/acre..
- * @param expand If true expand properties provided as single values to the length of fuel classes. (Should always be true?)
+ * customary units with loading in ton/acre.
  * 
  * Only the modelNumber or the modelCode should be passed in.  This is enforced through the calling
  * code. 
+ *
+ * It is assumed that the the FuelModel has the default five fuel classes.  All parameters will be
+ * overwritten if the fuel model is found.  If not found the FuelModel will be returned unchanged.
+ * We may change this to have a failed search throw an error.  Initializing the object to the
+ * default state at the start of this routine also an option but this implementation may have some
+ * advantages.
  */
 void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPath = 
                             int modelNumber, std::string modelCode,
-                            bool originalUnits)//, bool expand)//Neither yet used!
+                            bool originalUnits)
 {
 	char delimiter = ',';
 	std::string str;//To hold lines...
@@ -193,25 +198,11 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		
 		this.number = theModelNumber;
 		this.code = field;
-		//All the remaining fields, other than the name, are numeric so they can be converted here?
-		
-		//The fuel categories have the same live dead status for all standard fuel models:
-		//int default = {Dead, Dead, Dead, Live, Live}
-		//this.liveDead.assign()
-		std::vector<int> initial = {Dead, Dead, Dead, Live, Live};//Move type defs to header!!!!!
-		this.liveDead = initial;
-		
-		//Resize: Make default?
-		SAV_ij.resize(5);
-		w_o_ij.resize(5);
-		h_ij.resize(5);
-		S_T_ij.resize(5);
-		S_T = S_T_ij[0];
-		S_e_ij.resize(5);
-		rho_p_ij.resize(5);
-		
-		this.numClasses = 5;
-		
+		//The remaining fields, other than the name and type, are numeric so could be converted here?
+
+		units = US;//Assumed to always be the case for now.  Should be determined or set.
+		this.cured = false;
+
 		//Load the field values into the appropriate data members:
 		//This is a bit of extra processing that allows us the not worry about the field order.
 		for (j = 0; j < sizeof(feilds); j ++)
@@ -297,7 +288,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 			{
 				this.M_x_1 = stof(fields[j]);
 			}
-			else if (colNames[j].compare("h"))//This code assumes we expand!!!!!
+			else if (colNames[j].compare("h"))
 			{
 				std::fill(this.h_ij, h_ij.begin(), h_ij.end(), stof(fields[j]));
 			}
@@ -341,12 +332,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	if (originalUnits)
 	{
 		this.w_o_ij = this.w_o_ij * lbsPerTon / ft2PerAcre#)//ton/acre to lb/ft^2
-    	this.M_x_1 = this.M_x_1 / 100//% to fraction
+		this.M_x_1 = this.M_x_1 / 100//% to fraction
 	}
-	
-	//Already set in defaults:
-	units = US;//Assumed to always be the case for now.
-	this.cured = false;
 
 	fmCSV.close();
 }
