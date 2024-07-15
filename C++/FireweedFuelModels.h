@@ -15,7 +15,7 @@ model and related models.
 
 #include <vector>
 #include <string>
-#include "FireweedUnits.h."
+#include "FireweedUnits.h"
 
 //Constants and Flags:------------------------------------------------------------------------------
 enum FuelModelType {Static, Dynamic};
