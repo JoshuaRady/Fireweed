@@ -116,7 +116,7 @@ class FuelModel {
 	//Add print method.
 	
 	private:
-	//void Initialize();//Init(), InitBlank()?
+	void Initialize();//Init(), InitBlank()?
 	void LoadFromCSV(const std::string& fuelModelTableFile, int modelNumber,
 	                 std::string modelCode, bool originalUnits = true)
 };

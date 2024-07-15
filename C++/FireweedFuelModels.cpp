@@ -46,13 +46,53 @@ spread model and related models.
 
 /** Default (empty) constructor
  *
- * A fuel model needs to initialized with data.  A new fuel model will be empty of data.  The
- * default constructor labels it as such and puts it in a no fuel state that will produce no fire
- * behavior (spread rate of zero).
- * 
- * Could move to initializer.
+ * By default create a generic empty / no fuel loading model.
  */
 void FuelModel::FuelModel()
+{
+	this.Initialize();
+}
+
+/** File constructor: Initialize the fuel model specified by number from the specified file.
+ *
+ * @param modelNumber The standard fuel model number of the fuel model requested.
+ * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param originalUnits If true then the fuel model table file is in the original United States
+ * customary units with loading in ton/acre..			[Not quite right!!!!!]
+ */
+void FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
+                          bool originalUnits)
+{
+	this.Initialize();
+	this.LoadFromCSV(fuelModelTableFile, modelNumber. "", originalUnits);
+}
+
+/** File constructor: Initialize the fuel model specified by code from the specified file.
+ *
+ * @param modelNumber The standard fuel model number of the fuel model requested.
+ * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param originalUnits If true then the fuel model table file is in the original United States
+ * customary units with loading in ton/acre..			[Not quite right!!!!!]
+ */
+void FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
+                          bool originalUnits)
+{
+	this.Initialize();
+	this.LoadFromCSV(fuelModelTableFile, -1, modelCode, originalUnits);
+}
+
+//Private functions:--------------------------------------------------------------------------------
+
+/** Initialize members to a consistant 'no fuel' initial state.
+ *
+ * This function sets the fuel model values to reasonable default values.  It assumes the model is
+ * structured like a standard fuel model with five fuel types.  It sets fuel loading to zero and
+ * parameters to values that produce a fire spread rate of zero.
+ *
+ * This initial fuel model state should be further modified.  For a fuel model to be useful it needs
+ * to have its parameters set to meaningful values, either from a file or manually.
+ */
+void FuelModel::Initialize()
 {
 	//Alternatively we could default the IDs to one of the nonburnable fuel models:
 	number = -1;//Set to impossible value.
@@ -79,40 +119,6 @@ void FuelModel::FuelModel()
 	bulkDensity = 0;
 	relativePackingRatio = 0;
 }
-
-/** File constructor: Initialize the fuel model specified by number from the specified file.
- *
- * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelTableFile The CSV file containing the table of fuel models.
- * @param originalUnits If true then the fuel model table file is in the original United States
- * customary units with loading in ton/acre..			[Not quite right!!!!!]
- */
-void FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
-                          bool originalUnits)
-{
-	//Initialize members to a consistant state?????
-	//this.Initialize();
-	
-	this.LoadFromCSV(fuelModelTableFile, modelNumber. "", originalUnits);
-}
-
-/** File constructor: Initialize the fuel model specified by code from the specified file.
- *
- * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelTableFile The CSV file containing the table of fuel models.
- * @param originalUnits If true then the fuel model table file is in the original United States
- * customary units with loading in ton/acre..			[Not quite right!!!!!]
- */
-void FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
-                          bool originalUnits)
-{
-	//Initialize members to a consistant state?????
-	//this.Initialize();
-	
-	this.LoadFromCSV(fuelModelTableFile, -1, modelCode, originalUnits);
-}
-
-//Private functions:--------------------------------------------------------------------------------
 
 /** Load a fuel model from the specified file.
  *
