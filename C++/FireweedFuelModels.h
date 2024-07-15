@@ -108,9 +108,9 @@ class FuelModel {
 
 	//Constructors:
 	void FuelModel();
-	void FuelModel(const std::string& fuelModelTableFile, int modelNumber, bool originalUnits);
+	void FuelModel(const std::string& fuelModelTableFile, int modelNumber, bool spreadModelUnits);
 	void FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
-	               bool originalUnits);
+	               bool spreadModelUnits);
 	
 	//Add unit conversion function.
 	//Add print method.
@@ -118,14 +118,14 @@ class FuelModel {
 	private:
 	void Initialize();//Init(), InitBlank()?
 	void LoadFromCSV(const std::string& fuelModelTableFile, int modelNumber,
-	                 std::string modelCode, bool originalUnits = true)
+	                 std::string modelCode, bool spreadModelUnits = true)
 };
 
 //External functions:
 
 FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNumber,
-                              bool originalUnits = true);
+                              bool spreadModelUnits = true);
 FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string modelCode,
-                              bool originalUnits = true);
+                              bool spreadModelUnits = true);
 
 #endif

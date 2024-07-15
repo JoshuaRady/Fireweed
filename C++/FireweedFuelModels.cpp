@@ -57,28 +57,28 @@ void FuelModel::FuelModel()
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
  * @param fuelModelTableFile The CSV file containing the table of fuel models.
- * @param originalUnits If true then the fuel model table file is in the original United States
- * customary units with loading in ton/acre..			[Not quite right!!!!!]
+ * @param spreadModelUnits If true then convert units used in the file that differ from those used
+ * in the Rothermel & Albini spread model.
  */
 void FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
-                          bool originalUnits)
+                          bool spreadModelUnits)
 {
 	this.Initialize();
-	this.LoadFromCSV(fuelModelTableFile, modelNumber. "", originalUnits);
+	this.LoadFromCSV(fuelModelTableFile, modelNumber. "", spreadModelUnits);
 }
 
 /** File constructor: Initialize the fuel model specified by code from the specified file.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
  * @param fuelModelTableFile The CSV file containing the table of fuel models.
- * @param originalUnits If true then the fuel model table file is in the original United States
- * customary units with loading in ton/acre..			[Not quite right!!!!!]
+ * @param spreadModelUnits If true then convert units used in the file that differ from those used
+ * in the Rothermel & Albini spread model.
  */
 void FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
-                          bool originalUnits)
+                          bool spreadModelUnits)
 {
 	this.Initialize();
-	this.LoadFromCSV(fuelModelTableFile, -1, modelCode, originalUnits);
+	this.LoadFromCSV(fuelModelTableFile, -1, modelCode, spreadModelUnits);
 }
 
 //Private functions:--------------------------------------------------------------------------------
@@ -125,8 +125,8 @@ void FuelModel::Initialize()
  * @param fuelModelTableFile The CSV file containing the table of fuel models.			Path?????
  * @param modelNumber The standard fuel model number of the fuel model requested.  -1 if not used.
  * @param modelCode The unique alphanumeric code of the fuel model requested.  Blank if not used.
- * @param originalUnits If true then the fuel model table file is in the original United States
- * customary units with loading in ton/acre.
+ * @param spreadModelUnits If true then convert units used in the file that differ from those used
+ * in the Rothermel & Albini spread model.
  * 
  * Only the modelNumber or the modelCode should be passed in.  This is enforced through the calling
  * code. 
@@ -139,7 +139,7 @@ void FuelModel::Initialize()
  */
 void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPath = 
                             int modelNumber, std::string modelCode,
-                            bool originalUnits)
+                            bool spreadModelUnits)
 {
 	char delimiter = ',';
 	std::string str;//To hold lines...
@@ -327,18 +327,21 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 				//
 			}
 		}
+
+		//Typically the units of some parameters are different in the published tables than in the
+		//model equations:
+		//It would be an improvement to detect the units used the file.  That information is currently
+		//in the header information but not in a form that would be idead to parse.
+		if (spreadModelUnits)
+		{
+			this.w_o_ij = this.w_o_ij * lbsPerTon / ft2PerAcre#)//ton/acre to lb/ft^2
+			this.M_x_1 = this.M_x_1 / 100//% to fraction
+		}
 	}
 	else
 	{
 		//Not finding the fuel model is probably an error.  At the least we should warn that no
 		//match was found.
-	}
-
-	//The units of some parameters are different in the table than the model equations:
-	if (originalUnits)
-	{
-		this.w_o_ij = this.w_o_ij * lbsPerTon / ft2PerAcre#)//ton/acre to lb/ft^2
-		this.M_x_1 = this.M_x_1 / 100//% to fraction
 	}
 
 	fmCSV.close();
@@ -350,13 +353,13 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
  * @param fuelModelTableFile The CSV file containing the table of fuel models.
- * @param originalUnits If true then the fuel model table file is in the original United States
- * customary units with loading in ton/acre..
+ * @param spreadModelUnits If true then convert units used in the file that differ from those used
+ * in the Rothermel & Albini spread model.
  */
 FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNumber,
-                              bool originalUnits)
+                              bool spreadModelUnits)
 {
-	FuelModel fm(fuelModelTableFile, modelNumber, originalUnits);
+	FuelModel fm(fuelModelTableFile, modelNumber, spreadModelUnits);
 
 	return fm;
 }
@@ -365,12 +368,13 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNum
  *
  * @param modelCode The unique alphanumeric code of the fuel model requested.
  * @param fuelModelTableFile The CSV file containing the table of fuel models.
- * @param originalUnits If true then the fuel model table file is in the original United States customary units.
+ * @param spreadModelUnits If true then convert units used in the file that differ from those used
+ * in the Rothermel & Albini spread model.
  */
 FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string modelCode, 
-                              bool originalUnits)
+                              bool spreadModelUnits)
 {
-	FuelModel fm(fuelModelTableFile, modelCode, originalUnits);
+	FuelModel fm(fuelModelTableFile, modelCode, spreadModelUnits);
 
 	return fm;
 }

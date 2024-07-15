@@ -18,17 +18,17 @@
 #  a number is passed and does not match a known model number it is interpreted as an index, that is
 #  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
 #fuelModelPath = The path to the CSV file containing the table of fuel models.
-#originalUnits = If true then the fuel model table file is in the original published United States
-#  customary units with loading in ton/acre.
+#spreadModelUnits= If true then convert units used in the file that differ from those used in the
+#Rothermel & Albini spread model.
 #
 #ToDo:
-# - The function assumes the input data is in its original English units if originalUnits is true
-#  but there handling for when this is false is missing.  We could add an inputUnits parameter
+# - The function assumes the input data is in its original English units if spreadModelUnits is true
+#  but there handling for when this is false or is missing.  We could add an inputUnits parameter
 #  to allow the input file to be in metric or alter the parameter behavior.
 # - There is a question of whether to add M_f / M_f_ij to the data structure.
 #
 #Note: This expects draft 3 (D3) of the standard fuel models spreadsheet.
-GetFuelModelFromCSV <- function(modelID, fuelModelPath, originalUnits = TRUE)
+GetFuelModelFromCSV <- function(modelID, fuelModelPath, spreadModelUnits = TRUE)
 {
   fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
   
@@ -92,8 +92,11 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath, originalUnits = TRUE)
   SAV_ij[is.na(SAV_ij)] = 0
   fuelModel$SAV_ij = SAV_ij
   
-  #The units of some parameters are different in the table than the model equations:
-  if (originalUnits)
+  #Typically the units of some parameters are different in the published tables than in the
+  #model equations:
+  #It would be an improvement to detect the units used the file.  That information is currently
+  #in the header information but not in a form that would be idead to parse.
+  if (spreadModelUnits)
   {
     fuelModel$w_o_ij = fuelModel$w_o_ij * lbsPerTon / ft2PerAcre#)#ton/acre to lb/ft^2
     fuelModel$M_x = fuelModel$M_x / 100#% to fraction
