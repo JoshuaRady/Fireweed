@@ -14,9 +14,18 @@ Reference: Proj. 11 Exp. 19
 
 /** UnitsType
  *
- * A type to specify the units to be used or in use.
+ * A type to specify the units class to be used or in use.  The options are 'US' for United States
+ * customary units or 'Metric' for metric.
  */
 enum UnitsType {US, Metric};
+
+/** UnitCode
+ *
+ * Symbols for identifying specific units.
+ *
+ * Should there be undefined / no units / NA symbol?
+ */
+enum UnitCode {lbPer_ft2, tonPerAc, kgPer_m2, Percent, Fraction}
 
 //--------------------------------------------------------------------------------------------------
 /** Unit Conversion Factors

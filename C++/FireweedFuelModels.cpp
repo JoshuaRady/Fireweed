@@ -103,6 +103,9 @@ void FuelModel::Initialize()
 	cured = FALSE;
 	numClasses = 5;//Standard fuel model.
 
+	w_o_Units = lbPer_ft2;//Model units.
+	M_x_Units = Fraction;//Model units.
+
 	SAV_ij.resize(5, 0);//All fuel classes are absent.
 	w_o_ij.resize(5, 0);//Important.
 
@@ -136,6 +139,9 @@ void FuelModel::Initialize()
  * We may change this to have a failed search throw an error.  Initializing the object to the
  * default state at the start of this routine also an option but this implementation may have some
  * advantages.
+ *
+ * Note: This code currently assumes the units of the file are in United States customary units with
+ * loadings in ton/acre and moisture of extinction in percent.
  */
 void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPath = 
                             int modelNumber, std::string modelCode,
@@ -331,11 +337,20 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//Typically the units of some parameters are different in the published tables than in the
 		//model equations:
 		//It would be an improvement to detect the units used the file.  That information is currently
-		//in the header information but not in a form that would be idead to parse.
+		//in the header information but not in a form that would be ideal to parse.
 		if (spreadModelUnits)
 		{
 			this.w_o_ij = this.w_o_ij * lbsPerTon / ft2PerAcre#)//ton/acre to lb/ft^2
 			this.M_x_1 = this.M_x_1 / 100//% to fraction
+
+			//Record the units used:
+			w_o_Units = lbPer_ft2;
+			M_x_Units = Fraction;
+		}
+		else
+		{
+			w_o_Units = tonPerAc;
+			M_x_Units = Percent;
 		}
 	}
 	else

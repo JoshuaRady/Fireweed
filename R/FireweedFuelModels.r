@@ -28,6 +28,8 @@
 # - There is a question of whether to add M_f / M_f_ij to the data structure.
 #
 #Note: This expects draft 3 (D3) of the standard fuel models spreadsheet.
+#Note: This code currently assumes the units of the file are in United States customary units with
+#loadings in ton/acre and moisture of extinction in percent.
 GetFuelModelFromCSV <- function(modelID, fuelModelPath, spreadModelUnits = TRUE)
 {
   fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
@@ -95,11 +97,20 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath, spreadModelUnits = TRUE)
   #Typically the units of some parameters are different in the published tables than in the
   #model equations:
   #It would be an improvement to detect the units used the file.  That information is currently
-  #in the header information but not in a form that would be idead to parse.
+  #in the header information but not in a form that would be ideal to parse.
   if (spreadModelUnits)
   {
     fuelModel$w_o_ij = fuelModel$w_o_ij * lbsPerTon / ft2PerAcre#)#ton/acre to lb/ft^2
     fuelModel$M_x = fuelModel$M_x / 100#% to fraction
+    
+    #Record the units used:
+    w_o_Units = "lbPer_ft2"
+    M_x_Units = "Fraction"
+  }
+  else
+  {
+    w_o_Units = "tonPerAc"
+    M_x_Units = "Percent"
   }
   
   #Expand parameters with fixed values across all fuel classes:
