@@ -48,9 +48,9 @@ spread model and related models.
  *
  * By default create a generic empty / no fuel loading model.
  */
-void FuelModel::FuelModel()
+FuelModel::FuelModel()
 {
-	this.Initialize();
+	Initialize();
 }
 
 /** File constructor: Initialize the fuel model specified by number from the specified file.
@@ -60,11 +60,11 @@ void FuelModel::FuelModel()
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  * in the Rothermel & Albini spread model.
  */
-void FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
+FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
                           bool spreadModelUnits)
 {
-	this.Initialize();
-	this.LoadFromCSV(fuelModelTableFile, modelNumber. "", spreadModelUnits);
+	Initialize();
+	LoadFromCSV(fuelModelTableFile, modelNumber, "", spreadModelUnits);
 }
 
 /** File constructor: Initialize the fuel model specified by code from the specified file.
@@ -74,11 +74,11 @@ void FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  * in the Rothermel & Albini spread model.
  */
-void FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
+FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
                           bool spreadModelUnits)
 {
-	this.Initialize();
-	this.LoadFromCSV(fuelModelTableFile, -1, modelCode, spreadModelUnits);
+	Initialize();
+	LoadFromCSV(fuelModelTableFile, -1, modelCode, spreadModelUnits);
 }
 
 //Private functions:--------------------------------------------------------------------------------
@@ -97,10 +97,10 @@ void FuelModel::Initialize()
 	//Alternatively we could default the IDs to one of the nonburnable fuel models:
 	number = -1;//Set to impossible value.
 	code = "NA";//Alphanumeric code identifying the model.
-	name "Empty fuel model";//Descriptive name.
+	name = "Empty fuel model";//Descriptive name.
 	type = Static;
-	units = "US";//Default to the units of the original papers.
-	cured = FALSE;
+	units = US;//Default to the units of the original papers.
+	cured = false;
 	numClasses = 5;//Standard fuel model.
 
 	w_o_Units = lbPer_ft2;//Model units.
@@ -155,7 +155,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	//Error handling?????
 
 	//Skip the first 3 lines, which are human readable column headers.
-	for (i = 3; i > 0; i--)
+	for (int i = 3; i > 0; i--)
 	{
 		std::getline(fmCSV, str);
 	}
@@ -177,7 +177,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 
 		//The first field is the fuel model number:
 		std::getline(strStr, field, delimiter);
-		int theModelNumber = stoi(field)
+		int theModelNumber = stoi(field);
 
 		//The second field is the fuel model code:
 		std::getline(strStr, field, delimiter);
@@ -208,30 +208,30 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//This may ignore the fields pulled off above, which will cause the indexes to not match!!!!!
 		std::vector<std::string> fields = SplitDelim(strStr, delimiter);
 		
-		this.number = theModelNumber;
-		this.code = field;
+		this->number = theModelNumber;
+		this->code = field;
 		//The remaining fields, other than the name and type, are numeric so could be converted here?
 
 		units = US;//Assumed to always be the case for now.  Should be determined or set.
-		this.cured = false;
+		this->cured = false;
 
 		//Load the field values into the appropriate data members:
 		//This is a bit of extra processing that allows us the not worry about the field order.
-		for (j = 0; j < sizeof(feilds); j ++)
+		for (int j = 0; j < sizeof(fields); j ++)
 		{
 			if (colNames[j].compare("Name"))
 			{
-				this.name = fields[j];
+				this->name = fields[j];
 			}
 			else if (colNames[j].compare("Type"))
 			{
 				if (fields[j].compare("Static"))
 				{
-					this.type = Static;
+					this->type = Static;
 				}
 				else if (fields[j].compare("Dynamic"))
 				{
-					this.type = Dynamic;
+					this->type = Dynamic;
 				}
 				//else//Error handling:
 				//{
@@ -240,93 +240,93 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 			}
 			else if (colNames[j].compare("SAV_11"))
 			{
-				this.SAV_ij[0] = stof(fields[j]);
+				this->SAV_ij[0] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("SAV_12"))
 			{
-				this.SAV_ij[1] = stof(atof(fields[j]));
+				this->SAV_ij[1] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("SAV_13"))
 			{
-				this.SAV_ij[2] = stof(fields[j]);
+				this->SAV_ij[2] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("SAV_21"))
 			{
-				if fields[j].compare("NA")
+				if (fields[j].compare("NA"))
 				{
-					this.SAV_ij[3] = 0.0;
+					this->SAV_ij[3] = 0.0;
 				}
 				else
 				{
-					this.SAV_ij[3] = stof(fields[j]);
+					this->SAV_ij[3] = stof(fields[j]);
 				}
 			}
 			else if (colNames[j].compare("SAV_22"))
 			{
-				if fields[j].compare("NA")
+				if (fields[j].compare("NA"))
 				{
-					this.SAV_ij[4] = 0.0;
+					this->SAV_ij[4] = 0.0;
 				}
 				else
 				{
-					this.SAV_ij[4] = stof(fields[j]);
+					this->SAV_ij[4] = stof(fields[j]);
 				}
 			}
 			else if (colNames[j].compare("w_o_11"))
 			{
-				this.w_o_ij[0] = stof(fields[j]);
+				this->w_o_ij[0] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("w_o_12"))
 			{
-				this.w_o_ij[1] = stof(fields[j]);
+				this->w_o_ij[1] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("w_o_13"))
 			{
-				this.w_o_ij[2] = stof(fields[j]);
+				this->w_o_ij[2] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("w_o_21"))
 			{
-				this.w_o_ij[3] = stof(fields[j]);
+				this->w_o_ij[3] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("w_o_22"))
 			{
-				this.w_o_ij[4] = stof(fields[j]);
+				this->w_o_ij[4] = stof(fields[j]);
 			}
 			else if (colNames[j].compare("delta"))
 			{
-				this.delta = stof(fields[j]);
+				this->delta = stof(fields[j]);
 			}
 			else if (colNames[j].compare("M_x"))
 			{
-				this.M_x_1 = stof(fields[j]);
+				this->M_x_1 = stof(fields[j]);
 			}
 			else if (colNames[j].compare("h"))
 			{
-				std::fill(this.h_ij, h_ij.begin(), h_ij.end(), stof(fields[j]));
+				std::fill(h_ij.begin(), h_ij.end(), stof(fields[j]));
 			}
 			else if (colNames[j].compare("S_T"))
 			{
-				std::fill(this.S_T_ij, S_T_ij.begin(), S_T_ij.end(), stof(fields[j]));
+				std::fill(S_T_ij.begin(), S_T_ij.end(), stof(fields[j]));
 			}
 			else if (colNames[j].compare("S_e"))
 			{
-				std::fill(this.S_e_ij, S_e_ij.begin(), S_e_ij.end(), stof(fields[j]));
+				std::fill(S_e_ij.begin(), S_e_ij.end(), stof(fields[j]));
 			}
 			else if (colNames[j].compare("rho_p"))
 			{
-				std::fill(this.rho_p_ij, rho_p_ij.begin(), rho_p_ij.end(), stof(fields[j]));
+				std::fill(rho_p_ij.begin(), rho_p_ij.end(), stof(fields[j]));
 			}
 			else if (colNames[j].compare("CharacteristicSAV"))
 			{
-				this.cSAV = stof(fields[j]);
+				this->cSAV = stof(fields[j]);
 			}
 			else if (colNames[j].compare("BulkDensity"))
 			{
-				this.bulkDensity = stof(fields[j]);
+				this->bulkDensity = stof(fields[j]);
 			}
 			else if (colNames[j].compare("RelativePackingRatio"))
 			{
-				this.relativePackingRatio = stof(fields[j]);
+				this->relativePackingRatio = stof(fields[j]);
 			}
 			else//Unrecognized field.  Report it?
 			{
@@ -340,8 +340,11 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//in the header information but not in a form that would be ideal to parse.
 		if (spreadModelUnits)
 		{
-			this.w_o_ij = this.w_o_ij * lbsPerTon / ft2PerAcre#)//ton/acre to lb/ft^2
-			this.M_x_1 = this.M_x_1 / 100//% to fraction
+			for (int i; i < numClasses; i++)
+			{
+				this->w_o_ij[i] = this->w_o_ij[i] * lbsPerTon / ft2PerAcre;//ton/acre to lb/ft^2
+			}
+			this->M_x_1 = this->M_x_1 / 100;//% to fraction
 
 			//Record the units used:
 			w_o_Units = lbPer_ft2;
@@ -407,7 +410,7 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 	
 	while(getline(strStr, substring, delimiter))
 	{
-		substrings.pushback(substring);
+		substrings.push_back(substring);
 	}
 	
 	return substrings;

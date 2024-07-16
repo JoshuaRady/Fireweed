@@ -73,7 +73,7 @@ class FuelModel {
 	//Fuel array:
 	std::vector <double> SAV_ij;//Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
 
-	std::vector <double> w_o_ij,//An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+	std::vector <double> w_o_ij;//An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
 	double delta;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 	std::vector <int> liveDead;//The live / dead category of each fuel class.
 
@@ -101,7 +101,7 @@ class FuelModel {
 
 	//Fuel particle density (lb/ft^3 | kg/m^3):
 	std::vector <double> rho_p_ij;
-	double& rho_p[0];
+	double& rho_p = rho_p_ij[0];
 
 	//Precalculated columns (could be removed):
 	double cSAV;//Characteristic SAV of the fuel bed.
@@ -109,10 +109,9 @@ class FuelModel {
 	double relativePackingRatio;
 
 	//Constructors:
-	void FuelModel();
-	void FuelModel(const std::string& fuelModelTableFile, int modelNumber, bool spreadModelUnits);
-	void FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
-	               bool spreadModelUnits);
+	FuelModel();
+	FuelModel(const std::string& fuelModelTableFile, int modelNumber, bool spreadModelUnits);
+	FuelModel(const std::string& fuelModelTableFile, std::string modelCode,  bool spreadModelUnits);
 	
 	//Add unit conversion function.
 	//Add print method.
@@ -120,7 +119,7 @@ class FuelModel {
 	private:
 	void Initialize();//Init(), InitBlank()?
 	void LoadFromCSV(const std::string& fuelModelTableFile, int modelNumber,
-	                 std::string modelCode, bool spreadModelUnits = true)
+	                 std::string modelCode, bool spreadModelUnits = true);
 };
 
 //External functions:
@@ -129,5 +128,6 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNum
                               bool spreadModelUnits = true);
 FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string modelCode,
                               bool spreadModelUnits = true);
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter);
 
 #endif

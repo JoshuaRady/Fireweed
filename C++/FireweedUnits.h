@@ -25,7 +25,7 @@ enum UnitsType {US, Metric};
  *
  * Should there be undefined / no units / NA symbol?
  */
-enum UnitCode {lbPer_ft2, tonPerAc, kgPer_m2, Percent, Fraction}
+enum UnitCode {lbPer_ft2, tonPerAc, kgPer_m2, Percent, Fraction};
 
 //--------------------------------------------------------------------------------------------------
 /** Unit Conversion Factors
@@ -41,7 +41,7 @@ const double cmPerIn = 2.54;
 const double cmPerFt = 30.48;
 const double mPerFt = 0.3048;
 const double ftPerM = 3.28084;//1 / mPerFt
-const int ftPerMi = 5280;//* for conversion of windspeed (U, MPH * ftPerMi / 60 = ft/min)
+const double ftPerMi = 5280;//* for conversion of windspeed (U, MPH * ftPerMi / 60 = ft/min)
 
 //SAV is in ft^2/ft^3 = 1/ft or cm^2/cm^3 = 1/cm
 //Therefore units convert: ft^2/ft^3 * cmPerFt^2/cmPerFt^2 = 1/ft * 1/cmPerFt = 1/cm
@@ -52,7 +52,7 @@ const double ft2PerAcre = 43560;//*
 
 //Mass:
 const double kgPerLb = 0.453592;
-const int lbsPerTon = 2000;//*
+const int lbsPerTon = 2000;
 
 //Density:
 const double lbPerFtCuToKgPerMCu = 16.0185;//kgPerLb * (ftPerM)^3, 16.01846337396
