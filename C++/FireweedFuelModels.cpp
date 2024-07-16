@@ -148,7 +148,10 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
                             bool spreadModelUnits)
 {
 	char delimiter = ',';
-	std::string str;//To hold lines...
+	std::string line;//To hold lines of the input file.
+	bool found = false;	
+	std::string theModelCode;
+	int theModelNumber;
 
 	//Open the file:
 	std::ifstream fmCSV(fuelModelTableFile);
@@ -157,30 +160,30 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	//Skip the first 3 lines, which are human readable column headers.
 	for (int i = 3; i > 0; i--)
 	{
-		std::getline(fmCSV, str);
+		std::getline(fmCSV, line);
 	}
 	
 	//Get the parsable header line:
-	std::getline(fmCSV, str);
+	std::getline(fmCSV, line);
 	
 	//Extract the column names from the header:
-	std::vector<std::string> colNames = SplitDelim(str, delimiter);
+	std::vector<std::string> colNames = SplitDelim(line, delimiter);
 	
 	//Search rows until a match is found:
-	bool found = false;
-	while(std::getline(fmCSV, str))
+	while(std::getline(fmCSV, line))
 	{
-		std::stringstream strStr(str);//This line as a stream.
-		std::string field;//Or token
+		std::stringstream lineStr(line);//This line as a stream.
+		std::string field;//A field or token extracted from the line.
 
 		//Given the code devoted to making the column order agnostic below we ought to search for these:
 
 		//The first field is the fuel model number:
-		std::getline(strStr, field, delimiter);
-		int theModelNumber = stoi(field);
+		std::getline(lineStr, field, delimiter);
+		theModelNumber = stoi(field);
 
 		//The second field is the fuel model code:
-		std::getline(strStr, field, delimiter);
+		std::getline(lineStr, field, delimiter);
+		theModelCode = field;
 
 		//Choose the selection method:
 		if (modelNumber != -1)//Search with the model number:
@@ -205,11 +208,12 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	//Extract fields from the matching row:
 	if (found == true)
 	{
-		//This may ignore the fields pulled off above, which will cause the indexes to not match!!!!!
-		std::vector<std::string> fields = SplitDelim(strStr, delimiter);
+		//std::stringstream lineStr2(line);//The matching line as a stream.  We start over so all fields are included.
+		//std::vector<std::string> fields = SplitDelim(lineStr2, delimiter);
+		std::vector<std::string> fields = SplitDelim(line, delimiter);
 		
 		this->number = theModelNumber;
-		this->code = field;
+		this->code = theModelCode;
 		//The remaining fields, other than the name and type, are numeric so could be converted here?
 
 		units = US;//Assumed to always be the case for now.  Should be determined or set.
