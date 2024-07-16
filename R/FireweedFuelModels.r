@@ -100,7 +100,7 @@ GetFuelModelFromCSV <- function(modelID, fuelModelPath, spreadModelUnits = TRUE)
   #in the header information but not in a form that would be ideal to parse.
   if (spreadModelUnits)
   {
-    fuelModel$w_o_ij = fuelModel$w_o_ij * lbsPerTon / ft2PerAcre#)#ton/acre to lb/ft^2
+    fuelModel$w_o_ij = fuelModel$w_o_ij * lbsPerTon / ft2PerAcre#ton/acre to lb/ft^2
     fuelModel$M_x = fuelModel$M_x / 100#% to fraction
     
     #Record the units used:
