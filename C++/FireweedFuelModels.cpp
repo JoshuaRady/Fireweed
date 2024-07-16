@@ -221,7 +221,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 
 		//Load the field values into the appropriate data members:
 		//This is a bit of extra processing that allows us the not worry about the field order.
-		for (int j = 0; j < sizeof(fields); j ++)
+		//for (int j = 0; j < sizeof(fields); j ++)
+		for (int j = 0; j < fields.size(); j ++)
 		{
 			if (colNames[j].compare("Name"))
 			{
