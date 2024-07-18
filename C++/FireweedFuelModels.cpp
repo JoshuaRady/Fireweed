@@ -292,12 +292,12 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	std::vector<std::string> colNames = SplitDelim(line, delimiter);
 	
 	//std::cout << "colNames" << colNames << std::endl;//Temp debugging.
-	std::cout << "colNames: ";//Temp debugging.
+	std::cout << "colNames: " << std::endl;//Temp debugging:
 	for (std::string colName : colNames)
 	{
 		std::cout << colName << ", ";
 	}
-	std::cout << std::endl;
+	std::cout << std::endl;//
 	
 	//Search rows until a match is found:
 	while(std::getline(fmCSV, line))
@@ -347,12 +347,12 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//std::vector<std::string> fields = SplitDelim(lineStr2, delimiter);
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
 		
-		std::cout << "fields: ";//Temp debugging.
+		std::cout << "fields: " << std::endl;//Temp debugging:
 		for (std::string theField : fields)
 		{
 			std::cout << theField << ", ";
 		}
-		std::cout << std::endl;
+		std::cout << std::endl;//
 
 		this->number = theModelNumber;
 		this->code = theModelCode;
@@ -364,8 +364,10 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//Load the field values into the appropriate data members:
 		//This is a bit of extra processing that allows us the not worry about the field order.
 		//for (int j = 0; j < sizeof(fields); j ++)
-		for (int j = 0; j < fields.size(); j ++)
+		for (int j = 0; j < fields.size(); j++)
 		{
+			std::cout << j << std::endl;//Temp debugging.
+			
 			if (!colNames[j].compare("Name"))
 			{
 				this->name = fields[j];
@@ -473,7 +475,11 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 			}
 			else if (!colNames[j].compare("RelativePackingRatio"))
 			{
+				std::cout << "Match RelativePackingRatio" << std::endl;//Temp debugging.
 				this->relativePackingRatio = stof(fields[j]);
+				std::cout << "j" << j << std::endl;//Temp debugging.
+				std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
+				std::cout << "stof(fields[j])" << stof(fields[j]) << std::endl;//Temp debugging.
 			}
 			else//Unrecognized field.  Report it?
 			{
