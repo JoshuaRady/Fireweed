@@ -331,7 +331,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 	//Extract fields from the matching row:
 	if (found == true)
 	{
-		std::cout << "Match found!" << std::endl;//Temp debugging.
+		//std::cout << "Match found!" << std::endl;//Temp debugging.
 
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
 
@@ -346,7 +346,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 		//This is a bit of extra processing that allows us to not worry about the field order.
 		for (int j = 0; j < fields.size(); j++)
 		{
-			std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
+			//std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
 
 			if (colNames[j] == "Name")
 			{
@@ -354,11 +354,11 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 			}
 			else if (colNames[j] == "Type")
 			{
-				if (colNames[j] == "Static")
+				if (fields[j] == "Static")
 				{
 					type = Static;
 				}
-				else if (colNames[j] == "Dynamic")
+				else if (fields[j] == "Dynamic")
 				{
 					type = Dynamic;
 				}
@@ -381,7 +381,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 			}
 			else if (colNames[j] == "SAV_21")
 			{
-				if (colNames[j] == "NA")
+				if (fields[j] == "NA")
 				{
 					SAV_ij[3] = 0.0;
 				}
@@ -392,7 +392,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 			}
 			else if (colNames[j] == "SAV_22")
 			{
-				if (colNames[j] == "NA")
+				if (fields[j] == "NA")
 				{
 					SAV_ij[4] = 0.0;
 				}
