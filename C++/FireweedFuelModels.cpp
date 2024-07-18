@@ -110,7 +110,16 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	}
 
 	//Should add member to indicate units of fuel loading.
-	output << "Cured: " << cured << std::endl;
+	//output << "Cured: " << cured << std::endl;
+	if (cured)
+	{
+		output << "Cured: true" << std::endl;
+	}
+	else
+	{
+		output << "Cured: false" << std::endl;
+	}
+
 	output << "numClasses: " << numClasses << std::endl;
 
 	output << "w_o_Units: ";
@@ -170,16 +179,16 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	output << "M_x / M_x_1: " << M_x_1 << std::endl;
 
 	//output << "h: " << h << std::endl;//Not really necessary.
-	PrintVector(output, h_ij);
+	output << "h_ij: " << PrintVector(output, h_ij);
 
-	output << "S_T: " << S_T << std::endl;//Not really necessary.
-	PrintVector(output, S_T_ij);
+	//output << "S_T: " << S_T << std::endl;//Not really necessary.
+	output << "S_T_ij: " << PrintVector(output, S_T_ij);
 	
 	output << "S_e: " << S_e << std::endl;//Not really necessary.
-	PrintVector(output, S_e_ij);
+	output << "S_e_ij: " << PrintVector(output, S_e_ij);
 
 	output << "rho_p: " << rho_p << std::endl;//Not really necessary.
-	PrintVector(output, rho_p_ij);
+	output << "rho_p_ij: " << PrintVector(output, rho_p_ij);
 
 	output << "cSAV: " << cSAV << std::endl;
 	output << "numCbulkDensitylasses: " << bulkDensity << std::endl;
@@ -546,7 +555,7 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 //std::ostream& PrintVector(std::ostream& output, std::vector <double>& vec, std::string separator)
 std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator)
 {
-	for (int i; i < vec.size() - 1; i++)
+	for (int i = 0; i < vec.size() - 1; i++)
 	{
 		output << vec[i] << separator;
 	}
