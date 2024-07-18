@@ -331,7 +331,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 	//Extract fields from the matching row:
 	if (found == true)
 	{
-		//The matching line as a stream.  We start over so all fields are included:
+		std::cout << "Match found!" << std::endl;//Temp debugging.
+
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
 
 		number = theModelNumber;
@@ -345,6 +346,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 		//This is a bit of extra processing that allows us to not worry about the field order.
 		for (int j = 0; j < fields.size(); j++)
 		{
+			std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
+
 			if (colNames[j] == "Name")
 			{
 				name = fields[j];
