@@ -113,10 +113,34 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	output << "Cured: " << cured << std::endl;
 	output << "numClasses: " << numClasses << std::endl;
 
-	UnitCode w_o_Units;//Units used for w_o_ij.
-	UnitCode M_x_Units;
+	output << "w_o_Units: ";
+	if (w_o_Units == lbPer_ft2)
+	{
+		output << "lb/ft^2" << std::endl;
+	}
+	else if (w_o_Units == tonPerAc)
+	{
+		output << "ton/Ac" << std::endl;
+	}
+	else if (w_o_Units == kgPer_m2)
+	{
+		output << "kg/m^2" << std::endl;
+	}
+	//else error
+	
+	output << "M_x_Units: ";
+	if (w_o_Units == Percent)
+	{
+		output << "Percent" << std::endl;
+	}
+	else if (w_o_Units == Fraction)
+	{
+		output << "Fraction" << std::endl;
+	}
+	//else error
 
 	//I prefer lists separated by commas but that requires a more complex loop.
+	output << "SAV_ij: ";
 	//for (int i; i > numClasses; i++)
 	for (double sav : SAV_ij)
 	{
@@ -128,22 +152,24 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	
 	output << "Delta: " << delta << std::endl;
 
+	output << "LiveDead: ";
 	//PrintVector(output, liveDead);//Will cast to double?
 	for (int ld : liveDead)
 	{
 		if (ld == Dead)
 		{
-			output << Dead << " ";
+			output << "Dead" << " ";
 		}
 		else//(ld == Live)
 		{
-			output << Live << " ";
+			output << "Live" << " ";
 		}
 	}
+	output << std::endl;
 
 	output << "M_x / M_x_1: " << M_x_1 << std::endl;
 
-	output << "h: " << h << std::endl;//Not really necessary.
+	//output << "h: " << h << std::endl;//Not really necessary.
 	PrintVector(output, h_ij);
 
 	output << "S_T: " << S_T << std::endl;//Not really necessary.
