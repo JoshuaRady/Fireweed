@@ -295,9 +295,10 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	std::cout << "colNames: " << std::endl;//Temp debugging:
 	for (std::string colName : colNames)
 	{
-		std::cout << colName << ", ";
+		//std::cout << colName << ", ";
+		std::cout << theField << ", " << std::endl;
 	}
-	std::cout << std::endl;//
+	std::cout << std::endl;//End debug.
 	
 	//Search rows until a match is found:
 	while(std::getline(fmCSV, line))
@@ -342,6 +343,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	if (found == true)
 	{
 		std::cout << "Match found!" << std::endl;//Temp debugging.
+		std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
 		
 		//std::stringstream lineStr2(line);//The matching line as a stream.  We start over so all fields are included.
 		//std::vector<std::string> fields = SplitDelim(lineStr2, delimiter);
@@ -353,7 +355,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 			//std::cout << theField << ", ";
 			std::cout << theField << ", " << std::endl;
 		}
-		//std::cout << std::endl;//
+		//std::cout << std::endl;////End debug.
 
 		this->number = theModelNumber;
 		this->code = theModelCode;
@@ -363,7 +365,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		this->cured = false;
 
 		//Load the field values into the appropriate data members:
-		//This is a bit of extra processing that allows us the not worry about the field order.
+		//This is a bit of extra processing that allows us to not worry about the field order.
 		//for (int j = 0; j < sizeof(fields); j ++)
 		for (int j = 0; j < fields.size(); j++)
 		{
@@ -485,6 +487,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 			else//Unrecognized field.  Report it?
 			{
 				//
+				std::cout << "Unrecognized: " << fields[j] << std::endl;//Temp debugging.
 			}
 		}
 
