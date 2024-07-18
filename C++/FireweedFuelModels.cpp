@@ -286,12 +286,13 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	
 	//Get the parsable header line:
 	std::getline(fmCSV, line);
-	std::cout << "line" << line << std::endl;//Temp debugging.
+	//std::cout << "line: " << line << std::endl;//Temp debugging.
 	
 	//Extract the column names from the header:
 	std::vector<std::string> colNames = SplitDelim(line, delimiter);
 	
 	//std::cout << "colNames" << colNames << std::endl;//Temp debugging.
+	std::cout << "colNames: ";//Temp debugging.
 	for (std::string colName : colNames)
 	{
 		std::cout << colName << ", ";
@@ -328,7 +329,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		}
 		else//If an invalid model number was passed search using the model code:
 		{
-			if (modelCode.compare(field))
+			//if (modelCode.compare(field))
+			if (theModelCode == modelCode)
 			{
 				found = true;
 				break;
@@ -345,6 +347,13 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//std::vector<std::string> fields = SplitDelim(lineStr2, delimiter);
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
 		
+		std::cout << "fields: ";//Temp debugging.
+		for (std::string theField : fields)
+		{
+			std::cout << theField << ", ";
+		}
+		std::cout << std::endl;
+
 		this->number = theModelNumber;
 		this->code = theModelCode;
 		//The remaining fields, other than the name and type, are numeric so could be converted here?
@@ -357,17 +366,17 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//for (int j = 0; j < sizeof(fields); j ++)
 		for (int j = 0; j < fields.size(); j ++)
 		{
-			if (colNames[j].compare("Name"))
+			if (!colNames[j].compare("Name"))
 			{
 				this->name = fields[j];
 			}
-			else if (colNames[j].compare("Type"))
+			else if (!colNames[j].compare("Type"))
 			{
-				if (fields[j].compare("Static"))
+				if (!fields[j].compare("Static"))
 				{
 					this->type = Static;
 				}
-				else if (fields[j].compare("Dynamic"))
+				else if (!fields[j].compare("Dynamic"))
 				{
 					this->type = Dynamic;
 				}
@@ -376,21 +385,21 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 				//	Error("Invalid value for fuel model type.")
 				//}
 			}
-			else if (colNames[j].compare("SAV_11"))
+			else if (!colNames[j].compare("SAV_11"))
 			{
 				this->SAV_ij[0] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("SAV_12"))
+			else if (!colNames[j].compare("SAV_12"))
 			{
 				this->SAV_ij[1] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("SAV_13"))
+			else if (!colNames[j].compare("SAV_13"))
 			{
 				this->SAV_ij[2] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("SAV_21"))
+			else if (!colNames[j].compare("SAV_21"))
 			{
-				if (fields[j].compare("NA"))
+				if (!fields[j].compare("NA"))
 				{
 					this->SAV_ij[3] = 0.0;
 				}
@@ -399,9 +408,9 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 					this->SAV_ij[3] = stof(fields[j]);
 				}
 			}
-			else if (colNames[j].compare("SAV_22"))
+			else if (!colNames[j].compare("SAV_22"))
 			{
-				if (fields[j].compare("NA"))
+				if (!fields[j].compare("NA"))
 				{
 					this->SAV_ij[4] = 0.0;
 				}
@@ -410,59 +419,59 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 					this->SAV_ij[4] = stof(fields[j]);
 				}
 			}
-			else if (colNames[j].compare("w_o_11"))
+			else if (!colNames[j].compare("w_o_11"))
 			{
 				this->w_o_ij[0] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("w_o_12"))
+			else if (!colNames[j].compare("w_o_12"))
 			{
 				this->w_o_ij[1] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("w_o_13"))
+			else if (!colNames[j].compare("w_o_13"))
 			{
 				this->w_o_ij[2] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("w_o_21"))
+			else if (!colNames[j].compare("w_o_21"))
 			{
 				this->w_o_ij[3] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("w_o_22"))
+			else if (!colNames[j].compare("w_o_22"))
 			{
 				this->w_o_ij[4] = stof(fields[j]);
 			}
-			else if (colNames[j].compare("delta"))
+			else if (!colNames[j].compare("delta"))
 			{
 				this->delta = stof(fields[j]);
 			}
-			else if (colNames[j].compare("M_x"))
+			else if (!colNames[j].compare("M_x"))
 			{
 				this->M_x_1 = stof(fields[j]);
 			}
-			else if (colNames[j].compare("h"))
+			else if (!colNames[j].compare("h"))
 			{
 				std::fill(h_ij.begin(), h_ij.end(), stof(fields[j]));
 			}
-			else if (colNames[j].compare("S_T"))
+			else if (!colNames[j].compare("S_T"))
 			{
 				std::fill(S_T_ij.begin(), S_T_ij.end(), stof(fields[j]));
 			}
-			else if (colNames[j].compare("S_e"))
+			else if (!colNames[j].compare("S_e"))
 			{
 				std::fill(S_e_ij.begin(), S_e_ij.end(), stof(fields[j]));
 			}
-			else if (colNames[j].compare("rho_p"))
+			else if (!colNames[j].compare("rho_p"))
 			{
 				std::fill(rho_p_ij.begin(), rho_p_ij.end(), stof(fields[j]));
 			}
-			else if (colNames[j].compare("CharacteristicSAV"))
+			else if (!colNames[j].compare("CharacteristicSAV"))
 			{
 				this->cSAV = stof(fields[j]);
 			}
-			else if (colNames[j].compare("BulkDensity"))
+			else if (!colNames[j].compare("BulkDensity"))
 			{
 				this->bulkDensity = stof(fields[j]);
 			}
-			else if (colNames[j].compare("RelativePackingRatio"))
+			else if (!colNames[j].compare("RelativePackingRatio"))
 			{
 				this->relativePackingRatio = stof(fields[j]);
 			}
