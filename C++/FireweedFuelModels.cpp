@@ -61,7 +61,7 @@ FuelModel::FuelModel()
  * in the Rothermel & Albini spread model.
  */
 FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
-                          bool spreadModelUnits)
+                     bool spreadModelUnits)
 {
 	Initialize();
 	LoadFromCSV(fuelModelTableFile, modelNumber, "", spreadModelUnits);
@@ -75,10 +75,91 @@ FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
  * in the Rothermel & Albini spread model.
  */
 FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
-                          bool spreadModelUnits)
+                     bool spreadModelUnits)
 {
 	Initialize();
 	LoadFromCSV(fuelModelTableFile, -1, modelCode, spreadModelUnits);
+}
+
+/** Print the fuel model data to an output stream.
+ *
+ */
+std::ostream& FuelModel::Print(std::ostream& output) const
+{
+	output << "Fuel model:" << std::endl;
+	output << "Number: " << number << std::endl;
+	output << "Code: " << code << std::endl;
+	output << "Name: " << name << std::endl;
+	
+	if (type == Static)
+	{
+		output << "Type: Static" << std::endl;
+	}
+	else
+	{
+		output << "Type Dynamic" << std::endl;
+	}
+	
+	if (units == US)
+	{
+		output << "Units: Metric" << std::endl;
+	}
+	else
+	{
+		output << "Units: US" << std::endl;
+	}
+
+	//Should add member to indicate units of fuel loading.
+	output << "Cured: " << cured << std::endl;
+	output << "numClasses: " << numClasses << std::endl;
+
+	UnitCode w_o_Units;//Units used for w_o_ij.
+	UnitCode M_x_Units;
+
+	//I prefer lists separated by commas but that requires a more complex loop.
+	//for (int i; i > numClasses; i++)
+	for (double sav : SAV_ij)
+	{
+		output << sav << " ";
+	}
+	output << std::endl;
+
+	std::vector <double> w_o_ij;//An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+	
+	output << "Delta: " << delta << std::endl;
+
+	//PrintVector(output, liveDead);//Will cast to double?
+	for (int ld : liveDead)
+	{
+		if (ld == Dead)
+		{
+			output << Dead << " ";
+		}
+		else//(ld == Live)
+		{
+			output << Live << " ";
+		}
+	}
+
+	output << "M_x / M_x_1: " << M_x_1 << std::endl;
+
+	output << "h: " << h << std::endl;//Not really necessary.
+	PrintVector(output, h_ij);
+
+	output << "S_T: " << S_T << std::endl;//Not really necessary.
+	PrintVector(output, S_T_ij);
+	
+	output << "S_e: " << S_e << std::endl;//Not really necessary.
+	PrintVector(output, S_e_ij);
+
+	output << "rho_p: " << rho_p << std::endl;//Not really necessary.
+	PrintVector(output, rho_p_ij);
+
+	output << "cSAV: " << cSAV << std::endl;
+	output << "numCbulkDensitylasses: " << bulkDensity << std::endl;
+	output << "bulkDensity: " << bulkDensity << std::endl;
+	
+	return output;
 }
 
 //Private functions:--------------------------------------------------------------------------------
@@ -402,6 +483,14 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string 
 	return fm;
 }
 
+/* Overloaded stream print operator for FuelModel.
+ *
+ */
+std::ostream& operator<<(std::ostream& output, const FuelModel& fm)
+{
+	fm.Print(output);
+	return output;
+}
 
 /** Split a delimited string into a vector of substrings.
  *
@@ -419,4 +508,23 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 	}
 	
 	return substrings;
+}
+
+/** Print a vector to an output stream on a single line with separators.
+ *
+ * Turn into a template?
+ */
+//std::ostream& PrintVector(std::ostream& output, std::vector <double> vec, std::string separator)
+//std::ostream& PrintVector(std::ostream& output, const std::vector& <double> vec, const std::string separator)
+//std::ostream& PrintVector(std::ostream& output, std::vector <double> vec, std::string separator)
+//std::ostream& PrintVector(std::ostream& output, std::vector <double>& vec, std::string separator)
+std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator)
+{
+	for (int i; i < vec.size() - 1; i++)
+	{
+		output << vec[i] << separator;
+	}
+	output << vec[vec.size() - 1] << std::endl;
+
+	return output;
 }

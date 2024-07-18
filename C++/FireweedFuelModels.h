@@ -114,7 +114,7 @@ class FuelModel {
 	FuelModel(const std::string& fuelModelTableFile, std::string modelCode,  bool spreadModelUnits);
 	
 	//Add unit conversion function.
-	//Add print method.
+	std::ostream& Print(std::ostream& output) const;
 	
 	private:
 	void Initialize();//Init(), InitBlank()?
@@ -128,6 +128,13 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNum
                               bool spreadModelUnits = true);
 FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string modelCode,
                               bool spreadModelUnits = true);
+std::ostream& operator<<(std::ostream& output, const FuelModel& fm);
+
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter);
+//std::ostream& PrintVector(std::ostream& output, std::vector <double> vec, std::string separator);
+//std::ostream& PrintVector(std::ostream& output, const std::vector& <double> vec, const std::string separator = ", ");
+//std::ostream& PrintVector(std::ostream& output, std::vector& <double> vec, std::string separator);
+//std::ostream& PrintVector(std::ostream& output, std::vector <double>& vec, std::string separator);
+std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator = ", ");
 
 #endif
