@@ -102,11 +102,11 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	
 	if (units == US)
 	{
-		output << "Units: Metric" << std::endl;
+		output << "Units: US" << std::endl;
 	}
 	else
 	{
-		output << "Units: US" << std::endl;
+		output << "Units: Metric" << std::endl;
 	}
 
 	//Should add member to indicate units of fuel loading.
@@ -157,7 +157,8 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	}
 	output << std::endl;
 
-	std::vector <double> w_o_ij;//An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+	output << "w_o_ij: ";
+	PrintVector(output, w_o_ij);
 	
 	output << "Delta: " << delta << std::endl;
 
@@ -195,8 +196,8 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	PrintVector(output, rho_p_ij);
 
 	output << "cSAV: " << cSAV << std::endl;
-	output << "numCbulkDensitylasses: " << bulkDensity << std::endl;
 	output << "bulkDensity: " << bulkDensity << std::endl;
+	output << "relativePackingRatio: " << relativePackingRatio << std::endl;
 	
 	return output;
 }
@@ -285,9 +286,12 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	
 	//Get the parsable header line:
 	std::getline(fmCSV, line);
+	std::cout << "line" << line << std::endl;//Temp debugging.
 	
 	//Extract the column names from the header:
 	std::vector<std::string> colNames = SplitDelim(line, delimiter);
+	
+	std::cout << "colNames" << colNames << std::endl;//Temp debugging.
 	
 	//Search rows until a match is found:
 	while(std::getline(fmCSV, line))
@@ -300,6 +304,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//The first field is the fuel model number:
 		std::getline(lineStr, field, delimiter);
 		theModelNumber = stoi(field);
+		std::cout << "field" << field << std::endl;//Temp debugging.
+		std::cout << "theModelNumber" << theModelNumber << std::endl;//Temp debugging.
 
 		//The second field is the fuel model code:
 		std::getline(lineStr, field, delimiter);
@@ -328,6 +334,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	//Extract fields from the matching row:
 	if (found == true)
 	{
+		std::cout << "Match found!" << std::endl;//Temp debugging.
+		
 		//std::stringstream lineStr2(line);//The matching line as a stream.  We start over so all fields are included.
 		//std::vector<std::string> fields = SplitDelim(lineStr2, delimiter);
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
