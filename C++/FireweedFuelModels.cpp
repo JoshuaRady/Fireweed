@@ -310,8 +310,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//The first field is the fuel model number:
 		std::getline(lineStr, field, delimiter);
 		theModelNumber = stoi(field);
-		std::cout << "field" << field << std::endl;//Temp debugging.
-		std::cout << "theModelNumber" << theModelNumber << std::endl;//Temp debugging.
+		std::cout << "field: " << field << std::endl;//Temp debugging.
+		std::cout << "theModelNumber: " << theModelNumber << std::endl;//Temp debugging.
 
 		//The second field is the fuel model code:
 		std::getline(lineStr, field, delimiter);
@@ -350,9 +350,10 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		std::cout << "fields: " << std::endl;//Temp debugging:
 		for (std::string theField : fields)
 		{
-			std::cout << theField << ", ";
+			//std::cout << theField << ", ";
+			std::cout << theField << ", " << endl;
 		}
-		std::cout << std::endl;//
+		//std::cout << std::endl;//
 
 		this->number = theModelNumber;
 		this->code = theModelCode;
