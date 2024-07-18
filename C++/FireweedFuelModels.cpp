@@ -343,7 +343,6 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	if (found == true)
 	{
 		std::cout << "Match found!" << std::endl;//Temp debugging.
-		std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
 		
 		//std::stringstream lineStr2(line);//The matching line as a stream.  We start over so all fields are included.
 		//std::vector<std::string> fields = SplitDelim(lineStr2, delimiter);
@@ -370,6 +369,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		for (int j = 0; j < fields.size(); j++)
 		{
 			std::cout << j << std::endl;//Temp debugging.
+			std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
 			
 			if (!colNames[j].compare("Name"))
 			{
