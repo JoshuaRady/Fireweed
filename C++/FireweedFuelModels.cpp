@@ -291,7 +291,12 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	//Extract the column names from the header:
 	std::vector<std::string> colNames = SplitDelim(line, delimiter);
 	
-	std::cout << "colNames" << colNames << std::endl;//Temp debugging.
+	//std::cout << "colNames" << colNames << std::endl;//Temp debugging.
+	for (std:string colName : colNames)
+	{
+		std::cout << "colNames" << ", ";
+	}
+	std::cout << endl;
 	
 	//Search rows until a match is found:
 	while(std::getline(fmCSV, line))
