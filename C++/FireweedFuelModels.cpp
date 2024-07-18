@@ -368,8 +368,10 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//for (int j = 0; j < sizeof(fields); j ++)
 		for (int j = 0; j < fields.size(); j++)
 		{
-			std::cout << j << std::endl;//Temp debugging.
-			std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
+			//std::cout << j << std::endl;//Temp debugging.
+			//std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
+			//std::cout << fields[j] << std::endl;//Temp debugging.
+			std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
 			
 			if (!colNames[j].compare("Name"))
 			{
@@ -487,7 +489,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 			else//Unrecognized field.  Report it?
 			{
 				//
-				std::cout << "Unrecognized: " << fields[j] << std::endl;//Temp debugging.
+				//std::cout << "Unrecognized: " << fields[j] << std::endl;//Temp debugging.
+				std::cout << "Unrecognized: " << colNames[j] << std::endl;//Temp debugging.
 			}
 		}
 
