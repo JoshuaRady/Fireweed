@@ -49,6 +49,8 @@ const int Live = 1;
  * However, the homogenous fuels version of the spread rate calculation uses different,
  * unsubscripted, notation than the heterogenous version.  For convenience homogeneous notation
  * aliases are provided for the moisture of extinction and fuel particle properties.
+ * Note: These aliases are turning out to be a problem because they can't be updated when the
+ * heterogeneous members are resized.
  */
 class FuelModel {
 	public:
@@ -110,31 +112,27 @@ class FuelModel {
 
 	//Constructors:
 	FuelModel();
-	FuelModel(const std::string& fuelModelTableFile, int modelNumber, bool spreadModelUnits);
-	FuelModel(const std::string& fuelModelTableFile, std::string modelCode,  bool spreadModelUnits);
+	FuelModel(const std::string& fuelModelFilePath, int modelNumber, bool spreadModelUnits);
+	FuelModel(const std::string& fuelModelFilePath, std::string modelCode,  bool spreadModelUnits);
 	
 	//Add unit conversion function.
 	std::ostream& Print(std::ostream& output) const;
 	
 	private:
 	void Initialize();//Init(), InitBlank()?
-	void LoadFromCSV(const std::string& fuelModelTableFile, int modelNumber,
+	void LoadFromCSV(const std::string& fuelModelFilePath, int modelNumber,
 	                 std::string modelCode, bool spreadModelUnits = true);
 };
 
 //External functions:
 
-FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNumber,
+FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, int modelNumber,
                               bool spreadModelUnits = true);
-FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string modelCode,
+FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, std::string modelCode,
                               bool spreadModelUnits = true);
 std::ostream& operator<<(std::ostream& output, const FuelModel& fm);
 
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter);
-//std::ostream& PrintVector(std::ostream& output, std::vector <double> vec, std::string separator);
-//std::ostream& PrintVector(std::ostream& output, const std::vector& <double> vec, const std::string separator = ", ");
-//std::ostream& PrintVector(std::ostream& output, std::vector& <double> vec, std::string separator);
-//std::ostream& PrintVector(std::ostream& output, std::vector <double>& vec, std::string separator);
 std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator = ", ");
 
 #endif

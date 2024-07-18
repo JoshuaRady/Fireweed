@@ -56,33 +56,37 @@ FuelModel::FuelModel()
 /** File constructor: Initialize the fuel model specified by number from the specified file.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  * in the Rothermel & Albini spread model.
  */
-FuelModel::FuelModel(const std::string& fuelModelTableFile, int modelNumber,
+FuelModel::FuelModel(const std::string& fuelModelFilePath, int modelNumber,
                      bool spreadModelUnits)
 {
 	Initialize();
-	LoadFromCSV(fuelModelTableFile, modelNumber, "", spreadModelUnits);
+	LoadFromCSV(fuelModelFilePath, modelNumber, "", spreadModelUnits);
 }
 
 /** File constructor: Initialize the fuel model specified by code from the specified file.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  * in the Rothermel & Albini spread model.
  */
-FuelModel::FuelModel(const std::string& fuelModelTableFile, std::string modelCode,
+FuelModel::FuelModel(const std::string& fuelModelFilePath, std::string modelCode,
                      bool spreadModelUnits)
 {
 	Initialize();
-	LoadFromCSV(fuelModelTableFile, -1, modelCode, spreadModelUnits);
+	LoadFromCSV(fuelModelFilePath, -1, modelCode, spreadModelUnits);
 }
 
 /** Print the fuel model data to an output stream.
  *
+ * @param output The output stream to print to.
+ *
+ * Note: The homogenous aliases are pointing to bad addresses or something because the heterogeneous
+ * members start as empty.  This needs to be fixed.
  */
 std::ostream& FuelModel::Print(std::ostream& output) const
 {
@@ -122,6 +126,11 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 
 	output << "numClasses: " << numClasses << std::endl;
 
+	//I prefer lists separated by commas but that requires a more complex loop.
+	output << "SAV_ij: ";
+	PrintVector(output, SAV_ij);
+
+	//This isn't in member order but it make sense to put it with the variable itself:
 	output << "w_o_Units: ";
 	if (w_o_Units == lbPer_ft2)
 	{
@@ -136,26 +145,6 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 		output << "kg/m^2" << std::endl;
 	}
 	//else error
-	
-	output << "M_x_Units: ";
-	if (M_x_Units == Percent)
-	{
-		output << "Percent" << std::endl;
-	}
-	else if (M_x_Units == Fraction)
-	{
-		output << "Fraction" << std::endl;
-	}
-	//else error
-
-	//I prefer lists separated by commas but that requires a more complex loop.
-	output << "SAV_ij: ";
-	//for (int i; i > numClasses; i++)
-	for (double sav : SAV_ij)
-	{
-		output << sav << " ";
-	}
-	output << std::endl;
 
 	output << "w_o_ij: ";
 	PrintVector(output, w_o_ij);
@@ -168,17 +157,29 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	{
 		if (ld == Dead)
 		{
-			output << "Dead" << " ";
+			output << "Dead" << ", ";
 		}
 		else//(ld == Live)
 		{
-			output << "Live" << " ";
+			output << "Live" << ", ";
 		}
 	}
 	output << std::endl;
 
+	output << "M_x_Units: ";
+	if (M_x_Units == Percent)
+	{
+		output << "Percent" << std::endl;
+	}
+	else if (M_x_Units == Fraction)
+	{
+		output << "Fraction" << std::endl;
+	}
+	//else error
+
 	output << "M_x / M_x_1: " << M_x_1 << std::endl;
 
+	//Note: The homogeneous aliases are omitted for now.
 	//output << "h: " << h << std::endl;//Not really necessary.
 	output << "h_ij: ";
 	PrintVector(output, h_ij);
@@ -246,7 +247,7 @@ void FuelModel::Initialize()
 
 /** Load a fuel model from the specified file.
  *
- * @param fuelModelTableFile The CSV file containing the table of fuel models.			Path?????
+ * @param fuelModelFilePath The CSV file containing the table of fuel models.			Path?????
  * @param modelNumber The standard fuel model number of the fuel model requested.  -1 if not used.
  * @param modelCode The unique alphanumeric code of the fuel model requested.  Blank if not used.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
@@ -264,7 +265,7 @@ void FuelModel::Initialize()
  * Note: This code currently assumes the units of the file are in United States customary units with
  * loadings in ton/acre and moisture of extinction in percent.
  */
-void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPath = 
+void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath = 
                             int modelNumber, std::string modelCode,
                             bool spreadModelUnits)
 {
@@ -275,7 +276,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	int theModelNumber;
 
 	//Open the file:
-	std::ifstream fmCSV(fuelModelTableFile);
+	std::ifstream fmCSV(fuelModelFilePath);
 	//Error handling?????
 
 	//Skip the first 3 lines, which are human readable column headers.
@@ -286,19 +287,9 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	
 	//Get the parsable header line:
 	std::getline(fmCSV, line);
-	//std::cout << "line: " << line << std::endl;//Temp debugging.
 	
 	//Extract the column names from the header:
 	std::vector<std::string> colNames = SplitDelim(line, delimiter);
-	
-	//std::cout << "colNames" << colNames << std::endl;//Temp debugging.
-	std::cout << "colNames: " << std::endl;//Temp debugging:
-	for (std::string colName : colNames)
-	{
-		//std::cout << colName << ", ";
-		std::cout << colName << ", " << std::endl;
-	}
-	std::cout << std::endl;//End debug.
 	
 	//Search rows until a match is found:
 	while(std::getline(fmCSV, line))
@@ -311,8 +302,6 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		//The first field is the fuel model number:
 		std::getline(lineStr, field, delimiter);
 		theModelNumber = stoi(field);
-		std::cout << "field: " << field << std::endl;//Temp debugging.
-		std::cout << "theModelNumber: " << theModelNumber << std::endl;//Temp debugging.
 
 		//The second field is the fuel model code:
 		std::getline(lineStr, field, delimiter);
@@ -342,155 +331,132 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 	//Extract fields from the matching row:
 	if (found == true)
 	{
-		std::cout << "Match found!" << std::endl;//Temp debugging.
-		
-		//std::stringstream lineStr2(line);//The matching line as a stream.  We start over so all fields are included.
-		//std::vector<std::string> fields = SplitDelim(lineStr2, delimiter);
+		//The matching line as a stream.  We start over so all fields are included:
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
-		
-		std::cout << "fields: " << std::endl;//Temp debugging:
-		for (std::string theField : fields)
-		{
-			//std::cout << theField << ", ";
-			std::cout << theField << ", " << std::endl;
-		}
-		//std::cout << std::endl;////End debug.
 
-		this->number = theModelNumber;
-		this->code = theModelCode;
+		number = theModelNumber;
+		code = theModelCode;
 		//The remaining fields, other than the name and type, are numeric so could be converted here?
 
 		units = US;//Assumed to always be the case for now.  Should be determined or set.
-		this->cured = false;
+		cured = false;
 
 		//Load the field values into the appropriate data members:
 		//This is a bit of extra processing that allows us to not worry about the field order.
-		//for (int j = 0; j < sizeof(fields); j ++)
 		for (int j = 0; j < fields.size(); j++)
 		{
-			//std::cout << j << std::endl;//Temp debugging.
-			//std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
-			//std::cout << fields[j] << std::endl;//Temp debugging.
-			std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
-			
-			if (!colNames[j].compare("Name"))
+			if (colNames[j] == "Name")
 			{
-				this->name = fields[j];
+				name = fields[j];
 			}
-			else if (!colNames[j].compare("Type"))
+			else if (colNames[j] == "Type")
 			{
-				if (!fields[j].compare("Static"))
+				if (colNames[j] == "Static")
 				{
-					this->type = Static;
+					type = Static;
 				}
-				else if (!fields[j].compare("Dynamic"))
+				else if (colNames[j] == "Dynamic")
 				{
-					this->type = Dynamic;
+					type = Dynamic;
 				}
 				//else//Error handling:
 				//{
 				//	Error("Invalid value for fuel model type.")
 				//}
 			}
-			else if (!colNames[j].compare("SAV_11"))
+			else if (colNames[j] == "SAV_11")
 			{
-				this->SAV_ij[0] = stof(fields[j]);
+				SAV_ij[0] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("SAV_12"))
+			else if (colNames[j] == "SAV_12")
 			{
-				this->SAV_ij[1] = stof(fields[j]);
+				SAV_ij[1] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("SAV_13"))
+			else if (colNames[j] == "SAV_13")
 			{
-				this->SAV_ij[2] = stof(fields[j]);
+				SAV_ij[2] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("SAV_21"))
+			else if (colNames[j] == "SAV_21")
 			{
-				if (!fields[j].compare("NA"))
+				if (colNames[j] == "NA")
 				{
-					this->SAV_ij[3] = 0.0;
+					SAV_ij[3] = 0.0;
 				}
 				else
 				{
-					this->SAV_ij[3] = stof(fields[j]);
+					SAV_ij[3] = stof(fields[j]);
 				}
 			}
-			else if (!colNames[j].compare("SAV_22"))
+			else if (colNames[j] == "SAV_22")
 			{
-				if (!fields[j].compare("NA"))
+				if (colNames[j] == "NA")
 				{
-					this->SAV_ij[4] = 0.0;
+					SAV_ij[4] = 0.0;
 				}
 				else
 				{
-					this->SAV_ij[4] = stof(fields[j]);
+					SAV_ij[4] = stof(fields[j]);
 				}
 			}
-			else if (!colNames[j].compare("w_o_11"))
+			else if (colNames[j] == "w_o_11")
 			{
-				this->w_o_ij[0] = stof(fields[j]);
+				w_o_ij[0] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("w_o_12"))
+			else if (colNames[j] == "w_o_12")
 			{
-				this->w_o_ij[1] = stof(fields[j]);
+				w_o_ij[1] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("w_o_13"))
+			else if (colNames[j] == "w_o_13")
 			{
-				this->w_o_ij[2] = stof(fields[j]);
+				w_o_ij[2] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("w_o_21"))
+			else if (colNames[j] == "w_o_21")
 			{
-				this->w_o_ij[3] = stof(fields[j]);
+				w_o_ij[3] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("w_o_22"))
+			else if (colNames[j] == "w_o_22")
 			{
-				this->w_o_ij[4] = stof(fields[j]);
+				w_o_ij[4] = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("delta"))
+			else if (colNames[j] == "delta")
 			{
-				this->delta = stof(fields[j]);
+				delta = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("M_x"))
+			else if (colNames[j] == "M_x")
 			{
-				this->M_x_1 = stof(fields[j]);
+				M_x_1 = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("h"))
+			else if (colNames[j] == "h")
 			{
 				std::fill(h_ij.begin(), h_ij.end(), stof(fields[j]));
 			}
-			else if (!colNames[j].compare("S_T"))
+			else if (colNames[j] == "S_T")
 			{
 				std::fill(S_T_ij.begin(), S_T_ij.end(), stof(fields[j]));
 			}
-			else if (!colNames[j].compare("S_e"))
+			else if (colNames[j] == "S_e")
 			{
 				std::fill(S_e_ij.begin(), S_e_ij.end(), stof(fields[j]));
 			}
-			else if (!colNames[j].compare("rho_p"))
+			else if (colNames[j] == "rho_p")
 			{
 				std::fill(rho_p_ij.begin(), rho_p_ij.end(), stof(fields[j]));
 			}
-			else if (!colNames[j].compare("CharacteristicSAV"))
+			else if (colNames[j] == "CharacteristicSAV")
 			{
-				this->cSAV = stof(fields[j]);
+				cSAV = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("BulkDensity"))
+			else if (colNames[j] == "BulkDensity")
 			{
-				this->bulkDensity = stof(fields[j]);
+				bulkDensity = stof(fields[j]);
 			}
-			else if (!colNames[j].compare("RelativePackingRatio"))
+			else if (colNames[j] == "RelativePackingRatio")
 			{
-				std::cout << "Match RelativePackingRatio" << std::endl;//Temp debugging.
-				this->relativePackingRatio = stof(fields[j]);
-				std::cout << "j" << j << std::endl;//Temp debugging.
-				std::cout << "fields[j]" << fields[j] << std::endl;//Temp debugging.
-				std::cout << "stof(fields[j])" << stof(fields[j]) << std::endl;//Temp debugging.
+				relativePackingRatio = stof(fields[j]);
 			}
 			else//Unrecognized field.  Report it?
 			{
 				//
-				//std::cout << "Unrecognized: " << fields[j] << std::endl;//Temp debugging.
-				std::cout << "Unrecognized: " << colNames[j] << std::endl;//Temp debugging.
 			}
 		}
 
@@ -502,9 +468,9 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		{
 			for (int i; i < numClasses; i++)
 			{
-				this->w_o_ij[i] = this->w_o_ij[i] * lbsPerTon / ft2PerAcre;//ton/acre to lb/ft^2
+				w_o_ij[i] = w_o_ij[i] * lbsPerTon / ft2PerAcre;//ton/acre to lb/ft^2
 			}
-			this->M_x_1 = this->M_x_1 / 100;//% to fraction
+			M_x_1 = M_x_1 / 100;//% to fraction
 
 			//Record the units used:
 			w_o_Units = lbPer_ft2;
@@ -530,14 +496,14 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 /** Find a fuel model by number in the specified file and return it as a FuelModel object.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  * in the Rothermel & Albini spread model.
  */
-FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNumber,
+FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, int modelNumber,
                               bool spreadModelUnits)
 {
-	FuelModel fm(fuelModelTableFile, modelNumber, spreadModelUnits);
+	FuelModel fm(fuelModelFilePath, modelNumber, spreadModelUnits);
 
 	return fm;
 }
@@ -545,14 +511,14 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, int modelNum
 /** Find a fuel model by alphanumeric code in the specified file and return it as a FuelModel object.
  *
  * @param modelCode The unique alphanumeric code of the fuel model requested.
- * @param fuelModelTableFile The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  * in the Rothermel & Albini spread model.
  */
-FuelModel GetFuelModelFromCSV(const std::string fuelModelTableFile, std::string modelCode, 
+FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, std::string modelCode, 
                               bool spreadModelUnits)
 {
-	FuelModel fm(fuelModelTableFile, modelCode, spreadModelUnits);
+	FuelModel fm(fuelModelFilePath, modelCode, spreadModelUnits);
 
 	return fm;
 }
@@ -568,15 +534,18 @@ std::ostream& operator<<(std::ostream& output, const FuelModel& fm)
 
 /** Split a delimited string into a vector of substrings.
  *
+ * @param str A string containing delimited text fields to split.
+ * @param delimiter The delimiter character.
+ *
  * This should probably be moved to a utility file somewhere.
  */
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 {
-	std::vector<std::string> substrings;
-	std::stringstream strStr(str);
+	std::vector<std::string> substrings;//A vector to hold the split string.
+	std::stringstream strStrm(str);//THe string as a stream.
 	std::string substring;//Or token
 	
-	while(getline(strStr, substring, delimiter))
+	while(getline(strStrm, substring, delimiter))
 	{
 		substrings.push_back(substring);
 	}
@@ -586,12 +555,12 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 
 /** Print a vector to an output stream on a single line with separators.
  *
+ * @param output The output stream to print to.
+ * @param vec The string vector to print.
+ * @param separator The string to separate vector elements.  Default to a comma and space.
+ *
  * Turn into a template?
  */
-//std::ostream& PrintVector(std::ostream& output, std::vector <double> vec, std::string separator)
-//std::ostream& PrintVector(std::ostream& output, const std::vector& <double> vec, const std::string separator)
-//std::ostream& PrintVector(std::ostream& output, std::vector <double> vec, std::string separator)
-//std::ostream& PrintVector(std::ostream& output, std::vector <double>& vec, std::string separator)
 std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator)
 {
 	for (int i = 0; i < vec.size() - 1; i++)
