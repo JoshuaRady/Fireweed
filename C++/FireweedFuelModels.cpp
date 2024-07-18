@@ -138,11 +138,11 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	//else error
 	
 	output << "M_x_Units: ";
-	if (w_o_Units == Percent)
+	if (M_x_Units == Percent)
 	{
 		output << "Percent" << std::endl;
 	}
-	else if (w_o_Units == Fraction)
+	else if (M_x_Units == Fraction)
 	{
 		output << "Fraction" << std::endl;
 	}
@@ -186,11 +186,11 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	output << "S_T_ij: ";
 	PrintVector(output, S_T_ij);
 	
-	output << "S_e: " << S_e << std::endl;//Not really necessary.
+	//output << "S_e: " << S_e << std::endl;//Not really necessary.
 	output << "S_e_ij: ";
 	PrintVector(output, S_e_ij);
 
-	output << "rho_p: " << rho_p << std::endl;//Not really necessary.
+	//output << "rho_p: " << rho_p << std::endl;//Not really necessary.
 	output << "rho_p_ij: ";
 	PrintVector(output, rho_p_ij);
 
