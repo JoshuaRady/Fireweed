@@ -351,7 +351,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelTableFile,//fuelModelPat
 		for (std::string theField : fields)
 		{
 			//std::cout << theField << ", ";
-			std::cout << theField << ", " << endl;
+			std::cout << theField << ", " << std::endl;
 		}
 		//std::cout << std::endl;//
 
