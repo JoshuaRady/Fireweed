@@ -272,8 +272,8 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 	char delimiter = ',';
 	std::string line;//To hold lines of the input file.
 	bool found = false;	
-	std::string theModelCode;
 	int theModelNumber;
+	std::string theModelCode;
 
 	//Open the file:
 	std::ifstream fmCSV(fuelModelFilePath);
@@ -319,7 +319,6 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 		}
 		else//If an invalid model number was passed search using the model code:
 		{
-			//if (modelCode.compare(field))
 			if (theModelCode == modelCode)
 			{
 				found = true;
@@ -332,6 +331,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 	if (found == true)
 	{
 		//std::cout << "Match found!" << std::endl;//Temp debugging.
+		std::cout << "Match found with model number: " << modelNumber << std::endl;//Temp debugging.
 
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
 
@@ -346,7 +346,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 		//This is a bit of extra processing that allows us to not worry about the field order.
 		for (int j = 0; j < fields.size(); j++)
 		{
-			//std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
+			std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
 
 			if (colNames[j] == "Name")
 			{
