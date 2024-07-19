@@ -331,7 +331,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 	if (found == true)
 	{
 		//std::cout << "Match found!" << std::endl;//Temp debugging.
-		std::cout << "Match found with model number: " << modelNumber << std::endl;//Temp debugging.
+		std::cout << "Match found with model number: " << theModelNumber << std::endl;//Temp debugging.
 
 		std::vector<std::string> fields = SplitDelim(line, delimiter);
 
@@ -539,10 +539,12 @@ std::ostream& operator<<(std::ostream& output, const FuelModel& fm)
  *
  * @param str A string containing delimited text fields to split.
  * @param delimiter The delimiter character.
+ * @param stripQuotes If true (default) remove encasing double quotes from fields.  Single quotes,
+ *                    unpaired quotes, and internal quotes are currently ignored.
  *
  * This should probably be moved to a utility file somewhere.
  */
-std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool stripQuotes)
 {
 	std::vector<std::string> substrings;//A vector to hold the split string.
 	std::stringstream strStrm(str);//THe string as a stream.
@@ -550,6 +552,14 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 	
 	while(getline(strStrm, substring, delimiter))
 	{
+		if (stripQuotes)
+		{
+			if (substring[0] == '\"' && substring[substring.length() - 1] == '\"')
+			{
+				substring.erase(substring.begin());
+				substring.erase(substring.end());
+			}
+		}
 		substrings.push_back(substring);
 	}
 	
