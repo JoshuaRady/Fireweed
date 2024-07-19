@@ -335,7 +335,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 		//std::cout << "Match found!" << std::endl;//Temp debugging.
 		std::cout << "Match found with model number: " << theModelNumber << std::endl;//Temp debugging.
 
-		std::vector<std::string> fields = SplitDelim(line, delimiter);
+		std::vector<std::string> fields = SplitDelim(line, delimiter, true);
 
 		number = theModelNumber;
 		code = theModelCode;
