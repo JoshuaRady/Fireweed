@@ -37,6 +37,8 @@ spread model and related models.
  * - Consider adding version information or a format specifier to the file format.
  */
 
+#include <algorithm>//For std:all_of().
+//#include <ctype.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -539,12 +541,10 @@ std::ostream& operator<<(std::ostream& output, const FuelModel& fm)
  *
  * @param str A string containing delimited text fields to split.
  * @param delimiter The delimiter character.
- * @param stripQuotes If true (default) remove encasing double quotes from fields.  Single quotes,
- *                    unpaired quotes, and internal quotes are currently ignored.
  *
  * This should probably be moved to a utility file somewhere.
  */
-std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool stripQuotes)
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 {
 	std::vector<std::string> substrings;//A vector to hold the split string.
 	std::stringstream strStrm(str);//THe string as a stream.
@@ -552,18 +552,134 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool
 	
 	while(getline(strStrm, substring, delimiter))
 	{
-		if (stripQuotes)
-		{
-			if (substring[0] == '\"' && substring[substring.length() - 1] == '\"')
-			{
-				substring.erase(substring.begin());
-				substring.erase(substring.end());
-			}
-		}
 		substrings.push_back(substring);
 	}
 	
 	return substrings;
+}
+
+/** Split a delimited string into a vector of substrings.
+ *
+ * @param str A string containing delimited text fields to split.
+ * @param delimiter The delimiter character.
+ * @param stripQuotes If true (default) remove encasing double quotes from fields.  Single quotes,
+ *                    unpaired quotes, and internal quotes are currently ignored.
+ *
+ * This should probably be moved to a utility file somewhere.
+ */
+// std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool stripQuotes)
+// {
+// 	std::vector<std::string> substrings;//A vector to hold the split string.
+// 	std::stringstream strStrm(str);//THe string as a stream.
+// 	std::string substring;//Or token
+// 	
+// 	while(getline(strStrm, substring, delimiter))
+// 	{
+// 		if (stripQuotes)
+// 		{
+// 			if (substring[0] == '\"' && substring[substring.length() - 1] == '\"')
+// 			{
+// 				substring.erase(substring.begin());
+// 				substring.erase(substring.end());
+// 			}
+// 		}
+// 		substrings.push_back(substring);
+// 	}
+// 	
+// 	return substrings;
+// }
+
+/** Split a delimited string into a vector of substrings.
+ *
+ * @param str A string containing delimited text fields to split.
+ * @param delimiter The delimiter character.
+ * @param stripQuotes If true allow double quoted fields.  Delimiter characters inside quoted fields
+                      will ignored.  Quotes will be stripped from the output.
+ *
+ * This should probably be moved to a utility file somewhere.
+ */
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool allowQuotes)
+{
+	if (!allowQuotes)
+	{
+		 return SplitDelim(str, delimiter);
+	}
+	else
+	{
+		char quote = '\"';
+		std::stringstream strStrm(str);//THe string as a stream.
+		//int content;//If positive content was extracted from the stream.
+		bool content;
+		std::string substring;//Or token
+		std::vector<std::string> substrings;//Return value: A vector to hold the split string.
+	
+		do
+		{
+			if (strStrm.peek() == quote)
+			{
+				std::string trash;
+				//Discard the quote:
+				char discard = strStrm.get();
+				
+				//Look for the next quote:
+				//content = getline(strStrm, substring, quote);
+				
+				//if (getline(strStrm, substring, quote))
+				//if (content)
+				if (getline(strStrm, substring, quote))
+				{
+					content = true;
+					substrings.push_back(substring);
+				}
+				else
+				{
+					//If is the closing quote is missing we can't determine where the field ends.
+					//We could ignore the opening quote and extract or discard to the next delimiter.
+					//These are all risky.  It better to throw and error.
+				}
+	
+				//Discard the delimiter that follows:
+// 				content = getline(strStrm, trash, delimiter);
+// 				
+// 				//Check trash to make sure it is empty:
+// 				//The next character should be a delimiter, whitespace followed by a delimiter
+// 				//(tolerable but bad form), or nothing if we are at the end of the string.  Anything
+// 				//else means that we could be discarding data.
+// 				if (!std::all_of(trash.begin(), trash.end(), isspace))
+// 				{
+// 					//Warn or throw error...
+// 				}
+				
+				if (getline(strStrm, trash, delimiter))
+				{
+					
+					if (!std::all_of(trash.begin(), trash.end(), isspace))
+					{
+						//Warn or throw error...
+					}
+				}
+			}
+			else//Look for the next delimiter:
+			{
+// 				content = getline(strStrm, substring, delimiter);
+// 				if (content)
+// 				{
+// 					substrings.push_back(substring);
+// 				}
+				if (getline(strStrm, substring, delimiter))
+				{
+					content = true;
+					substrings.push_back(substring);
+				}
+				else
+				{
+					content = false;
+				}
+			}
+		} while (content);
+	
+		return substrings;
+	}
 }
 
 /** Print a vector to an output stream on a single line with separators.

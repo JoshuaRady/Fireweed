@@ -132,7 +132,8 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, std::string m
                               bool spreadModelUnits = true);
 std::ostream& operator<<(std::ostream& output, const FuelModel& fm);
 
-std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool stripQuotes = true);
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter);
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool allowQuotes);
 std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator = ", ");
 
 #endif
