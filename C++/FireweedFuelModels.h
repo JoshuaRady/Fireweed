@@ -120,8 +120,8 @@ class FuelModel {
 	
 	private:
 	void Initialize();//Init(), InitBlank()?
-	void LoadFromCSV(const std::string& fuelModelFilePath, int modelNumber,
-	                 std::string modelCode, bool spreadModelUnits = true);
+	void LoadFromDelimited(const std::string& fuelModelFilePath, int modelNumber,
+	                       std::string modelCode, bool spreadModelUnits = true, char delimiter = ',');
 };
 
 //External functions:

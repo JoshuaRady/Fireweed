@@ -39,7 +39,6 @@ spread model and related models.
  */
 
 #include <algorithm>//For std:all_of().
-//#include <ctype.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -67,7 +66,7 @@ FuelModel::FuelModel(const std::string& fuelModelFilePath, int modelNumber,
                      bool spreadModelUnits)
 {
 	Initialize();
-	LoadFromCSV(fuelModelFilePath, modelNumber, "", spreadModelUnits);
+	LoadFromDelimited(fuelModelFilePath, modelNumber, "", spreadModelUnits);
 }
 
 /** File constructor: Initialize the fuel model specified by code from the specified file.
@@ -81,7 +80,7 @@ FuelModel::FuelModel(const std::string& fuelModelFilePath, std::string modelCode
                      bool spreadModelUnits)
 {
 	Initialize();
-	LoadFromCSV(fuelModelFilePath, -1, modelCode, spreadModelUnits);
+	LoadFromDelimited(fuelModelFilePath, -1, modelCode, spreadModelUnits);
 }
 
 /** Print the fuel model data to an output stream.
@@ -247,11 +246,13 @@ void FuelModel::Initialize()
 
 /** Load a fuel model from the specified file.
  *
- * @param fuelModelFilePath The CSV file containing the table of fuel models.			Path?????
+ * @param fuelModelFilePath The delimited text file containing the table of fuel models.  (See file
+                            format specification.)
  * @param modelNumber The standard fuel model number of the fuel model requested.  -1 if not used.
  * @param modelCode The unique alphanumeric code of the fuel model requested.  Blank if not used.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  *                         in the Rothermel & Albini spread model.
+ * @param delimiter The delimiter character.  Defaults to ',' for CSV.
  * 
  * Only the modelNumber or the modelCode should be passed in.  This is enforced through the calling
  * code. 
@@ -265,11 +266,9 @@ void FuelModel::Initialize()
  * Note: This code currently assumes the units of the file are in United States customary units with
  * loadings in ton/acre and moisture of extinction in percent.
  */
-void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,
-                            int modelNumber, std::string modelCode,
-                            bool spreadModelUnits)
+void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int modelNumber,
+                                  std::string modelCode, bool spreadModelUnits, char delimiter)
 {
-	char delimiter = ',';
 	std::string line;//To hold lines of the input file.
 	bool found = false;	
 	int theModelNumber;
