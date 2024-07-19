@@ -10,6 +10,7 @@ Description:--------------------------------------------------------------------
 fire behavior fuel object for use with the Rothermel Albini (Rothermel 1972, Albini 1976) fire
 spread model and related models.
 
+	This file is documented using Doxygen formatted comments.
 ***************************************************************************************************/
 
 /** Fuel model table file format
@@ -60,7 +61,7 @@ FuelModel::FuelModel()
  * @param modelNumber The standard fuel model number of the fuel model requested.
  * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
- * in the Rothermel & Albini spread model.
+ *                         in the Rothermel & Albini spread model.
  */
 FuelModel::FuelModel(const std::string& fuelModelFilePath, int modelNumber,
                      bool spreadModelUnits)
@@ -74,7 +75,7 @@ FuelModel::FuelModel(const std::string& fuelModelFilePath, int modelNumber,
  * @param modelNumber The standard fuel model number of the fuel model requested.
  * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
- * in the Rothermel & Albini spread model.
+ *                         in the Rothermel & Albini spread model.
  */
 FuelModel::FuelModel(const std::string& fuelModelFilePath, std::string modelCode,
                      bool spreadModelUnits)
@@ -116,7 +117,6 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	}
 
 	//Should add member to indicate units of fuel loading.
-	//output << "Cured: " << cured << std::endl;
 	if (cured)
 	{
 		output << "Cured: true" << std::endl;
@@ -128,7 +128,6 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 
 	output << "numClasses: " << numClasses << std::endl;
 
-	//I prefer lists separated by commas but that requires a more complex loop.
 	output << "SAV_ij: ";
 	PrintVector(output, SAV_ij);
 
@@ -146,7 +145,7 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	{
 		output << "kg/m^2" << std::endl;
 	}
-	//else error
+	//else error !!!!!!
 
 	output << "w_o_ij: ";
 	PrintVector(output, w_o_ij);
@@ -154,7 +153,6 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	output << "Delta: " << delta << std::endl;
 
 	output << "LiveDead: ";
-	//PrintVector(output, liveDead);//Will cast to double?
 	for (int ld : liveDead)
 	{
 		if (ld == Dead)
@@ -177,11 +175,11 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	{
 		output << "Fraction" << std::endl;
 	}
-	//else error
+	//else error!!!!!
 
 	output << "M_x / M_x_1: " << M_x_1 << std::endl;
 
-	//Note: The homogeneous aliases are omitted for now.
+	//Note: The homogeneous aliases are omitted for now. !!!!!
 	//output << "h: " << h << std::endl;//Not really necessary.
 	output << "h_ij: ";
 	PrintVector(output, h_ij);
@@ -253,7 +251,7 @@ void FuelModel::Initialize()
  * @param modelNumber The standard fuel model number of the fuel model requested.  -1 if not used.
  * @param modelCode The unique alphanumeric code of the fuel model requested.  Blank if not used.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
- * in the Rothermel & Albini spread model.
+ *                         in the Rothermel & Albini spread model.
  * 
  * Only the modelNumber or the modelCode should be passed in.  This is enforced through the calling
  * code. 
@@ -267,7 +265,7 @@ void FuelModel::Initialize()
  * Note: This code currently assumes the units of the file are in United States customary units with
  * loadings in ton/acre and moisture of extinction in percent.
  */
-void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath = 
+void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,
                             int modelNumber, std::string modelCode,
                             bool spreadModelUnits)
 {
@@ -366,7 +364,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 				}
 				//else//Error handling:
 				//{
-				//	Error("Invalid value for fuel model type.")
+				//	Error("Invalid value for fuel model type.") !!!!!
 				//}
 			}
 			else if (colNames[j] == "SAV_11")
@@ -461,7 +459,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 			}
 			else//Unrecognized field.  Report it?
 			{
-				//
+				//!!!!!
 			}
 		}
 
@@ -490,7 +488,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 	else
 	{
 		//Not finding the fuel model is probably an error.  At the least we should warn that no
-		//match was found.
+		//match was found. !!!!!
 	}
 
 	fmCSV.close();
@@ -503,7 +501,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
  * @param modelNumber The standard fuel model number of the fuel model requested.
  * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
- * in the Rothermel & Albini spread model.
+ *                         in the Rothermel & Albini spread model.
  */
 FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, int modelNumber,
                               bool spreadModelUnits)
@@ -518,7 +516,7 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, int modelNumb
  * @param modelCode The unique alphanumeric code of the fuel model requested.
  * @param fuelModelFilePath The CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
- * in the Rothermel & Albini spread model.
+ *                         in the Rothermel & Albini spread model.
  */
 FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, std::string modelCode, 
                               bool spreadModelUnits)
