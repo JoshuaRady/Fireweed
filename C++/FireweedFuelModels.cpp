@@ -330,7 +330,7 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 	if (found == true)
 	{
 		//std::cout << "Match found!" << std::endl;//Temp debugging.
-		std::cout << "Match found with model number: " << theModelNumber << std::endl;//Temp debugging.
+		//std::cout << "Match found with model number: " << theModelNumber << std::endl;//Temp debugging!!!!!
 
 		std::vector<std::string> fields = SplitDelim(line, delimiter, true);
 
@@ -345,7 +345,7 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 		//This is a bit of extra processing that allows us to not worry about the field order.
 		for (int j = 0; j < fields.size(); j++)
 		{
-			std::cout << j << ": " << fields[j] << std::endl;//Temp debugging.
+			//std::cout << j << ": " << fields[j] << std::endl;//Temp debugging!!!!!
 
 			if (colNames[j] == "Name")
 			{
