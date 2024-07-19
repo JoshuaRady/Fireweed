@@ -471,7 +471,7 @@ void FuelModel::LoadFromCSV(const std::string& fuelModelFilePath,//fuelModelPath
 		//in the header information but not in a form that would be ideal to parse.
 		if (spreadModelUnits)
 		{
-			for (int i; i < numClasses; i++)
+			for (int i = 0; i < numClasses; i++)
 			{
 				w_o_ij[i] = w_o_ij[i] * lbsPerTon / ft2PerAcre;//ton/acre to lb/ft^2
 			}
