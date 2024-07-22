@@ -14,12 +14,12 @@
 #Find a fuel model in the specified file and return it as a fuel model object (list).
 #
 #Parameters:
+#fuelModelFilePath = The path to the CSV file containing the table of fuel models.
 #modelID = The standard fuel model number, alphanumeric code, or index of the model requested.  If
 #  a number is passed and does not match a known model number it is interpreted as an index, that is
 #  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
-#fuelModelPath = The path to the CSV file containing the table of fuel models.
 #spreadModelUnits= If true then convert units used in the file that differ from those used in the
-#Rothermel & Albini spread model.
+#  Rothermel & Albini spread model.
 #
 #ToDo:
 # - The function assumes the input data is in its original English units if spreadModelUnits is true
@@ -30,7 +30,7 @@
 #Note: This expects draft 3 (D3) of the standard fuel models spreadsheet.
 #Note: This code currently assumes the units of the file are in United States customary units with
 #loadings in ton/acre and moisture of extinction in percent.
-GetFuelModelFromCSV <- function(modelID, fuelModelPath, spreadModelUnits = TRUE)
+GetFuelModelFromCSV <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
 {
   fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
   
