@@ -112,8 +112,8 @@ class FuelModel {
 
 	//Constructors:
 	FuelModel();
-	FuelModel(const std::string& fuelModelFilePath, int modelNumber, bool spreadModelUnits);
-	FuelModel(const std::string& fuelModelFilePath, std::string modelCode,  bool spreadModelUnits);
+	FuelModel(const std::string& fuelModelFilePath, int modelNumber, bool spreadModelUnits = true);
+	FuelModel(const std::string& fuelModelFilePath, std::string modelCode, bool spreadModelUnits = true);
 	
 	//Add unit conversion function.
 	std::ostream& Print(std::ostream& output) const;
