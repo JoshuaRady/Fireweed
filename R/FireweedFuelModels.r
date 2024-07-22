@@ -22,7 +22,7 @@
 #  Rothermel & Albini spread model.
 GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
 {
-  fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
+  fuelModelDF = read.delim(fuelModelFilePath, skip = 3)#The file has three lines of header.
   GetFuelModelFromDF(fuelModelDF, modelID, spreadModelUnits)
 }
 
@@ -37,7 +37,7 @@ GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModel
 #  Rothermel & Albini spread model.
 GetFuelModelFromCSV <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
 {
-  fuelModelDF = read.csv(fuelModelPath, skip = 3)#The file has three lines of header.
+  fuelModelDF = read.csv(fuelModelFilePath, skip = 3)#The file has three lines of header.
   GetFuelModelFromDF(fuelModelDF, modelID, spreadModelUnits)
 }
 
