@@ -58,7 +58,7 @@ FuelModel::FuelModel()
 /** File constructor: Initialize the fuel model specified by number from the specified file.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelFilePath The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The path to the CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  *                         in the Rothermel & Albini spread model.
  */
@@ -72,7 +72,7 @@ FuelModel::FuelModel(const std::string& fuelModelFilePath, int modelNumber,
 /** File constructor: Initialize the fuel model specified by code from the specified file.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelFilePath The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The path to the CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  *                         in the Rothermel & Albini spread model.
  */
@@ -498,7 +498,7 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 /** Find a fuel model by number in the specified file and return it as a FuelModel object.
  *
  * @param modelNumber The standard fuel model number of the fuel model requested.
- * @param fuelModelFilePath The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The path to the CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  *                         in the Rothermel & Albini spread model.
  */
@@ -513,7 +513,7 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, int modelNumb
 /** Find a fuel model by alphanumeric code in the specified file and return it as a FuelModel object.
  *
  * @param modelCode The unique alphanumeric code of the fuel model requested.
- * @param fuelModelFilePath The CSV file containing the table of fuel models.
+ * @param fuelModelFilePath The path to the CSV file containing the table of fuel models.
  * @param spreadModelUnits If true then convert units used in the file that differ from those used
  *                         in the Rothermel & Albini spread model.
  */
