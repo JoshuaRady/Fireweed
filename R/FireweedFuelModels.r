@@ -18,7 +18,7 @@
 #modelID = The standard fuel model number, alphanumeric code, or index of the model requested.  If
 #  a number is passed and does not match a known model number it is interpreted as an index, that is
 #  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
-#spreadModelUnits= If true then convert units used in the file that differ from those used in the
+#spreadModelUnits = If true then convert units used in the file that differ from those used in the
 #  Rothermel & Albini spread model.
 GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
 {
@@ -33,7 +33,7 @@ GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModel
 #modelID = The standard fuel model number, alphanumeric code, or index of the model requested.  If
 #  a number is passed and does not match a known model number it is interpreted as an index, that is
 #  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
-#spreadModelUnits= If true then convert units used in the file that differ from those used in the
+#spreadModelUnits = If true then convert units used in the file that differ from those used in the
 #  Rothermel & Albini spread model.
 GetFuelModelFromCSV <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
 {
@@ -186,13 +186,23 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
   return(fuelModel)
 }
 
-#Copied from Proj_11_Exp_7_Analysis.r:
-##6/2/2023:
 #Take a dynamic fuel model and calculate and apply the curing of herbaceous fuels based on the
-#herbaceous fuel moisture (per Scott & Burgan 2005).  The function takes a fuel model object and
-#returns a modified version of it reflecting the curing process.
-#Changes: Add optional curing parameter as second way to specify curing.
-ApplyDynamicFuelCuring3 <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRUE)
+#herbaceous fuel moisture (per Scott & Burgan 2005).  Curing moves some live herbaceous fuel to a
+#new dead category. The function takes a fuel model object and returns a modified version of it
+#reflecting the curing process.
+#
+#Parameters:
+#fm = The fuel model to apply curing to.
+#M_f_ij = Fuel moisture content for for each fuel type (fraction: water weight/dry fuel weight).
+#  If omitted curing must be specified.
+#curing = The percent curing to apply.  This is provided as an alternative to specifying moisture
+#  content.  Curing is normally calculated based on the live herbaceous fuel moisture but it can
+#  be useful to specify the curing directly, especially for testing.
+#warn = If true warn about attempts to apply curing to static models.
+#
+#Note: On return Curing and possibly M_f_ij elements will be added to the fuel model (fm).  It may
+#better to add these on in initialization of the model.
+CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRUE)
 {
   functionName = match.call()[[1]]
   
@@ -217,9 +227,9 @@ ApplyDynamicFuelCuring3 <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRU
       #Curing is 0 at 120% fuel moisture and 1 at 30%:
       #Equation from Andrews 2018 pg. 36:
       #T = -1.11(M_f)_21 + 1.33, 0<=T<=1.0
-      #This implements this exactly but is not numerically exact:
-      #Note: We can't use T, since T = TRUE in R.
+      #This implements this exactly but is not numerically exact at the ends of the curing range:
       #cureFrac = -1.11 * M_f_21 + 1.33
+      #Note: We can't use T, since T = TRUE in R.
       #This is exact at 30 and 120%:
       cureFrac = (M_f_21 - 0.3) / 0.9#1.2 - 0.3 = 0.9
       
@@ -254,8 +264,6 @@ ApplyDynamicFuelCuring3 <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRU
       stop(paste(functionName, "(): Fuel model has already had curing applied.", sep = ''))
     }
     
-    #liveHerbIndex = match(2, fm$liveDead)#Should be 4 for standard fuel model.
-    
     #Expand the number of fuel classes, inserting the cured herbaceous at position 1,2:
     fm$w_o_ij = c(fm$w_o_ij[1], 0, fm$w_o_ij[2:fm$NumClasses])#Initial loading = 0.
     #Curing doesn't change SAV.  Inherit from the live herbaceous:
@@ -271,9 +279,6 @@ ApplyDynamicFuelCuring3 <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRU
     #Expand liveDead:
     fm$liveDead = c(fm$liveDead[1], 1, fm$liveDead[2:fm$NumClasses])
     
-    #Curing is a function of live herbaceous fuel moisture:
-    #M_f_21 = M_f_ij[liveHerbIndex]
-    
     #Update the moisture content vector if provided:
     if (!is.null(M_f_ij))
     {
@@ -288,27 +293,7 @@ ApplyDynamicFuelCuring3 <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRU
     # }
     
     fm$NumClasses = fm$NumClasses + 1
-    liveHerbIndex = liveHerbIndex + 1#Update after all date members are revised.
-    
-    #Calculate the transfer of herbaceous fuel loading from live to dead:
-    #Curing is 0 at 120% fuel moisture and 1 at 30%:
-    #Equation from Andrews 2018 pg. 36:
-    #T = -1.11(M_f)_21 + 1.33, 0<=T<=1.0
-    #This implements this exactly but is not numerically exact:
-    #Note: We can't use T, since T = TRUE in R.
-    #transFrac = -1.11 * M_f_21 + 1.33
-    #This is exact at 30 and 120%.
-    # transFrac = (M_f_21 - 0.3) / 0.9#1.2 - 0.3 = 0.9  transFrac -> cureFrac?
-    # 
-    # if (transFrac < 0)
-    # {
-    #   transFrac = 0
-    #   #Could break out here as no curing needs to be applied.
-    # }
-    # else if (transFrac > 1)
-    # {
-    #   transFrac = 1
-    # }
+    liveHerbIndex = liveHerbIndex + 1#Update after all data members are revised.
     
     #Transfer the loading from live to dead:
     fm$w_o_ij[2] = cureFrac * fm$w_o_ij[liveHerbIndex]#w_o_ij
@@ -316,10 +301,7 @@ ApplyDynamicFuelCuring3 <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRU
     fm$w_o_ij[liveHerbIndex] = fm$w_o_ij[liveHerbIndex] - fm$w_o_ij[2]#Same as above.
     
     fm$Cured = TRUE#Record that curing has been applied.
-    #It could be better to record the curing fraction, which = cureFrac.
-    #The fraction cured could also be taken as an alternative argument to fuel moisture.  There
-    #could be conditions when it would be useful to specify that directly.
-    fm$Curing = cureFrac * 100#Is this useful?
+    fm$Curing = cureFrac * 100#Record the curing fraction.  Is this useful?
   }
   else if (warn)
   {
