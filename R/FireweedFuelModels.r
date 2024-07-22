@@ -25,6 +25,20 @@ GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModel
   fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
 }
 
+#Find a fuel model in the specified file and return it as a fuel model object (list).
+#
+#Parameters:
+#fuelModelFilePath = The path to the CSV file containing the table of fuel models.
+#modelID = The standard fuel model number, alphanumeric code, or index of the model requested.  If
+#  a number is passed and does not match a known model number it is interpreted as an index, that is
+#  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
+#spreadModelUnits= If true then convert units used in the file that differ from those used in the
+#  Rothermel & Albini spread model.
+GetFuelModelFromCSV <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
+{
+  fuelModelDF = read.csv(fuelModelPath, skip = 3)#The file has three lines of header.
+}
+
 #Find a fuel model in the data frame passed return it as a fuel model object (list).
 #
 #Parameters:
