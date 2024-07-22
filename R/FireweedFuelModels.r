@@ -20,6 +20,20 @@
 #  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
 #spreadModelUnits= If true then convert units used in the file that differ from those used in the
 #  Rothermel & Albini spread model.
+GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
+{
+  fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
+}
+
+#Find a fuel model in the data frame passed return it as a fuel model object (list).
+#
+#Parameters:
+#fuelModelDF = A data frame containing the table of fuel models.
+#modelID = The standard fuel model number, alphanumeric code, or index of the model requested.  If
+#  a number is passed and does not match a known model number it is interpreted as an index, that is
+#  the position in the table of fuel models.  For 'the 13' the number, code, and index are the same.
+#spreadModelUnits= If true then convert units used in the file that differ from those used in the
+#  Rothermel & Albini spread model.
 #
 #ToDo:
 # - The function assumes the input data is in its original English units if spreadModelUnits is true
@@ -27,13 +41,11 @@
 #  to allow the input file to be in metric or alter the parameter behavior.
 # - There is a question of whether to add M_f / M_f_ij to the data structure.
 #
-#Note: This expects draft 3 (D3) of the standard fuel models spreadsheet.
+#Note: This expects draft 3 (D3) of the standard fuel models spreadsheet (loaded to a data frame).
 #Note: This code currently assumes the units of the file are in United States customary units with
 #loadings in ton/acre and moisture of extinction in percent.
-GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
+GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
 {
-  fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
-  
   #Find and extract the row representing the fuel model requested:
   if (is.numeric(modelID))
   {
