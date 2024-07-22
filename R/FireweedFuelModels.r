@@ -23,6 +23,7 @@
 GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
 {
   fuelModelDF = read.delim(fuelModelPath, skip = 3)#The file has three lines of header.
+  GetFuelModelFromDF(fuelModelDF, modelID, spreadModelUnits)
 }
 
 #Find a fuel model in the specified file and return it as a fuel model object (list).
@@ -37,6 +38,7 @@ GetFuelModelFromTabDelimited <- function(fuelModelFilePath, modelID, spreadModel
 GetFuelModelFromCSV <- function(fuelModelFilePath, modelID, spreadModelUnits = TRUE)
 {
   fuelModelDF = read.csv(fuelModelPath, skip = 3)#The file has three lines of header.
+  GetFuelModelFromDF(fuelModelDF, modelID, spreadModelUnits)
 }
 
 #Find a fuel model in the data frame passed return it as a fuel model object (list).
