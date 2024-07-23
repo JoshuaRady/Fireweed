@@ -223,6 +223,7 @@ bool ValidProportion(std::vector<double> value);
 
 //double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, FuelCategory liveDeadCat);
 double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat);
+int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex);
 bool FloatCompare(double val1, double val2, double precision = 0.0001);
 
 //Logging:

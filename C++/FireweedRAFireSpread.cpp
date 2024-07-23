@@ -2218,6 +2218,50 @@ double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveD
 	return sum;
 }
 
+/** Return the index (k) in a variable array of the form X_ij given the (live/dead, size) index pair.
+ *
+ * @param liveDead An array indicating if each index in the input variables represents a dead or
+ *                 live fuel category.
+ * @param liveDeadCat The Live / Dead catagory value to get.
+ * @param sizeIndex The index (0 based) of the size class to get.
+ *
+ * Representing fuel model X_ij varaibles as vectors has the disadvantage of making mapping to
+ * individual classes awkward.  This function makes this simple but remains somewhat inelegant.
+ */
+int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//Or FMClassIndex, ClassIndex
+{
+	int numDead = count(liveDead.begin(), liveDead.end(), Dead);
+	int numLive = liveDead.size() - numDead;//or ount(liveDead.begin(), liveDead.end(), Live);
+	
+	if (liveDead == Dead)
+	{
+		//if (sizeIndex > -1 && sizeIndex < numDead)
+		if (sizeIndex < 0 || sizeIndex >= numDead)
+		{
+			//Error!!!!!
+		}
+		else
+		{
+			return sizeIndex;
+		}
+	}
+	else if (liveDead == Live)
+	{
+		if (sizeIndex < 0 || sizeIndex >= numLive)
+		{
+			//Error!!!!!
+		}
+		else
+		{
+			return numDead + sizeIndex;
+		}
+	}
+	else
+	{
+		//Error!!!!!
+	}
+}
+
 //Compare two floating point values for near/effective equality:
 //Note: I'm not sure what the default should be for the precision of this comparison (see header).
 //C++ only.
