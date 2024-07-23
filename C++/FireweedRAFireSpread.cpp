@@ -461,14 +461,14 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	//when we reassemble the weights.  FloatCompare() handles this problem.
 
 	//The dead fuel components of f_ij should always sum to 1:
-	if (!FloatCompare(SumByClass(wts.f_ij, liveDead, Dead), 1))
+	if (!FloatCompare(SumByFuelCat(wts.f_ij, liveDead, Dead), 1))
 	{
 		Stop("f_ij dead fuels do not sum to 1.");
 	}
 
 	//The live fuel components of f_ij will sum to 1 if present or 0 if not present:
-	if (!(FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 0) ||
-			  FloatCompare(SumByClass(wts.f_ij, liveDead, Live), 1)))
+	if (!(FloatCompare(SumByFuelCat(wts.f_ij, liveDead, Live), 0) ||
+			  FloatCompare(SumByFuelCat(wts.f_ij, liveDead, Live), 1)))
 	{
 		Stop("Invalid f_ij weights for live fuels.");
 	}
@@ -480,7 +480,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	}
 
 	//The dead fuel components of g_ij should always sum to 1:
-	if (!FloatCompare(SumByClass(wts.g_ij, liveDead, Dead), 1))
+	if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1))
 	{
 		Stop("g_ij dead fuels do not sum to 1.");
 	}
@@ -488,9 +488,9 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	//For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
 	//However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
 	//and 2 are possible:
-	if (!(FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 0) ||
-			  FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 1) ||
-			  FloatCompare(SumByClass(wts.g_ij, liveDead, Live), 2)))
+	if (!(FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 0) ||
+			  FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 1) ||
+			  FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 2)))
 	{
 		Stop("Invalid g_ij weights for live fuels.");
 	}
@@ -2198,12 +2198,18 @@ bool ValidProportion(std::vector<double> value)
 	return InRange(value, 0, 1);
 }
 
-//Calculate the sum of a variable array of the form X_ij by the specified live/dead class:
-//This is a draft.  It could return the sum (an array) for each class rather than specifying one.
-//C++ only.
-//double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat)
+/* Calculate the sum of a variable array of the form X_ij by the specified live/dead category:
+ *
+ * @param x_ij A numerical fuel model variable of the form X_ij.
+ * @param liveDead An array indicating if each index in the input variables represents a dead or
+ *                 live fuel category.
+ * @param liveDeadCat The Live / Dead catagory value to get.
+ *
+ * This is a working draft.  It could return the sum (an array) for each class rather than specifying one.
+ * This fucntion is currently C++ only.
+ */
 //double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, FuelCategory liveDeadCat)
-double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat)
+double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat)
 {
 	double sum = 0;//Return value.
 
@@ -2227,12 +2233,14 @@ double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, int liveD
  *
  * Representing fuel model X_ij varaibles as vectors has the disadvantage of making mapping to
  * individual classes awkward.  This function makes this simple but remains somewhat inelegant.
+ *
+ * This fucntion is currently C++ only.
  */
 int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//Or FMClassIndex, ClassIndex
 {
 	int numDead = count(liveDead.begin(), liveDead.end(), Dead);
 	int numLive = liveDead.size() - numDead;//or ount(liveDead.begin(), liveDead.end(), Live);
-	
+
 	if (liveDead == Dead)
 	{
 		//if (sizeIndex > -1 && sizeIndex < numDead)
