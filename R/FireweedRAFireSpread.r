@@ -553,14 +553,14 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   #portable.
   
   #The dead fuel components of f_ij should always sum to 1:
-  if (!isTRUE(all.equal(sum(f_ij[liveDead == 1]), 1)))
+  if (!isTRUE(all.equal(sum(f_ij[liveDead == Dead]), 1)))
   {
     stop("f_ij dead fuels do not sum to 1.")
   }
   
   #The live fuel components of f_ij will sum to 1 if present or 0 if not present:
-  if (!(isTRUE(all.equal(sum(f_ij[liveDead == 2]), 0)) ||
-        isTRUE(all.equal(sum(f_ij[liveDead == 2]), 1))))
+  if (!(isTRUE(all.equal(sum(f_ij[liveDead == Live]), 0)) ||
+        isTRUE(all.equal(sum(f_ij[liveDead == Live]), 1))))
   {
     stop("Invalid f_ij weights for live fuels.")
   }
@@ -606,7 +606,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   }
   else#Uncured:
   {
-    if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
+    if (!isTRUE(all.equal(sum(g_ij[liveDead == Dead]), 1)))
     {
       stop("g_ij dead fuels do not sum to 1.")
     }
@@ -615,9 +615,9 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   #For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
   #However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
   #and 2 are possible:
-  if (!(isTRUE(all.equal(sum(g_ij[liveDead == 2]), 0)) ||
-        isTRUE(all.equal(sum(g_ij[liveDead == 2]), 1)) ||
-        isTRUE(all.equal(sum(g_ij[liveDead == 2]), 2))))
+  if (!(isTRUE(all.equal(sum(g_ij[liveDead == Live]), 0)) ||
+        isTRUE(all.equal(sum(g_ij[liveDead == Live]), 1)) ||
+        isTRUE(all.equal(sum(g_ij[liveDead == Live]), 2))))
   {
     stop("Invalid g_ij weights for live fuels.")
   }
@@ -875,13 +875,13 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   #These sums could be done in a vector aware way but here we limit ourselves to C compatible code.
   #The loops could also be combined with a live/dead conditional.
   liveSum = 0
-  for (k in which(liveDead == 2))
+  for (k in which(liveDead == Live))
   {
     liveSum = liveSum + w_o_ij[k] * exp(-138 / SAV_ij[k])
   }
   
   deadSum = 0
-  for (k in which(liveDead == 1))
+  for (k in which(liveDead == Dead))
   {
     deadSum = deadSum + w_o_ij[k] * exp(-500 / SAV_ij[k])
   }
@@ -898,7 +898,7 @@ LiveFuelMoistureOfExtinction <- function(M_f_ij, M_x_1, w_o_ij, SAV_ij, liveDead
   #Mf,dead = Σj(Mf)1j(wo)1jexp(–138/σ1j) / Σj(wo)1jexp(–138/σ1j)
   top = 0#The numerator sum.
   bottom = 0#The denominator sum.
-  for (k in which(liveDead == 1))
+  for (k in which(liveDead == Dead))
   {
     common = w_o_ij[k] * exp(-138 / SAV_ij[k])
     top = top + M_f_ij[k] * common
