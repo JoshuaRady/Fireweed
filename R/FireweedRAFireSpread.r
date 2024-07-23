@@ -571,11 +571,39 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
     stop("f_i does not sum to 1.")
   }
   
-  #The dead fuel components of g_ij should always sum to 1:
-  if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
+  #The dead fuel components of g_ij should sum to 1, except when curing has been applied.  If
+  #we had access the fuel model object here we could check if curing had been applied.  Since we
+  #don't we have to be clever.  The standard fuel models all have five fuel classes.  Having six
+  #classes is pretty good evidence of curing, but we need to be tolerant of custom fuel models.
+  #We currently always put the dead herbaceous class at the second position (1,2).  If we compare
+  #the SAVs where we expect the herbaceous classes to be that is a pretty good check.
+  #It might be safer to pass in the curing status.
+  if (SAV_ij[liveDead == Dead][2] == SAV_ij[liveDead == Live][1])#Implied cured:
   {
-    stop("g_ij dead fuels do not sum to 1.")
+    #The 1hr fuel (1,1) and dead herbaceous(1,2) classes should have the same weights:
+    if ((g_ij[liveDead == Dead][1] != g_ij[liveDead == Dead][2]) &&
+        (w_o_ij[liveDead == Dead][2] != 0))#Unless the curing is 0, in which case w_o_12 is 0.
+    {
+      stop(paste("g_ij 1hr and dead herbaceous fuels do not have the same weights:",
+                 paste(g_ij, collapse = ", ")))
+    }
+    
+    #Excluding the dead herbaceous the dead fuels should sum to 1:
+    if (!isTRUE(all.equal(sum(g_ij[liveDead == Dead][-2]), 1)))
+    {
+      #print(sum(g_ij[liveDead == Dead][-2]))
+      stop(paste("g_ij dead fuels do not have values expected for implied cured status:",
+                 paste(g_ij, collapse = ", ")))
+    }
   }
+  else#Uncured:
+  {
+    if (!isTRUE(all.equal(sum(g_ij[liveDead == 1]), 1)))
+    {
+      stop("g_ij dead fuels do not sum to 1.")
+    }
+  }
+  
   
   #For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
   #However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
