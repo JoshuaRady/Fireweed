@@ -187,9 +187,10 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
 }
 
 #Take a dynamic fuel model and calculate and apply the curing of herbaceous fuels based on the
-#herbaceous fuel moisture (per Scott & Burgan 2005).  Curing moves some live herbaceous fuel to a
-#new dead category. The function takes a fuel model object and returns a modified version of it
-#reflecting the curing process.
+#herbaceous fuel moisture (per Scott & Burgan 2005).  For dynamic fuels curing moves some live
+#herbaceous fuel to a new dead herbaceous fuel class. As a result the number of fuel classes my
+#increase with this call.  The function takes a fuel model object and returns a modified version of
+#it reflecting the curing process.
 #
 #Parameters:
 #fm = The fuel model to apply curing to.
@@ -200,8 +201,12 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
 #  be useful to specify the curing directly, especially for testing.
 #warn = If true warn about attempts to apply curing to static models.
 #
-#Note: On return Curing and possibly M_f_ij elements will be added to the fuel model (fm).  It may
+#Notes: On return Curing and possibly M_f_ij elements will be added to the fuel model (fm).  It may
 #better to add these on in initialization of the model.
+#  This implementation results in different weights for missing fuels that those published in
+#Andrews 2018, but this does not have material effects.
+#  If created the dead herbaceous fuel is inserted at the second position (1,2).  For the standard
+#fuel model this results in dead fuels being in descending SAV order with the exception of SH9.
 CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = TRUE)
 {
   functionName = match.call()[[1]]
