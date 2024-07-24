@@ -473,10 +473,49 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 		Stop("Invalid f_ij weights for live fuels.");
 	}
 
-	//f_i should always sum to 1:
-	if (!FloatCompare((wts.f_i[Dead] + wts.f_i[Live]), 1))
+	/*The dead fuel components of g_ij should sum to 1, except when curing has been applied.  When
+	curing results in the addition of a dead herbaceous class the weights will still sum to 1 if the
+	dead SAVs all fall in different bins.  However, frequently the dead herbaceous SAV is close to
+	the 1hr class SAV and they both fall in the same bin.  In such cases they get the same weight.
+	If they are the only fuels present they will both have a weight of 1 for a total of 2.  If there
+	is another class present the total will be greater than 1 but less than 2.
+	
+	If we had access the fuel model object here we could check if curing had been applied.  Since we
+	don't we have to be clever.  The standard fuel models all have five fuel classes.  Having six
+	classes is pretty good evidence of curing, but we need to be tolerant of custom fuel models.
+	We currently always put the dead herbaceous class at the second position (1,2).  If we compare
+	the SAVs where we expect the herbaceous classes to be that is a pretty good check.
+	It might be safer to pass in the curing status.*/
+	if (SAV_ij[FuelClassIndex(liveDead, Dead, 2)] == SAV_ij[FuelClassIndex(liveDead, Live, 1)])//Implied cured:
 	{
-		Stop("f_i does not sum to 1.");
+		//if (!isTRUE(all.equal(sum(g_ij[liveDead == Dead]), 1)))
+		if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1))
+		{
+			//The 1hr fuel (1,1) and dead herbaceous(1,2) classes should have the same weights,
+			//unless the curing is 0.  In that case w_o_12 is 0 and the total will be 1:
+			if (wts.g_ij[FuelClassIndex(liveDead, Dead, 1)] !=
+			    wts.g_ij[FuelClassIndex(liveDead, Dead, 2)])
+			{
+				Stop("g_ij 1hr and dead herbaceous fuels do not have the same weights.");
+				//g_ij
+				
+			}
+
+			//Excluding the dead herbaceous the dead fuels should sum to 1:
+			if (FloatCompare((SumByFuelCat(wts.g_ij, liveDead, Dead) -
+			                  wts.g_ij[FuelClassIndex(liveDead, Dead, 2)]), 1)
+			{
+				Stop("g_ij dead fuels do not have values expected for implied cured status.");
+				//g_ij
+			}
+		}
+	}
+	else//Uncured:
+	{
+		if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1))
+		{
+			Stop("g_ij dead fuels do not sum to 1.");
+		}
 	}
 
 	//The dead fuel components of g_ij should always sum to 1:
