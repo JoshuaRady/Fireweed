@@ -214,7 +214,7 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
   if (fm$Type == "Dynamic")
   {
     #The live herbaceous is the first dead fuel.  The index should be 4 for standard fuel models:
-    liveHerbIndex = match(2, fm$liveDead)
+    liveHerbIndex = match(2, fm$liveDead)#Should change to Live!!!!!
     
     #Either M_f_ij or curing must be provided but not both:
     if (!is.null(M_f_ij))
