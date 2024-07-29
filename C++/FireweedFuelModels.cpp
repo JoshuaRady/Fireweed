@@ -246,15 +246,47 @@ void FuelModel::Initialize()
 
 /**
  *
+ * This should be above with the other public functions!!!!!
  */
 void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
 {
 	if (type == Dynamic)
 	{
 		//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
-    	int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
-    	
-    	
+		int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
+		
+		//Check length is appropriate:
+		if (M_f_ij.size() != numClasses)
+		{
+			Stop("M_f_ij not of proper length.")//Add lengths of inputs and numClasses?????
+		}
+
+		//Curing is a function of live herbaceous fuel moisture:
+		double M_f_21 = M_f_ij[liveHerbIndex]
+
+		//Check incoming values!!!!!
+
+		//Calculate the transfer of herbaceous fuel loading from live to dead:
+		//Curing is 0 at 120% fuel moisture and 1 at 30%:
+		//Equation from Andrews 2018 pg. 36:
+		//T = -1.11(M_f)_21 + 1.33, 0<=T<=1.0
+		//This implements this exactly but is not numerically exact at the ends of the curing range:
+		//cureFrac = -1.11 * M_f_21 + 1.33
+		//Note: We can't use T, since T = TRUE in R.
+		//This is exact at 30 and 120%:
+		cureFrac = (M_f_21 - 0.3) / 0.9//1.2 - 0.3 = 0.9
+		
+		if (cureFrac < 0)
+		{
+			cureFrac = 0
+			//Could break out here as no curing needs to be applied.
+		}
+		else if (cureFrac > 1)
+		{
+			cureFrac = 1
+		}
+		
+		//Pass to shared code...
 	}
 	else//if (warn)
 	{
