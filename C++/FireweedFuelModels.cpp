@@ -202,48 +202,6 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	return output;
 }
 
-//Private functions:--------------------------------------------------------------------------------
-
-/** Initialize members to a consistant 'no fuel' initial state.
- *
- * This function sets the fuel model values to reasonable default values.  It assumes the model is
- * structured like a standard fuel model with five fuel types.  It sets fuel loading to zero and
- * parameters to values that produce a fire spread rate of zero.
- *
- * This initial fuel model state should be further modified.  For a fuel model to be useful it needs
- * to have its parameters set to meaningful values, either from a file or manually.
- */
-void FuelModel::Initialize()
-{
-	//Alternatively we could default the IDs to one of the nonburnable fuel models:
-	number = -1;//Set to impossible value.
-	code = "NA";//Alphanumeric code identifying the model.
-	name = "Empty fuel model";//Descriptive name.
-	type = Static;
-	units = US;//Default to the units of the original papers.
-	cured = false;
-	numClasses = 5;//Standard fuel model.
-
-	w_o_Units = lbPer_ft2;//Model units.
-	M_x_Units = Fraction;//Model units.
-
-	SAV_ij.resize(5, 0);//All fuel classes are absent.
-	w_o_ij.resize(5, 0);//Important.
-
-	delta = 0;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
-	liveDead.assign({Dead, Dead, Dead, Live, Live});//Standard fuel model.
-	M_x_1 = 50;//Tough to choose a default here.  50% for now.
-
-	h_ij.resize(5, 8000);//Standard for all but one standard fuel model.
-	S_T_ij.resize(5, 0.0555);//Standard for all standard fuel models.
-	S_e_ij.resize(5, 0.010);//Standard for all standard fuel models.
-	rho_p_ij.resize(5, 32);//Standard for all standard fuel models.
-
-	cSAV = 0;
-	bulkDensity = 0;
-	relativePackingRatio = 0;
-}
-
 /**
  *
  * This should be above with the other public functions!!!!!
@@ -292,6 +250,48 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
 	{
 		 //warning("Fuel model is static. No curing applied.")
 	}
+}
+
+//Private functions:--------------------------------------------------------------------------------
+
+/** Initialize members to a consistant 'no fuel' initial state.
+ *
+ * This function sets the fuel model values to reasonable default values.  It assumes the model is
+ * structured like a standard fuel model with five fuel types.  It sets fuel loading to zero and
+ * parameters to values that produce a fire spread rate of zero.
+ *
+ * This initial fuel model state should be further modified.  For a fuel model to be useful it needs
+ * to have its parameters set to meaningful values, either from a file or manually.
+ */
+void FuelModel::Initialize()
+{
+	//Alternatively we could default the IDs to one of the nonburnable fuel models:
+	number = -1;//Set to impossible value.
+	code = "NA";//Alphanumeric code identifying the model.
+	name = "Empty fuel model";//Descriptive name.
+	type = Static;
+	units = US;//Default to the units of the original papers.
+	cured = false;
+	numClasses = 5;//Standard fuel model.
+
+	w_o_Units = lbPer_ft2;//Model units.
+	M_x_Units = Fraction;//Model units.
+
+	SAV_ij.resize(5, 0);//All fuel classes are absent.
+	w_o_ij.resize(5, 0);//Important.
+
+	delta = 0;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+	liveDead.assign({Dead, Dead, Dead, Live, Live});//Standard fuel model.
+	M_x_1 = 50;//Tough to choose a default here.  50% for now.
+
+	h_ij.resize(5, 8000);//Standard for all but one standard fuel model.
+	S_T_ij.resize(5, 0.0555);//Standard for all standard fuel models.
+	S_e_ij.resize(5, 0.010);//Standard for all standard fuel models.
+	rho_p_ij.resize(5, 32);//Standard for all standard fuel models.
+
+	cSAV = 0;
+	bulkDensity = 0;
+	relativePackingRatio = 0;
 }
 
 /** Load a fuel model from the specified file.
