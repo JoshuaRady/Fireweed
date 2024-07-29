@@ -38,7 +38,7 @@ spread model and related models.
  * - Consider adding version information or a format specifier to the file format.
  */
 
-#include <algorithm>//For std:all_of().
+#include <algorithm>//For std:all_of(), find.
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -242,6 +242,24 @@ void FuelModel::Initialize()
 	cSAV = 0;
 	bulkDensity = 0;
 	relativePackingRatio = 0;
+}
+
+/**
+ *
+ */
+void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
+{
+	if (type == Dynamic)
+	{
+		//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
+    	int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
+    	
+    	
+	}
+	else//if (warn)
+	{
+		 //warning("Fuel model is static. No curing applied.")
+	}
 }
 
 /** Load a fuel model from the specified file.

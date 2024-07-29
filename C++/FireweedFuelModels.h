@@ -117,7 +117,8 @@ class FuelModel {
 	
 	//Add unit conversion function.
 	std::ostream& Print(std::ostream& output) const;
-	
+	void CalculateDynamicFuelCuring(std::vector <double> M_f_ij);
+
 	private:
 	void Initialize();//Init(), InitBlank()?
 	void LoadFromDelimited(const std::string& fuelModelFilePath, int modelNumber,
