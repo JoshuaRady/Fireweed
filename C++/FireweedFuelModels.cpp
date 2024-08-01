@@ -202,11 +202,17 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	return output;
 }
 
-/**
+/** Calculate and apply the curing of herbaceous fuels based on the herbaceous fuel moisture (per Scott & Burgan 2005).
  *
+ * @ @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
  *
+ * For dynamic fuels curing moves some live herbaceous fuel to a new dead herbaceous fuel class.
+ * As a result the number of fuel classes may increase with this call.
+ *
+ * Trying to apply curing to a static fuel model has no effect.  By default the code posts a warning
+ * when this occurs.
  */
-void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
+void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 {
 	if (type == Dynamic)
 	{
@@ -236,40 +242,49 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
 		
 		if (cureFrac < 0)
 		{
-			cureFrac = 0;
+			cureFrac = 0.0;
 			//Could break out here as no curing needs to be applied.
 		}
 		else if (cureFrac > 1)
 		{
-			cureFrac = 1;
+			cureFrac = 1.0;
 		}
 
-		//Save M_f_21
+		//Save M_f_ij...
 
-		//Pass to shared code...
+		DynamicFuelCuringCore(cureFrac);
 	}
-	else//if (warn)
+	else if (warn)
 	{
 		 //warning("Fuel model is static. No curing applied.")
 	}
 }
 
 
-/**
+/** Calculate and apply the curing of herbaceous fuels based on percent curing.
  *
+ * @param curing The percent herbaceous fuel curing to apply.
  *
+ * This function is provided as an alternative to specifying moisture content.  Curing is normally
+ * calculated based on the live herbaceous fuel moisture but it can be useful to specify the curing
+ * directly, especially for testing.
  */
-void CalculateDynamicFuelCuring(double curing)
+void CalculateDynamicFuelCuring(double curing, bool warn)
 {
-	//Curing is generally presented as a percentage and that is what we expect:
-	if (curing < 0 || curing > 100)
+	if (type == Dynamic)
 	{
-		Stop("Expects curing as a percentage.");
+		//Curing is generally presented as a percentage and that is what we expect:
+		if (curing < 0 || curing > 100)
+		{
+			Stop("We expect fuel curing as a percentage.");
+		}
+		
+		DynamicFuelCuringCore(curing / 100);//Convert to a fraction.
 	}
-	
-	double cureFrac cureFrac = curing / 100;
-
-	//Pass to shared code...
+	else if (warn)
+	{
+		 //warning("Fuel model is static. No curing applied.")
+	}
 }
 
 //Private functions:--------------------------------------------------------------------------------
@@ -565,6 +580,7 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 
 /** Perform the core curing calculation and update the fuel model.
  *
+ * @param cureFrac The fractional curing of herbaceous fuel to apply.
  */
 void DynamicFuelCuringCore(double cureFrac)
 {
