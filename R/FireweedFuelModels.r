@@ -216,10 +216,10 @@ SetFuelMoisture <- function(fm, M_f_ij)
   #Check values:
   for (i in 1:length(M_f_ij))
   {
-    #if (!ValidProportion(M_f_ij[i]))
+    #if (!ValidProportion(M_f_ij[i]))#Need to add ValidProportion() to sources.
     if (M_f_ij[i] < 0 || M_f_ij[i] > 1)
     {
-      stop("M_f_ij contains invalid values.")#Dump values.
+      stop(paste("M_f_ij contains invalid values:", paste(M_f_ij, collapse = ", ")))
     }
   }
   

@@ -235,7 +235,7 @@ void SetFuelMoisture(std::vector <double> M_f_ij)
 	{
 		if (!ValidProportion(M_f_ij[i]))
 		{
-			//Stop("M_f_ij contains invalid values.");//Dump values.
+			//Stop("M_f_ij contains invalid values: " + VectorToStr(M_f_ij));
 		}
 	}
 	
