@@ -368,3 +368,49 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
   
   return(fm)
 }
+
+#Take a fuel model object in US customary units and convert to metric.
+#This is a copy of original from Proj_11_Exp_16_Analysis.r.
+FuelModelUStoMetric <- function(fuelModel)
+{
+  if (fuelModel$Units == "English")#Need to change to US.
+  {
+    #Leave Number, Code, Name, and unchanged.
+    
+    fuelModel$w_o_ij = fuelModel$w_o_ij * tonsPerAcToLbPerSqFt#Convert loadings to lb/ft^2.
+    fuelModel$w_o_ij = fuelModel$w_o_ij * kgPerLb / mPerFt^2#lb/ft^2 -> kg/m^2
+    
+    fuelModel$SAV_ij = fuelModel$SAV_ij / cmPerFt#1/ft -> 1/cm | ft^2/ft^3 -> cm^2/cm^3
+    
+    fuelModel$delta = fuelModel$delta * mPerFt#ft -> m
+    
+    #M_x and M_x_1 are unitless fractions and can be left unchanged.
+    
+    fuelModel$h = fuelModel$h * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
+    fuelModel$h_ij = fuelModel$h_ij * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
+    
+    fuelModel$rho_p = fuelModel$rho_p * lbPerFtCuToKgPerMCu
+    fuelModel$rho_p_ij = fuelModel$rho_p_ij * lbPerFtCuToKgPerMCu
+    
+    #S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
+    #Leave liveDead, NumClasses, and Cured unchanged.
+    
+    fuelModel$CharacteristicSAV = fuelModel$CharacteristicSAV / cmPerFt#ft^2/ft^3 -> cm^2/cm^3
+    
+    fuelModel$BulkDensity = fuelModel$BulkDensity * lbPerFtCuToKgPerMCu#lb/ft^3 -> kg/cm^3
+    
+    #RelativePackingRatio is a dimensionless ratio.
+    
+    fuelModel$Units = "Metric"
+  }
+  else if (fuelModel$Units == "Metric")
+  {
+    warning("Fuel model units are already metric.")
+  }
+  else
+  {
+    stop("Fuel model units not recognized.")
+  }
+  
+  return(fuelModel)
+}
