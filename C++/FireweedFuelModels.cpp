@@ -213,6 +213,46 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	return output;
 }
 
+/** Record the fuel moisture values.
+ *
+ * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+ *
+ * This function checks M_f_ij and stores it if valid, without apply curing.  If curing has been
+ * previously applied the  value can not be overwritten and an error is generated.  If the value has
+ * been previously set but curing has not been applied we allow the value to be overwritten.  The
+ * utility of overwriting is uncertain so we currently warn when this happens.
+ */
+void SetFuelMoisture(std::vector <double> M_f_ij)
+{
+	//Check length is appropriate:
+	if (M_f_ij.size() != numClasses)
+	{
+		//Stop("M_f_ij not of proper length.");//Add lengths of inputs and numClasses?????
+		//Stop("M_f_ij has length " + std::to_string(M_f_ij.size()) + " while numClasses = " + std::to_string(numClasses));
+	}
+	
+	for (int i = 0; i < M_f_ij.size(); i++)
+	{
+		if (!ValidProportion(M_f_ij[i]))
+		{
+			//Stop("M_f_ij contains invalid values.");//Dump values.
+		}
+	}
+	
+	//Checking if curing has already been run for this fuel model:
+	if (cured == true)
+	{
+		//Stop("Fuel model has already had curing applied.");
+	}
+	
+	if (!this->M_f_ij.empty)
+	{
+		Warning("M_f_ij is being overwritten.");
+	}
+
+	this->M_f_ij = M_f_ij;
+}
+
 /** Calculate and apply the curing of herbaceous fuels based on the herbaceous fuel moisture (per Scott & Burgan 2005).
  *
  * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).

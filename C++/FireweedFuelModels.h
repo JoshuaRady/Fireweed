@@ -117,6 +117,8 @@ class FuelModel {
 	
 	//Add unit conversion function.
 	std::ostream& Print(std::ostream& output) const;
+	
+	void SetFuelMoisture(std::vector <double> M_f_ij);
 	void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn = true);
 	void CalculateDynamicFuelCuring(double curing, bool warn = true);
 
