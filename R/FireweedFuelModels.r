@@ -369,48 +369,98 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
   return(fm)
 }
 
-#Take a fuel model object in US customary units and convert to metric.
-#This is a copy of original from Proj_11_Exp_16_Analysis.r.
-FuelModelUStoMetric <- function(fuelModel)
+#Take a fuel model object and convert its units.
+#
+#Parameters:
+#fm = The fuel model to convert.
+#newUnits = The units to convert to.  If the same as the current units do nothing.
+FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
 {
-  if (fuelModel$Units == "English")#Need to change to US.
+  if (fm$Units == newUnits)
   {
-    #Leave Number, Code, Name, and unchanged.
-    
-    fuelModel$w_o_ij = fuelModel$w_o_ij * tonsPerAcToLbPerSqFt#Convert loadings to lb/ft^2.
-    fuelModel$w_o_ij = fuelModel$w_o_ij * kgPerLb / mPerFt^2#lb/ft^2 -> kg/m^2
-    
-    fuelModel$SAV_ij = fuelModel$SAV_ij / cmPerFt#1/ft -> 1/cm | ft^2/ft^3 -> cm^2/cm^3
-    
-    fuelModel$delta = fuelModel$delta * mPerFt#ft -> m
-    
-    #M_x and M_x_1 are unitless fractions and can be left unchanged.
-    
-    fuelModel$h = fuelModel$h * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
-    fuelModel$h_ij = fuelModel$h_ij * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
-    
-    fuelModel$rho_p = fuelModel$rho_p * lbPerFtCuToKgPerMCu
-    fuelModel$rho_p_ij = fuelModel$rho_p_ij * lbPerFtCuToKgPerMCu
-    
-    #S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
-    #Leave liveDead, NumClasses, and Cured unchanged.
-    
-    fuelModel$CharacteristicSAV = fuelModel$CharacteristicSAV / cmPerFt#ft^2/ft^3 -> cm^2/cm^3
-    
-    fuelModel$BulkDensity = fuelModel$BulkDensity * lbPerFtCuToKgPerMCu#lb/ft^3 -> kg/cm^3
-    
-    #RelativePackingRatio is a dimensionless ratio.
-    
-    fuelModel$Units = "Metric"
-  }
-  else if (fuelModel$Units == "Metric")
-  {
-    warning("Fuel model units are already metric.")
+    warning("Fuel model is already in requested units.")
   }
   else
   {
-    stop("Fuel model units not recognized.")
+    if (newUnits == "US")
+    {
+      #Leave Number, Code, Name, and Type unchanged.
+      #Cured and NumClasses don't change.
+      
+      fm$SAV_ij = fm$SAV_ij * cmPerFt#1/cm -> 1/ft | cm^2/cm^ -> 3ft^2/ft^3
+      
+      #The metric units are alway kg/m^2. We don't include an option to convert to ton/Ac:
+      fm$w_o_ij = fm$w_o_ij / kgPerLb * mPerFt^2#kg/m^2 -> lb/ft^2
+      fm$w_o_Units = "lbPer_ft2"
+      
+      fm$delta = fm$delta / mPerFt#m -> ft
+      
+      #Leave liveDead unchanged.
+      
+      #M_x and M_x_1 are either unitless fractions or percentagers and can be left unchanged.
+      
+      fm$h = fm$h / kJPerBtu * kgPerLb#kJ/kg -> Btu/lb
+      fm$h_ij = fm$h_ij / kJPerBtu * kgPerLb#kJ/kg -> Btu/lb
+      
+      #S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
+      
+      fm$rho_p = fm$rho_p / lbPerFtCuToKgPerMCu
+      fm$rho_p_ij = fm$rho_p_ij / lbPerFtCuToKgPerMCu
+      
+      fm$CharacteristicSAV = fm$CharacteristicSAV * cmPerFt#cm^2/cm^3 -> ft^2/ft^3
+      
+      fm$BulkDensity = fm$BulkDensity / lbPerFtCuToKgPerMCu#kg/cm^3 -> lb/ft^3
+      
+      #RelativePackingRatio is a dimensionless ratio.
+      #M_f_ij is a fraction.
+      #Curing is a percent.
+      
+      fm$Units = "US"
+    }
+    else if (newUnits == "Metric")
+    {
+      #Leave Number, Code, Name, and Type unchanged.
+      #Cured and NumClasses don't change.
+      
+      fm$SAV_ij = fm$SAV_ij / cmPerFt#1/ft -> 1/cm | ft^2/ft^3 -> cm^2/cm^3
+      
+      if (w_o_Units == "tonPerAc")
+      {
+        fm$w_o_ij = fm$w_o_ij * tonsPerAcToLbPerSqFt#Convert loadings to lb/ft^2.
+      }
+      #We could check for invalid w_o_Units here.
+      fm$w_o_ij = fm$w_o_ij * kgPerLb / mPerFt^2#lb/ft^2 -> kg/m^2
+      fm$w_o_Units = kgPer_m2
+      
+      fm$delta = fm$delta * mPerFt#ft -> m
+      
+      #Leave liveDead unchanged.
+      
+      #M_x and M_x_1 are either unitless fractions or percentagers and can be left unchanged.
+      
+      fm$h = fm$h * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
+      fm$h_ij = fm$h_ij * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
+      
+      #S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
+      
+      fm$rho_p = fm$rho_p * lbPerFtCuToKgPerMCu
+      fm$rho_p_ij = fm$rho_p_ij * lbPerFtCuToKgPerMCu
+      
+      fm$CharacteristicSAV = fm$CharacteristicSAV / cmPerFt#ft^2/ft^3 -> cm^2/cm^3
+      
+      fm$BulkDensity = fm$BulkDensity * lbPerFtCuToKgPerMCu#lb/ft^3 -> kg/cm^3
+      
+      #RelativePackingRatio is a dimensionless ratio.
+      #M_f_ij is a fraction.
+      #Curing is a percent.
+      
+      fm$Units = "Metric"
+    }
+    else
+    {
+      stop("Requested fuel model units not recognized.")
+    }
   }
   
-  return(fuelModel)
+  return(fm)
 }
