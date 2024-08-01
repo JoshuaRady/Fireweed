@@ -188,21 +188,27 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
 
 #Take a dynamic fuel model and calculate and apply the curing of herbaceous fuels based on the
 #herbaceous fuel moisture (per Scott & Burgan 2005).  For dynamic fuels curing moves some live
-#herbaceous fuel to a new dead herbaceous fuel class. As a result the number of fuel classes my
+#herbaceous fuel to a new dead herbaceous fuel class. As a result the number of fuel classes may
 #increase with this call.  The function takes a fuel model object and returns a modified version of
 #it reflecting the curing process.
+#  Trying to apply curing to a static fuel model has no effect.  By default the code posts a
+#warning when this occurs.
 #
 #Parameters:
 #fm = The fuel model to apply curing to.
 #M_f_ij = Fuel moisture content for for each fuel type (fraction: water weight/dry fuel weight).
 #  If omitted curing must be specified.
-#curing = The percent curing to apply.  This is provided as an alternative to specifying moisture
-#  content.  Curing is normally calculated based on the live herbaceous fuel moisture but it can
-#  be useful to specify the curing directly, especially for testing.
+#curing = The percent herbaceous fuel curing to apply.  This is provided as an alternative to
+#  specifying moisture content.  Curing is normally calculated based on the live herbaceous fuel
+#  moisture but it can be useful to specify the curing directly, especially for testing.
 #warn = If true warn about attempts to apply curing to static models.
 #
-#Notes: On return Curing and possibly M_f_ij elements will be added to the fuel model (fm).  It may
-#better to add these on in initialization of the model.
+#Notes:
+#  On return Curing and possibly M_f_ij elements will be added to the fuel model (fm).  It may be
+#better to add these on initialization of the model.  However in that case both will be undefined
+#initially.  M_f_ij will be remain undefined for static fuel models or until it is set for dynamic
+#fuel models.  With this implementation Curing and M_f_ij don't exist until this function is called.
+#
 #  This implementation results in different weights for missing fuels that those published in
 #Andrews 2018, but this does not have material effects.
 #  If created the dead herbaceous fuel is inserted at the second position (1,2).  For the standard
@@ -253,7 +259,7 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
       #Curing is generally presented as a percentage and that is what we expect:
       if (curing < 0 || curing > 100)
       {
-        stop(paste(functionName, "() expects curing as a percentage.", sep = ''))
+        stop(paste(functionName, "() expects fuel curing as a percentage.", sep = ''))
       }
       
       cureFrac = curing / 100
@@ -269,7 +275,8 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
       stop(paste(functionName, "(): Fuel model has already had curing applied.", sep = ''))
     }
     
-    #Expand the number of fuel classes, inserting the cured herbaceous at position 1,2:
+    #Expand the number of fuel classes, inserting the cured herbaceous at the second dead position,
+    #(Live, 2) in 1 based space:
     fm$w_o_ij = c(fm$w_o_ij[1], 0, fm$w_o_ij[2:fm$NumClasses])#Initial loading = 0.
     #Curing doesn't change SAV.  Inherit from the live herbaceous:
     fm$SAV_ij = c(fm$SAV_ij[1], fm$SAV_ij[liveHerbIndex], fm$SAV_ij[2:fm$NumClasses])
@@ -282,14 +289,11 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
     fm$rho_p_ij = c(fm$rho_p_ij[1], fm$rho_p_ij[liveHerbIndex], fm$rho_p_ij[2:fm$NumClasses])
     
     #Expand liveDead:
-    fm$liveDead = c(fm$liveDead[1], 1, fm$liveDead[2:fm$NumClasses])
+    fm$liveDead = c(fm$liveDead[1], 1, fm$liveDead[2:fm$NumClasses])#Change to Dead!!!!!
     
     #Update the moisture content vector if provided:
     if (!is.null(M_f_ij))
     {
-      #I'm not sure about how to return this.  Adding it to the fuel model makes some sense but
-      #M_f_ij will be undefined for static fuel models or where it is not passed in until it is
-      #added to the fuel model upstream.
       fm$M_f_ij = c(M_f_ij[1], M_f_ij[1], M_f_ij[2:fm$NumClasses])#Inherit from 1-hr dead moisture.
     }
     # else
@@ -298,10 +302,10 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
     # }
     
     fm$NumClasses = fm$NumClasses + 1
-    liveHerbIndex = liveHerbIndex + 1#Update after all data members are revised.
+    liveHerbIndex = liveHerbIndex + 1#Update after all data members are restructured.
     
     #Transfer the loading from live to dead:
-    fm$w_o_ij[2] = cureFrac * fm$w_o_ij[liveHerbIndex]#w_o_ij
+    fm$w_o_ij[2] = cureFrac * fm$w_o_ij[liveHerbIndex]
     #fm$w_o_ij[liveHerbIndex] = fm$w_o_ij[liveHerbIndex] - cureFrac * fm$w_o_ij[liveHerbIndex]
     fm$w_o_ij[liveHerbIndex] = fm$w_o_ij[liveHerbIndex] - fm$w_o_ij[2]#Same as above.
     
