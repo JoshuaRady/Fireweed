@@ -213,7 +213,7 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	return output;
 }
 
-/** Record the fuel moisture values.
+/** Record the fuel moisture content values.
  *
  * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
  *
@@ -247,7 +247,7 @@ void SetFuelMoisture(std::vector <double> M_f_ij)
 	
 	if (!this->M_f_ij.empty)
 	{
-		Warning("M_f_ij is being overwritten.");
+		//Warning("M_f_ij is being overwritten.");
 	}
 
 	this->M_f_ij = M_f_ij;
@@ -260,26 +260,20 @@ void SetFuelMoisture(std::vector <double> M_f_ij)
  * For dynamic fuels curing moves some live herbaceous fuel to a new dead herbaceous fuel class.
  * As a result the number of fuel classes may increase with this call.
  *
- * Trying to apply curing to a static fuel model has no effect.  By default the code posts a warning
- * when this occurs.
+ * Trying to apply curing to a static fuel model has no effect except to store the moisture values.
+ * By default the code posts a warning when this occurs.
  */
 void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 {
+	SetFuelMoisture(M_f_ij);//Check validity of M_f_ij and save.
+
 	if (type == Dynamic)
 	{
 		//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
 		int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
 		
-		//Check length is appropriate:
-		if (M_f_ij.size() != numClasses)
-		{
-			Stop("M_f_ij not of proper length.");//Add lengths of inputs and numClasses?????
-		}
-
 		//Curing is a function of live herbaceous fuel moisture:
 		double M_f_21 = M_f_ij[liveHerbIndex]
-
-		//Check incoming values!!!!!
 
 		//Calculate the transfer of herbaceous fuel loading from live to dead:
 		//Curing is 0 at 120% fuel moisture and 1 at 30%:
@@ -301,16 +295,11 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 			cureFrac = 1.0;
 		}
 
-		//Save M_f_ij:
-		//Setting M_f_ij here prevents the need to pass it on but means it is stored even if curing
-		//has previously been applied, which could cause problems if an error is not raised.
-		this->M_f_ij = M_f_ij;
-
 		DynamicFuelCuringCore(cureFrac);
 	}
 	else if (warn)
 	{
-		 //warning("Fuel model is static. No curing applied.")
+		 //Warning("Fuel model is static. No curing applied.")
 	}
 }
 
@@ -329,14 +318,14 @@ void CalculateDynamicFuelCuring(double curing, bool warn)
 		//Curing is generally presented as a percentage and that is what we expect:
 		if (curing < 0 || curing > 100)
 		{
-			Stop("We expect fuel curing as a percentage.");
+			//Stop("We expect fuel curing as a percentage.");
 		}
 		
 		DynamicFuelCuringCore(curing / 100);//Convert to a fraction.
 	}
 	else if (warn)
 	{
-		 //warning("Fuel model is static. No curing applied.")
+		 //Warning("Fuel model is static. No curing applied.")
 	}
 }
 
