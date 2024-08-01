@@ -186,13 +186,66 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
   return(fuelModel)
 }
 
+#Record the fuel moisture content values..
+#
+#Parameters:
+#fm = The fuel model to apply curing to.
+#M_f_ij = Fuel moisture content for for each fuel type (fraction: water weight/dry fuel weight).
+#
+#This function checks M_f_ij and stores it if valid, without apply curing.  If curing has been
+#previously applied the  value can not be overwritten and an error is generated.  If the value has
+#been previously set but curing has not been applied we allow the value to be overwritten.  The
+#utility of overwriting is uncertain so we currently warn when this happens.
+SetFuelMoisture <- function(fm, M_f_ij)
+{
+  functionName = match.call()[[1]]
+  
+  #Check the type:
+  if (!is.numeric(M_f_ij))
+  {
+    stop(paste(functionName, "(): M_f_ij not of proper type", sep = ''))
+  }
+  
+  #Check length is appropriate:
+  if (length(M_f_ij != fm$NumClasses))
+  {
+    stop(paste(functionName, "(): M_f_ij has length ", length(M_f_ij), " while numClasses = ",
+               fm$NumClasses, sep = ''))
+  }
+  
+  #Check values:
+  for (i in 1:length(M_f_ij))
+  {
+    #if (!ValidProportion(M_f_ij[i]))
+    if (M_f_ij[i] < 0 || M_f_ij[i] > 1)
+    {
+      stop("M_f_ij contains invalid values.")#Dump values.
+    }
+  }
+  
+  #Checking if curing has already been run for this fuel model:
+  if (cured == TRUE)
+  {
+    stop("Fuel model has already had curing applied.")
+  }
+  
+  if (!this->M_f_ij.empty)
+  {
+    warning("M_f_ij is being overwritten.")
+  }
+  
+  fm$M_f_ij = M_f_ij
+  
+  return(fm)
+}
+
 #Take a dynamic fuel model and calculate and apply the curing of herbaceous fuels based on the
 #herbaceous fuel moisture (per Scott & Burgan 2005).  For dynamic fuels curing moves some live
 #herbaceous fuel to a new dead herbaceous fuel class. As a result the number of fuel classes may
 #increase with this call.  The function takes a fuel model object and returns a modified version of
 #it reflecting the curing process.
-#  Trying to apply curing to a static fuel model has no effect.  By default the code posts a
-#warning when this occurs.
+#  Trying to apply curing to a static fuel model has no effect except to store the moisture values.
+#By default the code posts a warning when this occurs.
 #
 #Parameters:
 #fm = The fuel model to apply curing to.
@@ -217,6 +270,8 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
 {
   functionName = match.call()[[1]]
   
+  fm = SetFuelMoisture(fm, M_f_ij)#Check validity of M_f_ij and save.
+  
   if (fm$Type == "Dynamic")
   {
     #The live herbaceous is the first dead fuel.  The index should be 4 for standard fuel models:
@@ -225,12 +280,6 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
     #Either M_f_ij or curing must be provided but not both:
     if (!is.null(M_f_ij))
     {
-      #Check length is appropriate:
-      if (!is.numeric(M_f_ij) || length(M_f_ij != fm$NumClasses))
-      {
-        stop(paste(functionName, "(): M_f_ij not of proper form.", sep = ''))
-      }
-      
       #Curing is a function of live herbaceous fuel moisture:
       M_f_21 = M_f_ij[liveHerbIndex]
       
@@ -310,7 +359,7 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
     fm$w_o_ij[liveHerbIndex] = fm$w_o_ij[liveHerbIndex] - fm$w_o_ij[2]#Same as above.
     
     fm$Cured = TRUE#Record that curing has been applied.
-    fm$Curing = cureFrac * 100#Record the curing fraction.  Is this useful?
+    fm$Curing = cureFrac * 100#Record the curing percentage.  Is this useful?
   }
   else if (warn)
   {
