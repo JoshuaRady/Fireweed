@@ -810,7 +810,7 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool
 	}
 }
 
-/** Print a vector to an output stream on a single line with separators.
+/** Print a numeric vector to an output stream on a single line with separators.
  *
  * @param output The output stream to print to.
  * @param vec The string vector to print.
@@ -827,4 +827,24 @@ std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec,
 	output << vec[vec.size() - 1] << std::endl;
 
 	return output;
+}
+
+/** Convert a numeric vector to a string with separators between elements and return.
+ *
+ * @param vec The string vector to print.
+ * @param separator The string to separate vector elements.  Default to a comma and space.
+ *
+ * Turn into a template?
+ */
+std::string VectorToStr(const std::vector <double> vec, std::string separator)
+{
+	std::string str;
+
+	for (int i = 0; i < vec.size() - 1; i++)
+	{
+		str = str + std::to_string(vec[i]) + separator;
+	}
+	str = str + std::to_string(vec[vec.size() - 1]);
+	
+	return str;
 }

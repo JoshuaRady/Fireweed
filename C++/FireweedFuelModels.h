@@ -146,5 +146,6 @@ std::ostream& operator<<(std::ostream& output, const FuelModel& fm);
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter);
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool allowQuotes);
 std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator = ", ");
+td::string VectorToStr(const std::vector <double> vec, std::string separator = ", ");
 
 #endif
