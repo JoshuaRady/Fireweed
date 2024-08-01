@@ -121,7 +121,10 @@ class FuelModel {
 	void CalculateDynamicFuelCuring(double curing, bool warn = true);
 
 	private:
+	//Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).  Initially empty:
 	std::vector <double> M_f_ij;
+	//The percent herbaceous fuel curing.  Will be 0 when cured = false:
+	//Currently this only stored for reference and is not used for anything.
 	double curing;
 	
 	void Initialize();//Init(), InitBlank()?

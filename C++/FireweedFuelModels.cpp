@@ -119,6 +119,7 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	if (cured)
 	{
 		output << "Cured: true" << std::endl;
+		output << "Percent curing: " << curing << std::endl;
 	}
 	else
 	{
@@ -199,12 +200,22 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	output << "bulkDensity: " << bulkDensity << std::endl;
 	output << "relativePackingRatio: " << relativePackingRatio << std::endl;
 	
+	if (M_f_ij.empty())
+	{
+		output << "M_f_ij not set." << std::endl;
+	}
+	else
+	{
+		output << "M_f_ij: ";
+		PrintVector(output, M_f_ij);
+	}
+	
 	return output;
 }
 
 /** Calculate and apply the curing of herbaceous fuels based on the herbaceous fuel moisture (per Scott & Burgan 2005).
  *
- * @ @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+ * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
  *
  * For dynamic fuels curing moves some live herbaceous fuel to a new dead herbaceous fuel class.
  * As a result the number of fuel classes may increase with this call.
