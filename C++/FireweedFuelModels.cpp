@@ -250,7 +250,10 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 			cureFrac = 1.0;
 		}
 
-		//Save M_f_ij...
+		//Save M_f_ij:
+		//Setting M_f_ij here prevents the need to pass it on but means it is stored even if curing
+		//has previously been applied, which could cause problems if an error is not raised.
+		this->M_f_ij = M_f_ij;
 
 		DynamicFuelCuringCore(cureFrac);
 	}
@@ -259,7 +262,6 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 		 //warning("Fuel model is static. No curing applied.")
 	}
 }
-
 
 /** Calculate and apply the curing of herbaceous fuels based on percent curing.
  *
@@ -327,6 +329,10 @@ void FuelModel::Initialize()
 	cSAV = 0;
 	bulkDensity = 0;
 	relativePackingRatio = 0;
+	
+	//M_f_ij is left as empty.
+	
+	curing = 0;//Percent curing = none.  When cured = false there should be no reason to look at this but we set a valid value.
 }
 
 /** Load a fuel model from the specified file.
@@ -611,21 +617,20 @@ void DynamicFuelCuringCore(double cureFrac)
 	liveDead.insert(1, Dead);
 
 	//Update the moisture content vector if present:
-	//Note: M_f_ij needs to be added to class!!!!!
 	if (!M_f_ij.empty())
 	{
-		//M_f_ij.insert(1, M_f_ij[0]);//Inherit from 1-hr dead moisture.
+		M_f_ij.insert(1, M_f_ij[0]);//Inherit from 1-hr dead moisture.
 	}
 
 	numClasses = fm$NumClasses + 1;
-    liveHerbIndex = liveHerbIndex + 1;//Update after all data members are restructured.
+	liveHerbIndex = liveHerbIndex + 1;//Update after all data members are restructured.
 
 	//Transfer the loading from live to dead:
 	w_o_ij[1] = cureFrac * $w_o_ij[liveHerbIndex];
 	w_o_ij[liveHerbIndex] = fm$w_o_ij[liveHerbIndex] - w_o_ij[1]
 
-	Cured = true;//Record that curing has been applied.
-	//Curing = cureFrac * 100;//Record the curing fraction.  Is this useful?
+	cured = true;//Record that curing has been applied.
+	curing = cureFrac * 100;//Record the curing percentage.
 }
 
 //External functions:-------------------------------------------------------------------------------

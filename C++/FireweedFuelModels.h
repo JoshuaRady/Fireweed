@@ -121,6 +121,9 @@ class FuelModel {
 	void CalculateDynamicFuelCuring(double curing, bool warn = true);
 
 	private:
+	std::vector <double> M_f_ij;
+	double curing;
+	
 	void Initialize();//Init(), InitBlank()?
 	void LoadFromDelimited(const std::string& fuelModelFilePath, int modelNumber,
 	                       std::string modelCode, bool spreadModelUnits = true, char delimiter = ',');
