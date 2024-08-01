@@ -123,6 +123,7 @@ class FuelModel {
 	void Initialize();//Init(), InitBlank()?
 	void LoadFromDelimited(const std::string& fuelModelFilePath, int modelNumber,
 	                       std::string modelCode, bool spreadModelUnits = true, char delimiter = ',');
+	void DynamicFuelCuringCore(double cureFrac);
 };
 
 //External functions:

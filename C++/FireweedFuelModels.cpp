@@ -204,7 +204,7 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 
 /**
  *
- * This should be above with the other public functions!!!!!
+ *
  */
 void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
 {
@@ -216,7 +216,7 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
 		//Check length is appropriate:
 		if (M_f_ij.size() != numClasses)
 		{
-			Stop("M_f_ij not of proper length.")//Add lengths of inputs and numClasses?????
+			Stop("M_f_ij not of proper length.");//Add lengths of inputs and numClasses?????
 		}
 
 		//Curing is a function of live herbaceous fuel moisture:
@@ -232,24 +232,44 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij)// double curing
 		//cureFrac = -1.11 * M_f_21 + 1.33
 		//Note: We can't use T, since T = TRUE in R.
 		//This is exact at 30 and 120%:
-		cureFrac = (M_f_21 - 0.3) / 0.9//1.2 - 0.3 = 0.9
+		double cureFrac = (M_f_21 - 0.3) / 0.9;//1.2 - 0.3 = 0.9
 		
 		if (cureFrac < 0)
 		{
-			cureFrac = 0
+			cureFrac = 0;
 			//Could break out here as no curing needs to be applied.
 		}
 		else if (cureFrac > 1)
 		{
-			cureFrac = 1
+			cureFrac = 1;
 		}
-		
+
+		//Save M_f_21
+
 		//Pass to shared code...
 	}
 	else//if (warn)
 	{
 		 //warning("Fuel model is static. No curing applied.")
 	}
+}
+
+
+/**
+ *
+ *
+ */
+void CalculateDynamicFuelCuring(double curing)
+{
+	//Curing is generally presented as a percentage and that is what we expect:
+	if (curing < 0 || curing > 100)
+	{
+		Stop("Expects curing as a percentage.");
+	}
+	
+	double cureFrac cureFrac = curing / 100;
+
+	//Pass to shared code...
 }
 
 //Private functions:--------------------------------------------------------------------------------
@@ -541,6 +561,55 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 	}
 
 	fmCSV.close();
+}
+
+/** Perform the core curing calculation and update the fuel model.
+ *
+ */
+void DynamicFuelCuringCore(double cureFrac)
+{
+	//Checking if this function has already been run for this fuel model:
+	//This check could be moved to start of the calling functions.
+	if (cured == TRUE)
+	{
+		//Stop("Fuel model has already had curing applied.");
+	}
+
+	//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
+	int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
+
+	//Expand the number of fuel classes, inserting the cured herbaceous at second dead position,
+	//(Dead, 1) in 0 based space:
+	w_o_ij.insert(1, 0);//Initial loading = 0.
+	//Curing doesn't change SAV.  Inherit from the live herbaceous:
+	SAV_ij.insert(1, SAV_ij[liveHerbIndex]);
+
+	//For the standard fuel models all values for these parameters should be the same but don't
+	//assume that for robustness.  Inherit from the live class:
+	h_ij.insert(1, h_ij[liveHerbIndex]);
+	S_T_ij.insert(1, S_T_ij[liveHerbIndex]);
+	S_e_ij.insert(1, S_e_ij[liveHerbIndex]);
+	rho_p_ij.insert(1, rho_p_ij[liveHerbIndex]);
+
+	//Expand liveDead:
+	liveDead.insert(1, Dead);
+
+	//Update the moisture content vector if present:
+	//Note: M_f_ij needs to be added to class!!!!!
+	if (!M_f_ij.empty())
+	{
+		//M_f_ij.insert(1, M_f_ij[0]);//Inherit from 1-hr dead moisture.
+	}
+
+	numClasses = fm$NumClasses + 1;
+    liveHerbIndex = liveHerbIndex + 1;//Update after all data members are restructured.
+
+	//Transfer the loading from live to dead:
+	w_o_ij[1] = cureFrac * $w_o_ij[liveHerbIndex];
+	w_o_ij[liveHerbIndex] = fm$w_o_ij[liveHerbIndex] - w_o_ij[1]
+
+	Cured = true;//Record that curing has been applied.
+	//Curing = cureFrac * 100;//Record the curing fraction.  Is this useful?
 }
 
 //External functions:-------------------------------------------------------------------------------
