@@ -124,7 +124,7 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
   
   #Typically the units of some parameters are different in the published tables than in the
   #model equations:
-  #It would be an improvement to detect the units used the file.  That information is currently
+  #It would be an improvement to detect the units used in the file.  That information is currently
   #in the header information but not in a form that would be ideal to parse.
   if (spreadModelUnits)
   {
@@ -132,13 +132,13 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
     fuelModel$M_x = fuelModel$M_x / 100#% to fraction
     
     #Record the units used:
-    w_o_Units = "lbPer_ft2"
-    M_x_Units = "Fraction"
+    fuelModel$w_o_Units = "lbPer_ft2"
+    fuelModel$M_x_Units = "Fraction"
   }
   else
   {
-    w_o_Units = "tonPerAc"
-    M_x_Units = "Percent"
+    fuelModel$w_o_Units = "tonPerAc"
+    fuelModel$M_x_Units = "Percent"
   }
   
   #Expand parameters with fixed values across all fuel classes:
@@ -162,12 +162,15 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
   fuelModel$Cured = FALSE#Only relevant to dynamic fuel models.
   
   #Reorder members:
+  numMembers = length(fuelModel)
   fuelModel = fuelModel[c("Number", "Code", "Name",#Fuel model identifiers:
                           #Model model properties:
                           "Type",#Static vs. Dynamic
                           "Units",#The model units type.
                           "Cured",
                           "NumClasses",
+                          "w_o_Units",
+                          "M_x_Units",
                           #Fuel model parameters / data members:
                           "SAV_ij",
                           "w_o_ij",
@@ -182,6 +185,12 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
                           "rho_p", "rho_p_ij",
                           #Precalculated columns (could be removed):
                           "CharacteristicSAV", "BulkDensity", "RelativePackingRatio")]
+  
+  #Make sure we didn't forget anything when reordering the members:
+  if (length(fuelModel) != numMembers)
+  {
+    stop("Lost some members.")
+  }
   
   return(fuelModel)
 }
@@ -396,8 +405,7 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
       fm$delta = fm$delta / mPerFt#m -> ft
       
       #Leave liveDead unchanged.
-      
-      #M_x and M_x_1 are either unitless fractions or percentagers and can be left unchanged.
+      #M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
       
       fm$h = fm$h / kJPerBtu * kgPerLb#kJ/kg -> Btu/lb
       fm$h_ij = fm$h_ij / kJPerBtu * kgPerLb#kJ/kg -> Btu/lb
@@ -424,19 +432,18 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
       
       fm$SAV_ij = fm$SAV_ij / cmPerFt#1/ft -> 1/cm | ft^2/ft^3 -> cm^2/cm^3
       
-      if (w_o_Units == "tonPerAc")
+      if (fm$w_o_Units == "tonPerAc")
       {
         fm$w_o_ij = fm$w_o_ij * tonsPerAcToLbPerSqFt#Convert loadings to lb/ft^2.
       }
       #We could check for invalid w_o_Units here.
       fm$w_o_ij = fm$w_o_ij * kgPerLb / mPerFt^2#lb/ft^2 -> kg/m^2
-      fm$w_o_Units = kgPer_m2
+      fm$w_o_Units = "kgPer_m2"
       
       fm$delta = fm$delta * mPerFt#ft -> m
       
       #Leave liveDead unchanged.
-      
-      #M_x and M_x_1 are either unitless fractions or percentagers and can be left unchanged.
+      #M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
       
       fm$h = fm$h * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
       fm$h_ij = fm$h_ij * kJPerBtu / kgPerLb#Btu/lb -> kJ/kg
