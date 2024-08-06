@@ -45,6 +45,7 @@ spread model and related models.
 #include <vector>
 
 #include "FireweedFuelModels.h"
+#include "FireweedMessaging.h"
 
 /** Default (empty) constructor
  *
@@ -320,26 +321,26 @@ void SetFuelMoisture(std::vector <double> M_f_ij)
 	if (M_f_ij.size() != numClasses)
 	{
 		//Stop("M_f_ij not of proper length.");//Add lengths of inputs and numClasses?????
-		//Stop("M_f_ij has length " + std::to_string(M_f_ij.size()) + " while numClasses = " + std::to_string(numClasses));
+		Stop("M_f_ij has length " + std::to_string(M_f_ij.size()) + " while numClasses = " + std::to_string(numClasses));
 	}
 	
 	for (int i = 0; i < M_f_ij.size(); i++)
 	{
 		if (!ValidProportion(M_f_ij[i]))
 		{
-			//Stop("M_f_ij contains invalid values: " + VectorToStr(M_f_ij));
+			Stop("M_f_ij contains invalid values: " + VectorToStr(M_f_ij));
 		}
 	}
 	
 	//Checking if curing has already been run for this fuel model:
 	if (cured == true)
 	{
-		//Stop("Fuel model has already had curing applied.");
+		Stop("Fuel model has already had curing applied.");
 	}
 	
 	if (!this->M_f_ij.empty)
 	{
-		//Warning("M_f_ij is being overwritten.");
+		Warning("M_f_ij is being overwritten.");
 	}
 
 	this->M_f_ij = M_f_ij;
@@ -391,7 +392,7 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 	}
 	else if (warn)
 	{
-		 //Warning("Fuel model is static. No curing applied.")
+		 Warning("Fuel model is static. No curing applied.")
 	}
 }
 
@@ -410,14 +411,14 @@ void CalculateDynamicFuelCuring(double curing, bool warn)
 		//Curing is generally presented as a percentage and that is what we expect:
 		if (curing < 0 || curing > 100)
 		{
-			//Stop("We expect fuel curing as a percentage.");
+			Stop("We expect fuel curing as a percentage.");
 		}
 		
 		DynamicFuelCuringCore(curing / 100);//Convert to a fraction.
 	}
 	else if (warn)
 	{
-		 //Warning("Fuel model is static. No curing applied.")
+		 Warning("Fuel model is static. No curing applied.")
 	}
 }
 
@@ -584,10 +585,10 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 				{
 					type = Dynamic;
 				}
-				//else//Error handling:
-				//{
-				//	Error("Invalid value for fuel model type.") !!!!!
-				//}
+				else//Error handling:
+				{
+					Stop("Invalid value for fuel model type.");
+				}
 			}
 			else if (colNames[j] == "SAV_11")
 			{
@@ -710,7 +711,8 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 	else
 	{
 		//Not finding the fuel model is probably an error.  At the least we should warn that no
-		//match was found. !!!!!
+		//match was found.
+		Warning("No matching fuel model was found.")
 	}
 
 	fmCSV.close();
@@ -726,7 +728,7 @@ void DynamicFuelCuringCore(double cureFrac)
 	//This check could be moved to start of the calling functions.
 	if (cured == TRUE)
 	{
-		//Stop("Fuel model has already had curing applied.");
+		Stop("Fuel model has already had curing applied.");
 	}
 
 	//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
@@ -868,6 +870,7 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool
 					//If the closing quote is missing we can't determine where the field ends.
 					//We could ignore the opening quote and extract or discard to the next delimiter.
 					//These are all risky.  It is better to throw an error. !!!!!
+					Stop("Closing quote not found.");
 				}
 
 				//Discard the delimiter that follows:
@@ -880,7 +883,8 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool
 					//Anything else means that we could be discarding data.
 					if (!std::all_of(trash.begin(), trash.end(), isspace))
 					{
-						//Warn or throw error... !!!!!
+						//Warn or throw error: !!!!!
+						Warning("Unexpected content when splitting.");
 					}
 				}
 			}
