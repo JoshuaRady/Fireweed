@@ -396,7 +396,7 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
       #Leave Number, Code, Name, and Type unchanged.
       #Cured and NumClasses don't change.
       
-      fm$SAV_ij = fm$SAV_ij * cmPerFt#1/cm -> 1/ft | cm^2/cm^ -> 3ft^2/ft^3
+      fm$SAV_ij = fm$SAV_ij * cmPerFt#1/cm -> 1/ft | cm^2/cm^3 -> 3ft^2/ft^3
       
       #The metric units are alway kg/m^2. We don't include an option to convert to ton/Ac:
       fm$w_o_ij = fm$w_o_ij / kgPerLb * mPerFt^2#kg/m^2 -> lb/ft^2
@@ -417,7 +417,7 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
       
       fm$CharacteristicSAV = fm$CharacteristicSAV * cmPerFt#cm^2/cm^3 -> ft^2/ft^3
       
-      fm$BulkDensity = fm$BulkDensity / lbPerFtCuToKgPerMCu#kg/cm^3 -> lb/ft^3
+      fm$BulkDensity = fm$BulkDensity / lbPerFtCuToKgPerMCu#kg/m^3 -> lb/ft^3
       
       #RelativePackingRatio is a dimensionless ratio.
       #M_f_ij is a fraction.
@@ -455,7 +455,7 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
       
       fm$CharacteristicSAV = fm$CharacteristicSAV / cmPerFt#ft^2/ft^3 -> cm^2/cm^3
       
-      fm$BulkDensity = fm$BulkDensity * lbPerFtCuToKgPerMCu#lb/ft^3 -> kg/cm^3
+      fm$BulkDensity = fm$BulkDensity * lbPerFtCuToKgPerMCu#lb/ft^3 -> kg/m^3
       
       #RelativePackingRatio is a dimensionless ratio.
       #M_f_ij is a fraction.
