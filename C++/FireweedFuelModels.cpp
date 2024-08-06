@@ -83,6 +83,98 @@ FuelModel::FuelModel(const std::string& fuelModelFilePath, std::string modelCode
 	LoadFromDelimited(fuelModelFilePath, -1, modelCode, spreadModelUnits);
 }
 
+/** Convert the fuel models units.
+ *
+ * @param newUnits The units to convert to.  If the same as the current units do nothing.
+ */
+void FuelModel::ConvertUnits(UnitsType newUnits)
+{
+	if (fm$Units == newUnits)
+	{
+		Warning("Fuel model is already in requested units.");
+	}
+	else
+	{
+	if (newUnits == US)
+	{
+		//Leave Number, Code, Name, and Type unchanged.
+		//Cured and NumClasses don't change.
+
+		fm$delta = fm$delta / mPerFt;//m -> ft
+
+		//Leave liveDead unchanged.
+		//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
+
+		fm$h = fm$h / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
+
+		//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
+
+		fm$rho_p = fm$rho_p / lbPerFtCuToKgPerMCu;
+
+		for (int i = 0; i < numClasses; i++)
+		{
+			fm$SAV_ij[i] = fm$SAV_ij[i] * cmPerFt;//1/cm -> 1/ft | cm^2/cm^3 -> 3ft^2/ft^3
+			fm$w_o_ij[i] = fm$w_o_ij[i] / kgPerLb * mPerFt^2;//kg/m^2 -> lb/ft^2
+			fm$h_ij[i] = fm$h_ij[i] / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
+			fm$rho_p_ij[i] = fm$rho_p_ij[i] / lbPerFtCuToKgPerMCu;
+		}
+
+		fm$CharacteristicSAV = fm$CharacteristicSAV * cmPerFt;//cm^2/cm^3 -> ft^2/ft^3
+
+		fm$BulkDensity = fm$BulkDensity / lbPerFtCuToKgPerMCu;//kg/m^3 -> lb/ft^3
+
+		//RelativePackingRatio is a dimensionless ratio.
+		//M_f_ij is a fraction.
+		//Curing is a percent.
+
+		//The metric units are alway kg/m^2. We don't include an option to convert to ton/Ac:
+		fm$w_o_Units = lbPer_ft2;
+		fm$Units = US;
+	}
+	else//if (newUnits == Metric)
+	{
+		//Leave Number, Code, Name, and Type unchanged.
+		//Cured and NumClasses don't change.
+
+		fm$delta = fm$delta * mPerFt;//ft -> m
+
+		//Leave liveDead unchanged.
+		//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
+
+		fm$h = fm$h * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
+
+		//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
+
+		fm$rho_p = fm$rho_p * lbPerFtCuToKgPerMCu;
+
+		for (int i = 0; i < numClasses; i++)
+		{
+			fm$SAV_ij[i] = fm$SAV_ij[i] / cmPerFt;//1/ft -> 1/cm | ft^2/ft^3 -> cm^2/cm^3
+			
+			if (fm$w_o_Units == tonPerAc)//Move out of loop?????
+			{
+				fm$w_o_ij[i] = fm$w_o_ij[i] * tonsPerAcToLbPerSqFt;//Convert loadings to lb/ft^2.
+			}
+			//We could check for invalid w_o_Units here.
+			fm$w_o_ij[i] = fm$w_o_ij[i] * kgPerLb / mPerFt^2;//lb/ft^2 -> kg/m^2
+
+			fm$h_ij[i] = fm$h_ij[i] * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
+			fm$rho_p_ij[i] = fm$rho_p_ij[i] * lbPerFtCuToKgPerMCu;
+		}
+
+		fm$CharacteristicSAV = fm$CharacteristicSAV / cmPerFt;//ft^2/ft^3 -> cm^2/cm^3
+
+		fm$BulkDensity = fm$BulkDensity * lbPerFtCuToKgPerMCu;//lb/ft^3 -> kg/m^3
+
+		//RelativePackingRatio is a dimensionless ratio.
+		//M_f_ij is a fraction.
+		//Curing is a percent.
+
+		fm$w_o_Units = kgPer_m2;
+		fm$Units = Metric;
+	}
+}
+
 /** Print the fuel model data to an output stream.
  *
  * @param output The output stream to print to.
