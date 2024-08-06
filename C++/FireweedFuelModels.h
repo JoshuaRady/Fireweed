@@ -115,7 +115,8 @@ class FuelModel {
 	FuelModel(const std::string& fuelModelFilePath, int modelNumber, bool spreadModelUnits = true);
 	FuelModel(const std::string& fuelModelFilePath, std::string modelCode, bool spreadModelUnits = true);
 	
-	//Add unit conversion function.
+	void ConvertUnits(UnitsType newUnits);
+
 	std::ostream& Print(std::ostream& output) const;
 	
 	void SetFuelMoisture(std::vector <double> M_f_ij);
