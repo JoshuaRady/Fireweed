@@ -1579,6 +1579,65 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
   }
 }
 
+#Albini 1976 modified Rothermel spread model for homogeneous fuels, fuel model version:
+#  Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+#
+#Input variables / parameters:
+#  This version greatly reduces the number of parameters by taking a fuel model object that contains
+#the properties of the fuel bed.
+#
+#fuelModel = A fuel model object.
+#
+#Environmental:
+#M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
+#U = Wind speed at midflame height (ft/min | m/min).
+#slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+#
+#Settings:
+#useWindLimit = Use the wind limit calculation or not.
+#debug = Print calculation component values.  This may be removed in the future.
+#components = Optionally return the intermediate component values calculated in generating the spread rate as well.
+#
+#Returns: R = rate of spread in ft/min | m/min. (And optionally component calculations.)
+SpreadRateRothermelAlbini_HomoFM <- function(fuelModel,
+                                             M_f, U, slopeSteepness,
+                                             useWindLimit = TRUE,
+                                             units = NULL,
+                                             debug = FALSE,
+                                             components = FALSE)
+{
+  #We could apply some tests here to confirm the fuel model is in fact homogeneous.
+  
+  #Check the fuel model units.  Conversions could be applied:
+  if (fuelModel$units == "US")
+  {
+    if (fuelModel$w_o_Units == "tonPerAc")
+    {
+      stop("Loading units are in tons per acre and need to be in lb per ft^2.")
+    }
+    
+    if (fuelModel$M_x_Units == "Percent")
+    {
+      stop("M_x units are in perceent and need to be a fraction.")
+    }
+  }
+  
+  output = SpreadRateRothermelAlbini_Homo(fuelModel$SAV,
+                                          fuelModel$w_o,
+                                          fuelModel$fuelBedDepth,
+                                          fuelModel$M_x,
+                                          M_f, U, slopeSteepness,
+                                          fuelModel$h,
+                                          fuelModel$S_T,
+                                          fuelModel$S_e,
+                                          fuelModel$rho_p,
+                                          useWindLimit,
+                                          fuelModel$units,
+                                          debug,
+                                          components)
+  return(output)
+}
+
 #Albini 1976 modified Rothermel spread model for heterogeneous fuels:
 #
 #Input variables / parameters:
@@ -1781,6 +1840,85 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
   {
     return(R)
   }
+}
+
+#Albini 1976 modified Rothermel spread model for heterogeneous fuels, fuel model version.
+#
+#Input variables / parameters:
+#  This version greatly reduces the number of parameters by taking a fuel model object that contains
+#the properties of the fuel bed.
+#
+#fuelModel = A fuel model object.
+#
+#Environmental:
+#U = Wind speed at midflame height (ft/min | m/min).
+#slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+#M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).  This
+#  is not required if the fuel moisture has already been added to the fuel model.
+#
+#Settings:
+#useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
+#debug = Print calculation component values.  This may be removed in the future.
+#components = Optionally return the intermediate component values calculated in generating the spread rate as well.
+#
+#Returns: R = rate of spread in ft/min | m/min. (And optionally component calculations, see below.)
+#
+#Note: The optional M_f_ij parameter and its behavior may be changed.
+SpreadRateRothermelAlbini_HetFM <- function(fuelModel, 
+                                            U, slopeSteepness,
+                                            M_f_ij = NULL,
+                                            useWindLimit = FALSE,
+                                            units = NULL,
+                                            debug = FALSE,
+                                            components = FALSE)
+{
+  #The fuel moisture may have already been added to the fuel model and if not should be supplied.
+  #If both are provided that could be an error so warn and use the argument value as if intended to
+  #override the fuel model:
+  if (!is.null(M_f_ij))
+  {
+    theM_f_ij = M_f_ij
+    
+    if ("M_f_ij" %in% fuelModel)
+    {
+      warning(M_f_ij)
+    }
+  }
+  else if ("M_f_ij" %in% fuelModel)
+  {
+    theM_f_ij = fuelModel$M_f_ij
+  }
+  
+  #Check the fuel model units.  Conversions could be applied:
+  if (fuelModel$units == "US")
+  {
+    if (fuelModel$w_o_Units == "tonPerAc")
+    {
+      stop("Loading units are in tons per acre and need to be in lb per ft^2.")
+    }
+    
+    if (fuelModel$M_x_Units == "Percent")
+    {
+      stop("M_x units are in perceent and need to be a fraction.")
+    }
+  }
+  
+  output = SpreadRateRothermelAlbini_Het(fuelModel$SAV_ij,
+                                         fuelModel$w_o_ij,
+                                         fuelModel$fuelBedDepth,
+                                         fuelModel$M_x_1,
+                                         theM_f_ij,
+                                         U, slopeSteepness,
+                                         fuelModel$h_ij,
+                                         fuelModel$S_T_ij,
+                                         fuelModel$S_e_ij,
+                                         fuelModel$rho_p_ij,
+                                         fuelModel$liveDead,
+                                         useWindLimit = FALSE,
+                                         fuelModel$units = NULL,
+                                         debug = FALSE,
+                                         components = FALSE)
+  return(output)
 }
 
 #Utilities:-----------------------------------------------------------------------------------------
