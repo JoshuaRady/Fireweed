@@ -11,6 +11,8 @@
 #
 #___________________________________________________________________________________________________
 
+source(FireweedUnits.r)
+
 #Find a fuel model in the specified file and return it as a fuel model object (list).
 #
 #Parameters:

@@ -112,9 +112,11 @@
 #added for all functions that need them.  The units to use can be specified explicitly for some
 #functions, including the main spread rate functions.  If a set of intermediate calculations are to
 #be performed SetModelUnits() can be called at the start of the session.  The valid unit specifiers
-#are "US" (USCU is too hard to remember) and "Metric".  See below for more on constants and
-#functions used to manage units in the code.
+#are "US" (USCU is too hard to remember) and "Metric".  See FireweedUnits.r for more on constants
+#and below for functions used to manage units in the code.
 #___________________________________________________________________________________________________
+
+source(FireweedUnits.r)
 
 #Globals:-------------------------------------------------------------------------------------------
 #Specify the units to use.  The default is United States customary units.
