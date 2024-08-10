@@ -16,10 +16,6 @@
 #Symbols for identifying specific units are: lbPer_ft2, tonPerAc, kgPer_m2, Percent, Fraction.
 
 #Unit Conversion Factors:---------------------------------------------------------------------------
-#Conversion factors marked with an asterisk are not (yet) used in this library directly.  They are
-#provided for use by calling code.
-#
-#It might be better to have a interface of some sort to request conversion factors from.
 
 #Length: (exact per international yard and pound act)
 cmPerIn = 2.54
@@ -33,11 +29,11 @@ ftPerMi = 5280#* for conversion of windspeed (U, MPH * ftPerMi / 60 = ft/min)
 #So: SAVft * 1/cmPerFt = SAVft / cmPerFt = SAVcm
 
 #Area:
-ft2PerAcre = 43560#*
+ft2PerAcre = 43560
 
 #Mass:
 kgPerLb = 0.453592
-lbsPerTon = 2000#*
+lbsPerTon = 2000
 
 #Density:
 lbPerFtCuToKgPerMCu = 16.0185#kgPerLb * (ftPerM)^3, 16.01846337396

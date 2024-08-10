@@ -6,7 +6,7 @@ Started: 7/12/2024
 Reference: Proj. 11 Exp. 19
 
 	This file is part of the Fireweed wildfire code library.
-	This header file defines unit constants conversion factors used in the library.
+	This header file defines unit constants and conversion factors used in the library.
 
 ***************************************************************************************************/
 #ifndef FIREWEEDUNITS_H
@@ -30,10 +30,6 @@ enum UnitCode {lbPer_ft2, tonPerAc, kgPer_m2, Percent, Fraction};
 //--------------------------------------------------------------------------------------------------
 /** Unit Conversion Factors
  *
- * Conversion factors marked with an asterisk are not (yet) used in this library directly.  They are
- * provided for use by calling code.
- *
- * It might be better to have a interface of some sort to request conversion factors from.
  */
 
 //Length: (exact per international yard and pound act)
@@ -48,7 +44,7 @@ const double ftPerMi = 5280;//* for conversion of windspeed (U, MPH * ftPerMi / 
 //So: SAVft * 1/cmPerFt = SAVft / cmPerFt = SAVcm
 
 //Area:
-const double ft2PerAcre = 43560;//*
+const double ft2PerAcre = 43560;
 
 //Mass:
 const double kgPerLb = 0.453592;
@@ -65,6 +61,6 @@ The IT value of 1.05506 would be a reasonable alternative.*/
 const double kJPerBtu = 1.05435;
 
 //tons/ac -> lb/ft^2: (See fuel loading note in FireweedFuelModels.cpp.)
-const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;//*
+const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;
 
 #endif
