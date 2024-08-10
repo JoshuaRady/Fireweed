@@ -1914,10 +1914,10 @@ SpreadRateRothermelAlbini_HetFM <- function(fuelModel,
                                          fuelModel$S_e_ij,
                                          fuelModel$rho_p_ij,
                                          fuelModel$liveDead,
-                                         useWindLimit = FALSE,
-                                         fuelModel$units = NULL,
-                                         debug = FALSE,
-                                         components = FALSE)
+                                         useWindLimit,
+                                         fuelModel$units,
+                                         debug,
+                                         components)
   return(output)
 }
 
