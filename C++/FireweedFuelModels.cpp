@@ -365,7 +365,9 @@ void FuelModel::CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool war
 	if (type == Dynamic)
 	{
 		//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
-		int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live);
+		//int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live);
+		std::vector <int>::iterator liveHerbIt = std::find(liveDead.begin(), liveDead.end(), Live);
+		int liveHerbIndex = liveHerbIt - liveDead.begin();
 		
 		//Curing is a function of live herbaceous fuel moisture:
 		double M_f_21 = M_f_ij[liveHerbIndex];
@@ -734,7 +736,9 @@ void FuelModel::DynamicFuelCuringCore(double cureFrac)
 	}
 
 	//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
-	int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
+	//int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
+	std::vector <int>::iterator liveHerbIt = std::find(liveDead.begin(), liveDead.end(), Live);
+	int liveHerbIndex = liveHerbIt - liveDead.begin();
 
 	//Expand the number of fuel classes, inserting the cured herbaceous at second dead position,
 	//(Dead, 1) in 0 based space:
