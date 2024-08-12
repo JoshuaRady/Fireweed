@@ -75,11 +75,30 @@ void Warning(const char* message)
 	std::cout << message << "\n";
 }
 
+/** Post a non-fatal warning.
+ *
+ * @param message A warning message.
+ */
+void Warning(const std::string& message)
+{
+	std::cout << message << "\n";
+}
+
 /** Post the passed message and shutdown (not yet implemented!!!!!).
  *
  * @param message An error message.
  */
 void Stop(const char* message)
+{
+	std::cout << message << "\n";
+	//Add error throwing.
+}
+
+/** Post the passed message and shutdown (not yet implemented!!!!!).
+ *
+ * @param message An error message.
+ */
+void Stop(const std::string& message)
 {
 	std::cout << message << "\n";
 	//Add error throwing.
