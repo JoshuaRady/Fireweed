@@ -10,11 +10,12 @@ simple error messaging and logging.
 
 ***************************************************************************************************/
 
+#include <iostream>
 #include "FireweedMessaging.h"
 
 /** Log a neutral message.
  *
- * @param message A messarge to log.
+ * @param message A message to log.
  */
 void LogMsg(const char* message)
 {
@@ -23,7 +24,7 @@ void LogMsg(const char* message)
 
 /** Log a neutral message with a numeric value.
  *
- * @param message A messarge to log.
+ * @param message A message to log.
  * @param value A numeric value to appended after the message.  A space is added between them.
  */
 void LogMsg(const char* message, double value)
@@ -33,7 +34,7 @@ void LogMsg(const char* message, double value)
 
 /** Log a neutral message with a numeric vector.
  *
- * @param message A messarge to log.
+ * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
 void LogMsg(const char* message, std::vector<double> value)
@@ -50,7 +51,7 @@ void LogMsg(const char* message, std::vector<double> value)
 
 /** Log a neutral message with a numeric vector.
  *
- * @param message A messarge to log.
+ * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
 void LogMsg(const char* message, std::vector<int> value)
@@ -67,7 +68,7 @@ void LogMsg(const char* message, std::vector<int> value)
 
 /** Post a non-fatal warning.
  *
- * @param message A warning messarge.
+ * @param message A warning message.
  */
 void Warning(const char* message)
 {
@@ -76,7 +77,7 @@ void Warning(const char* message)
 
 /** Post the passed message and shutdown (not yet implemented!!!!!).
  *
- * @param message An error messarge.
+ * @param message An error message.
  */
 void Stop(const char* message)
 {

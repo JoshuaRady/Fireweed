@@ -38,9 +38,10 @@ spread model and related models.
  * - Consider adding version information or a format specifier to the file format.
  */
 
-#include <algorithm>//For std:all_of(), find.
+#include <algorithm>//For std:all_of(), find().
 #include <fstream>
 #include <iostream>
+#include <math.h>//For pow()
 #include <sstream>
 #include <vector>
 
@@ -90,89 +91,90 @@ FuelModel::FuelModel(const std::string& fuelModelFilePath, std::string modelCode
  */
 void FuelModel::ConvertUnits(UnitsType newUnits)
 {
-	if (fm$Units == newUnits)
+	if (units == newUnits)
 	{
 		Warning("Fuel model is already in requested units.");
 	}
 	else
 	{
-	if (newUnits == US)
-	{
-		//Leave Number, Code, Name, and Type unchanged.
-		//Cured and NumClasses don't change.
-
-		fm$delta = fm$delta / mPerFt;//m -> ft
-
-		//Leave liveDead unchanged.
-		//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
-
-		fm$h = fm$h / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
-
-		//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
-
-		fm$rho_p = fm$rho_p / lbPerFtCuToKgPerMCu;
-
-		for (int i = 0; i < numClasses; i++)
+		if (newUnits == US)
 		{
-			fm$SAV_ij[i] = fm$SAV_ij[i] * cmPerFt;//1/cm -> 1/ft | cm^2/cm^3 -> 3ft^2/ft^3
-			fm$w_o_ij[i] = fm$w_o_ij[i] / kgPerLb * mPerFt^2;//kg/m^2 -> lb/ft^2
-			fm$h_ij[i] = fm$h_ij[i] / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
-			fm$rho_p_ij[i] = fm$rho_p_ij[i] / lbPerFtCuToKgPerMCu;
-		}
-
-		fm$CharacteristicSAV = fm$CharacteristicSAV * cmPerFt;//cm^2/cm^3 -> ft^2/ft^3
-
-		fm$BulkDensity = fm$BulkDensity / lbPerFtCuToKgPerMCu;//kg/m^3 -> lb/ft^3
-
-		//RelativePackingRatio is a dimensionless ratio.
-		//M_f_ij is a fraction.
-		//Curing is a percent.
-
-		//The metric units are alway kg/m^2. We don't include an option to convert to ton/Ac:
-		fm$w_o_Units = lbPer_ft2;
-		fm$Units = US;
-	}
-	else//if (newUnits == Metric)
-	{
-		//Leave Number, Code, Name, and Type unchanged.
-		//Cured and NumClasses don't change.
-
-		fm$delta = fm$delta * mPerFt;//ft -> m
-
-		//Leave liveDead unchanged.
-		//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
-
-		fm$h = fm$h * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
-
-		//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
-
-		fm$rho_p = fm$rho_p * lbPerFtCuToKgPerMCu;
-
-		for (int i = 0; i < numClasses; i++)
-		{
-			fm$SAV_ij[i] = fm$SAV_ij[i] / cmPerFt;//1/ft -> 1/cm | ft^2/ft^3 -> cm^2/cm^3
-			
-			if (fm$w_o_Units == tonPerAc)//Move out of loop?????
+			//Leave Number, Code, Name, and Type unchanged.
+			//Cured and NumClasses don't change.
+	
+			delta = delta / mPerFt;//m -> ft
+	
+			//Leave liveDead unchanged.
+			//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
+	
+			h = h / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
+	
+			//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
+	
+			rho_p = rho_p / lbPerFtCuToKgPerMCu;
+	
+			for (int i = 0; i < numClasses; i++)
 			{
-				fm$w_o_ij[i] = fm$w_o_ij[i] * tonsPerAcToLbPerSqFt;//Convert loadings to lb/ft^2.
+				SAV_ij[i] = SAV_ij[i] * cmPerFt;//1/cm -> 1/ft | cm^2/cm^3 -> 3ft^2/ft^3
+				w_o_ij[i] = w_o_ij[i] / kgPerLb * pow(mPerFt, 2);//kg/m^2 -> lb/ft^2
+				h_ij[i] = h_ij[i] / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
+				rho_p_ij[i] = rho_p_ij[i] / lbPerFtCuToKgPerMCu;
 			}
-			//We could check for invalid w_o_Units here.
-			fm$w_o_ij[i] = fm$w_o_ij[i] * kgPerLb / mPerFt^2;//lb/ft^2 -> kg/m^2
-
-			fm$h_ij[i] = fm$h_ij[i] * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
-			fm$rho_p_ij[i] = fm$rho_p_ij[i] * lbPerFtCuToKgPerMCu;
+	
+			cSAV = cSAV * cmPerFt;//cm^2/cm^3 -> ft^2/ft^3
+	
+			bulkDensity = bulkDensity / lbPerFtCuToKgPerMCu;//kg/m^3 -> lb/ft^3
+	
+			//RelativePackingRatio is a dimensionless ratio.
+			//M_f_ij is a fraction.
+			//Curing is a percent.
+	
+			//The metric units are alway kg/m^2. We don't include an option to convert to ton/Ac:
+			w_o_Units = lbPer_ft2;
+			units = US;
 		}
-
-		fm$CharacteristicSAV = fm$CharacteristicSAV / cmPerFt;//ft^2/ft^3 -> cm^2/cm^3
-
-		fm$BulkDensity = fm$BulkDensity * lbPerFtCuToKgPerMCu;//lb/ft^3 -> kg/m^3
-
-		//RelativePackingRatio is a dimensionless ratio.
-		//M_f_ij is a fraction.
-		//Curing is a percent.
-
-		fm$w_o_Units = kgPer_m2;
-		fm$Units = Metric;
+		else//if (newUnits == Metric)
+		{
+			//Leave Number, Code, Name, and Type unchanged.
+			//Cured and NumClasses don't change.
+	
+			delta = delta * mPerFt;//ft -> m
+	
+			//Leave liveDead unchanged.
+			//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
+	
+			h = h * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
+	
+			//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
+	
+			rho_p = rho_p * lbPerFtCuToKgPerMCu;
+	
+			for (int i = 0; i < numClasses; i++)
+			{
+				SAV_ij[i] = SAV_ij[i] / cmPerFt;//1/ft -> 1/cm | ft^2/ft^3 -> cm^2/cm^3
+				
+				if (w_o_Units == tonPerAc)//Move out of loop?????
+				{
+					w_o_ij[i] = w_o_ij[i] * tonsPerAcToLbPerSqFt;//Convert loadings to lb/ft^2.
+				}
+				//We could check for invalid w_o_Units here.
+				w_o_ij[i] = w_o_ij[i] * kgPerLb / pow(mPerFt, 2);//lb/ft^2 -> kg/m^2
+	
+				h_ij[i] = h_ij[i] * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
+				rho_p_ij[i] = rho_p_ij[i] * lbPerFtCuToKgPerMCu;
+			}
+	
+			cSAV = cSAV / cmPerFt;//ft^2/ft^3 -> cm^2/cm^3
+	
+			bulkDensity = bulkDensity * lbPerFtCuToKgPerMCu;//lb/ft^3 -> kg/m^3
+	
+			//RelativePackingRatio is a dimensionless ratio.
+			//M_f_ij is a fraction.
+			//Curing is a percent.
+	
+			w_o_Units = kgPer_m2;
+			units = Metric;
+		}
 	}
 }
 
@@ -315,7 +317,7 @@ std::ostream& FuelModel::Print(std::ostream& output) const
  * been previously set but curing has not been applied we allow the value to be overwritten.  The
  * utility of overwriting is uncertain so we currently warn when this happens.
  */
-void SetFuelMoisture(std::vector <double> M_f_ij)
+void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 {
 	//Check length is appropriate:
 	if (M_f_ij.size() != numClasses)
@@ -338,7 +340,7 @@ void SetFuelMoisture(std::vector <double> M_f_ij)
 		Stop("Fuel model has already had curing applied.");
 	}
 	
-	if (!this->M_f_ij.empty)
+	if (!this->M_f_ij.empty())
 	{
 		Warning("M_f_ij is being overwritten.");
 	}
@@ -356,17 +358,17 @@ void SetFuelMoisture(std::vector <double> M_f_ij)
  * Trying to apply curing to a static fuel model has no effect except to store the moisture values.
  * By default the code posts a warning when this occurs.
  */
-void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
+void FuelModel::CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 {
 	SetFuelMoisture(M_f_ij);//Check validity of M_f_ij and save.
 
 	if (type == Dynamic)
 	{
 		//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
-		int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
+		int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live);
 		
 		//Curing is a function of live herbaceous fuel moisture:
-		double M_f_21 = M_f_ij[liveHerbIndex]
+		double M_f_21 = M_f_ij[liveHerbIndex];
 
 		//Calculate the transfer of herbaceous fuel loading from live to dead:
 		//Curing is 0 at 120% fuel moisture and 1 at 30%:
@@ -392,7 +394,7 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
 	}
 	else if (warn)
 	{
-		 Warning("Fuel model is static. No curing applied.")
+		 Warning("Fuel model is static. No curing applied.");
 	}
 }
 
@@ -404,7 +406,7 @@ void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn)
  * calculated based on the live herbaceous fuel moisture but it can be useful to specify the curing
  * directly, especially for testing.
  */
-void CalculateDynamicFuelCuring(double curing, bool warn)
+void FuelModel::CalculateDynamicFuelCuring(double curing, bool warn)
 {
 	if (type == Dynamic)
 	{
@@ -418,7 +420,7 @@ void CalculateDynamicFuelCuring(double curing, bool warn)
 	}
 	else if (warn)
 	{
-		 Warning("Fuel model is static. No curing applied.")
+		 Warning("Fuel model is static. No curing applied.");
 	}
 }
 
@@ -712,7 +714,7 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 	{
 		//Not finding the fuel model is probably an error.  At the least we should warn that no
 		//match was found.
-		Warning("No matching fuel model was found.")
+		Warning("No matching fuel model was found.");
 	}
 
 	fmCSV.close();
@@ -722,11 +724,11 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
  *
  * @param cureFrac The fractional curing of herbaceous fuel to apply.
  */
-void DynamicFuelCuringCore(double cureFrac)
+void FuelModel::DynamicFuelCuringCore(double cureFrac)
 {
 	//Checking if this function has already been run for this fuel model:
 	//This check could be moved to start of the calling functions.
-	if (cured == TRUE)
+	if (cured == true)
 	{
 		Stop("Fuel model has already had curing applied.");
 	}
@@ -736,32 +738,32 @@ void DynamicFuelCuringCore(double cureFrac)
 
 	//Expand the number of fuel classes, inserting the cured herbaceous at second dead position,
 	//(Dead, 1) in 0 based space:
-	w_o_ij.insert(1, 0);//Initial loading = 0.
+	w_o_ij.insert(w_o_ij.begin() + 1, 0);//Initial loading = 0.
 	//Curing doesn't change SAV.  Inherit from the live herbaceous:
-	SAV_ij.insert(1, SAV_ij[liveHerbIndex]);
+	SAV_ij.insert(SAV_ij.begin() + 1, SAV_ij[liveHerbIndex]);
 
 	//For the standard fuel models all values for these parameters should be the same but don't
 	//assume that for robustness.  Inherit from the live class:
-	h_ij.insert(1, h_ij[liveHerbIndex]);
-	S_T_ij.insert(1, S_T_ij[liveHerbIndex]);
-	S_e_ij.insert(1, S_e_ij[liveHerbIndex]);
-	rho_p_ij.insert(1, rho_p_ij[liveHerbIndex]);
+	h_ij.insert(h_ij.begin() + 1, h_ij[liveHerbIndex]);
+	S_T_ij.insert(S_T_ij.begin() + 1, S_T_ij[liveHerbIndex]);
+	S_e_ij.insert(S_e_ij.begin() + 1, S_e_ij[liveHerbIndex]);
+	rho_p_ij.insert(rho_p_ij.begin() + 1, rho_p_ij[liveHerbIndex]);
 
 	//Expand liveDead:
-	liveDead.insert(1, Dead);
+	liveDead.insert(liveDead.begin() + 1, Dead);
 
 	//Update the moisture content vector if present:
 	if (!M_f_ij.empty())
 	{
-		M_f_ij.insert(1, M_f_ij[0]);//Inherit from 1-hr dead moisture.
+		M_f_ij.insert(M_f_ij.begin() + 1, M_f_ij[0]);//Inherit from 1-hr dead moisture.
 	}
 
-	numClasses = fm$NumClasses + 1;
+	numClasses = numClasses + 1;
 	liveHerbIndex = liveHerbIndex + 1;//Update after all data members are restructured.
 
 	//Transfer the loading from live to dead:
-	w_o_ij[1] = cureFrac * $w_o_ij[liveHerbIndex];
-	w_o_ij[liveHerbIndex] = fm$w_o_ij[liveHerbIndex] - w_o_ij[1]
+	w_o_ij[1] = cureFrac * w_o_ij[liveHerbIndex];
+	w_o_ij[liveHerbIndex] = w_o_ij[liveHerbIndex] - w_o_ij[1];
 
 	cured = true;//Record that curing has been applied.
 	curing = cureFrac * 100;//Record the curing percentage.

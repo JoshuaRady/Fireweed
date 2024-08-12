@@ -17,7 +17,8 @@ implementing the Rothermel fire spread model (Rothermel 1972) with the modificat
 #include <vector>
 #include <numeric>
 #include <iostream>//std::cout
-#include "FireweedUnits.h."
+#include "FireweedUnits.h"
+#include "FireweedFuelModels.h"
 
 //Globals:------------------------------------------------------------------------------------------
 
@@ -38,8 +39,9 @@ struct FuelWeights {
 //The values of the live dead categories are forced to match the matching array indexes so they may
 //be used to access arrays of the form X_i (values are language specific):
 //enum FuelCategory {Dead = 0, Live = 1};//Having some issues with casting this.
-const int Dead = 0;
-const int Live = 1;
+//const int Dead = 0;
+//const int Live = 1;
+//Moved to FireweedFuelModels.h!!!!!
 
 //A data structure that holds the intermediate calculations of the spread rate calculation:
 //This currently assumes heterogenous fuels.

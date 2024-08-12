@@ -504,7 +504,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 
 			//Excluding the dead herbaceous the dead fuels should sum to 1:
 			if (FloatCompare((SumByFuelCat(wts.g_ij, liveDead, Dead) -
-			                  wts.g_ij[FuelClassIndex(liveDead, Dead, 2)]), 1)
+			                  wts.g_ij[FuelClassIndex(liveDead, Dead, 2)]), 1))
 			{
 				Stop("g_ij dead fuels do not have values expected for implied cured status.");
 				//g_ij
@@ -2278,10 +2278,10 @@ double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liv
  */
 int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//Or FMClassIndex, ClassIndex
 {
-	int numDead = count(liveDead.begin(), liveDead.end(), Dead);
-	int numLive = liveDead.size() - numDead;//or ount(liveDead.begin(), liveDead.end(), Live);
+	int numDead = std::count(liveDead.begin(), liveDead.end(), Dead);
+	int numLive = liveDead.size() - numDead;//or std::count(liveDead.begin(), liveDead.end(), Live);
 
-	if (liveDead == Dead)
+	if (liveDeadCat == Dead)
 	{
 		//if (sizeIndex > -1 && sizeIndex < numDead)
 		if (sizeIndex < 0 || sizeIndex >= numDead)
@@ -2293,7 +2293,7 @@ int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//O
 			return sizeIndex;
 		}
 	}
-	else if (liveDead == Live)
+	else if (liveDeadCat == Live)
 	{
 		if (sizeIndex < 0 || sizeIndex >= numLive)
 		{
@@ -2308,6 +2308,8 @@ int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//O
 	{
 		//Error!!!!!
 	}
+
+	return -1;//Error!!!!!
 }
 
 //Compare two floating point values for near/effective equality:

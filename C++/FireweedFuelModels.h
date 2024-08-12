@@ -13,8 +13,9 @@ model and related models.
 #ifndef FIREWEEDFUELMODELS_H
 #define FIREWEEDFUELMODELS_H
 
-#include <vector>
+#include <algorithm>//For count().
 #include <string>
+#include <vector>
 #include "FireweedUnits.h"
 
 //Constants and Flags:------------------------------------------------------------------------------
@@ -106,7 +107,7 @@ class FuelModel {
 	double& rho_p = rho_p_ij[0];
 
 	//Precalculated columns (could be removed):
-	double cSAV;//Characteristic SAV of the fuel bed.
+	double cSAV;//Characteristic SAV of the fuel bed. [characteristicSAV in R!!!!!]
 	double bulkDensity;
 	double relativePackingRatio;
 
@@ -147,6 +148,6 @@ std::ostream& operator<<(std::ostream& output, const FuelModel& fm);
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter);
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool allowQuotes);
 std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator = ", ");
-td::string VectorToStr(const std::vector <double> vec, std::string separator = ", ");
+std::string VectorToStr(const std::vector <double> vec, std::string separator = ", ");
 
 #endif
