@@ -17,15 +17,20 @@ implementing the Rothermel fire spread model (Rothermel 1972) with the modificat
 #include <vector>
 #include <numeric>
 #include <iostream>//std::cout
-#include "FireweedUnits.h"
+
+//#include "FireweedUnits.h"
 #include "FireweedFuelModels.h"
 
 //Globals:------------------------------------------------------------------------------------------
 
-//Specify the units to use.  The default is United States customary units.
-//This should not be set directly.  Use SetModelUnits().
-//private 
-UnitsType ModelUnits = US;
+/** Specify the default units to use.  The default is United States customary units.
+ * This should not be set directly.
+ * 
+ * Note: This is only provided in the header to allow it to be used for default values in the
+ * functions that follow.  This functionality could be achieved via function overloading or some
+ * other method.  Currently ModelUnits is not used by any outside code and should be private.
+ */
+extern UnitsType ModelUnits;
 
 //Fuel class weights from Albini 1976:
 //This may be converted into a class.

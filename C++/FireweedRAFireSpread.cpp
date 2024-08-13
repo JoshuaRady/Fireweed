@@ -115,11 +115,23 @@ functions, including the main spread rate functions.  If a set of intermediate c
 be performed SetModelUnits() can be called at the start of the session.  The valid unit specifiers
 are "US" (USCU is too hard to remember) and "Metric".  See below for more on constants and
 functions used to manage units in the code.
+[Note: Not entirely accurate.  See below!!!!!]
 ***************************************************************************************************/
 
 #include "FireweedRAFireSpread.h"
 #include "FireweedMessaging.h"
 #include "FireweedUtils.h"
+
+//Globals:------------------------------------------------------------------------------------------
+
+/** Specify the default units to use.  The default is United States customary units.
+ * This should not be set directly.  [Use SetModelUnits().]
+ * 
+ * Note*: This global is not integrated in the same way it is in the R code.  It establishes default
+ * units for fucntions but the code does not curently change.  The R code provides SetModelUnits()
+ * to set the units for a session.  It is unclear how useful this would be for the C++ uses cases.
+ */
+UnitsType ModelUnits = US;
 
 //Code:---------------------------------------------------------------------------------------------
 
@@ -263,7 +275,7 @@ double MeanPackingRatio(std::vector<double> w_o_ij, std::vector<double> rho_p_ij
 //	For heterogeneous fuels the SAV of the fuel bed / complex is used.
 //
 //Output units: Dimensionless ratio
-double OptimumPackingRatio(double cSAV, UnitsType units)// = ModelUnits
+double OptimumPackingRatio(double cSAV, UnitsType units)
 {
 	double optPackingRatio;//Return value.
 
