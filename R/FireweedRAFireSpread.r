@@ -116,8 +116,8 @@
 #and below for functions used to manage units in the code.
 #___________________________________________________________________________________________________
 
-source(FireweedUnits.r)
-source(FireweedUtils.r)
+source("FireweedUnits.r")
+source("FireweedUtils.r")
 
 #Globals:-------------------------------------------------------------------------------------------
 #Specify the units to use.  The default is United States customary units.
@@ -1569,14 +1569,13 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
 SpreadRateRothermelAlbini_HomoFM <- function(fuelModel,
                                              M_f, U, slopeSteepness,
                                              useWindLimit = TRUE,
-                                             units = NULL,
                                              debug = FALSE,
                                              components = FALSE)
 {
   #We could apply some tests here to confirm the fuel model is in fact homogeneous.
   
   #Check the fuel model units.  Conversions could be applied:
-  if (fuelModel$units == "US")
+  if (fuelModel$Units == "US")
   {
     if (fuelModel$w_o_Units == "tonPerAc")
     {
@@ -1589,9 +1588,9 @@ SpreadRateRothermelAlbini_HomoFM <- function(fuelModel,
     }
   }
   
-  output = SpreadRateRothermelAlbini_Homo(fuelModel$SAV,
-                                          fuelModel$w_o,
-                                          fuelModel$fuelBedDepth,
+  output = SpreadRateRothermelAlbini_Homo(fuelModel$SAV_ij[1],
+                                          fuelModel$w_o_ij[1],
+                                          fuelModel$delta,#fuelBedDepth
                                           fuelModel$M_x,
                                           M_f, U, slopeSteepness,
                                           fuelModel$h,
@@ -1599,7 +1598,7 @@ SpreadRateRothermelAlbini_HomoFM <- function(fuelModel,
                                           fuelModel$S_e,
                                           fuelModel$rho_p,
                                           useWindLimit,
-                                          fuelModel$units,
+                                          fuelModel$Units,
                                           debug,
                                           components)
   return(output)
@@ -1835,7 +1834,6 @@ SpreadRateRothermelAlbini_HetFM <- function(fuelModel,
                                             U, slopeSteepness,
                                             M_f_ij = NULL,
                                             useWindLimit = FALSE,
-                                            units = NULL,
                                             debug = FALSE,
                                             components = FALSE)
 {
@@ -1857,7 +1855,7 @@ SpreadRateRothermelAlbini_HetFM <- function(fuelModel,
   }
   
   #Check the fuel model units.  Conversions could be applied:
-  if (fuelModel$units == "US")
+  if (fuelModel$Units == "US")
   {
     if (fuelModel$w_o_Units == "tonPerAc")
     {
@@ -1872,7 +1870,7 @@ SpreadRateRothermelAlbini_HetFM <- function(fuelModel,
   
   output = SpreadRateRothermelAlbini_Het(fuelModel$SAV_ij,
                                          fuelModel$w_o_ij,
-                                         fuelModel$fuelBedDepth,
+                                         fuelModel$delta,#fuelBedDepth,
                                          fuelModel$M_x_1,
                                          theM_f_ij,
                                          U, slopeSteepness,
@@ -1882,7 +1880,7 @@ SpreadRateRothermelAlbini_HetFM <- function(fuelModel,
                                          fuelModel$rho_p_ij,
                                          fuelModel$liveDead,
                                          useWindLimit,
-                                         fuelModel$units,
+                                         fuelModel$Units,
                                          debug,
                                          components)
   return(output)
