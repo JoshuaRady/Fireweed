@@ -25,8 +25,8 @@ void LogMsg(const char* message, double value);
 void LogMsg(const char* message, std::vector<double> value);
 void LogMsg(const char* message, std::vector<int> value);
 void Warning(const char* message);
-void Stop(const char* message);
 void Warning(const std::string& message);
+void Stop(const char* message);
 void Stop(const std::string& message);
 
 #endif //FIREWEEDMESSAGING_H
