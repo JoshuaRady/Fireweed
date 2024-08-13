@@ -202,27 +202,6 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 //double StdHeatContent(UnitsType units = ModelUnits);
 //double StdRho_p(UnitsType units = ModelUnits);
 
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2);
-bool SameLengths(std::vector<double> arg1, std::vector<int> arg2);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<int> arg3);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
-                 std::vector<double> arg4);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
-                 std::vector<int> arg4);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
-                 std::vector<double> arg4, std::vector<double> arg5, std::vector<double> arg6,
-                 std::vector<double> arg7);
-bool SameLengths(std::vector<double> dbl1, std::vector<double> dbl2, std::vector<double> dbl3,
-                 std::vector<double> dbl4, std::vector<double> dbl5, std::vector<double> dbl6,
-                 std::vector<double> dbl7, std::vector<int> int8);
-
-bool InRange(double value, double low, double high);
-bool InRange(std::vector<double> value, double low, double high);
-
-bool ValidProportion(double value);
-bool ValidProportion(std::vector<double> value);
-
 double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat);
 int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex);
 bool FloatCompare(double val1, double val2, double precision = 0.0001);

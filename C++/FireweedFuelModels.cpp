@@ -47,6 +47,7 @@ spread model and related models.
 
 #include "FireweedFuelModels.h"
 #include "FireweedMessaging.h"
+#include "FireweedUtils.h"
 
 /** Default (empty) constructor
  *
