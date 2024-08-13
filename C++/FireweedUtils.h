@@ -10,7 +10,7 @@ Reference: Proj. 11 Exp. 19
 
 ***************************************************************************************************/
 #ifndef FIREWEEDUTILS_H
-#define FIREWEEDUNITS_H
+#define FIREWEEDUTILS_H
 
 #include <vector>
 
