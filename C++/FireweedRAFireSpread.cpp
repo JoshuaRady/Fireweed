@@ -1682,7 +1682,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
 	epsilon = EffectiveHeatingNumber(SAV, units);
 	Q_ig = HeatOfPreignition(M_f, units);
 
-	heatSink = rho_b * epsilon * Q_ig
+	heatSink = rho_b * epsilon * Q_ig;
 
 	//Full spread calculation for homogeneous fuels:
 	//Rothermel 1972 equation 52:
