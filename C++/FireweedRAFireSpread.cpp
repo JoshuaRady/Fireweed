@@ -1497,40 +1497,42 @@ std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType un
 
 //Spread Rate Calculations:-------------------------------------------------------------------------
 
-//Albini 1976 modified Rothermel spread model for homogeneous fuels:
-//	Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
-//
-//Input variables / parameters:
-//	There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel array characteristics,
-//4 fuel particle characteristics, and three environmental.
-//
-//Fuel array:
-//SAV = Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
-//w_o = Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
-//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
-//M_x = Moisture of extinction (fraction: water weight/dry fuel weight).
-//
-//Environmental:
-//M_f = Fuel moisture content (fraction: water weight/dry fuel weight).
-//U = Wind speed at midflame height (ft/min | m/min).
-//slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
-//
-//Fuel particle properties: 
-//h = Heat content of the fuel type (Btu/lb | kJ/kg).
-//	All the 53 standard fuel models use 8,000 Btu/lb.
-//S_T = Total mineral content (unitless fraction: mineral mass / total dry mass).
-//	For all standard fuel models this is 5.55% (0.0555).
-//S_e = Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
-//	For all standard fuel models this is 1% (0.01).
-//rho_p = Fuel particle density (lb/ft^3 | kg/m^3).
-//	All the 53 standard fuel models use 32 lb/ft^3.
-//
-//Settings:
-//useWindLimit = Use the wind limit calculation or not.
-//units = Specify the class of units for the inputs.
-//debug = Print calculation component values.  This may be removed in the future.
-//
-//Returns: R = rate of spread in ft/min | m/min.
+/** Albini 1976 modified Rothermel spread model for homogeneous fuels:
+ *
+ * 	Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+ *
+ * @par Input variables / parameters:
+ * There are 11 input variables in total (see Andrews 2018 table 11), 4 fuel array characteristics,
+ * 4 fuel particle characteristics, and three environmental.
+ *
+ * Fuel array:
+ * @param SAV Characteristic surface-area-to-volume ratio (ft^2/ft^3 | cm^2/cm^3).
+ * @param w_o Oven dry fuel load (lb/ft^2 | kg/m^2).  This includes combustible and mineral fractions.
+ * @param fuelBedDepth Fuel bed depth, AKA delta (ft | m).
+ * @param M_x Moisture of extinction (fraction: water weight/dry fuel weight).
+ *
+ * Environmental:
+ * @param M_f Fuel moisture content (fraction: water weight/dry fuel weight).
+ * @param U Wind speed at midflame height (ft/min | m/min).
+ * @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+ *
+ * Fuel particle properties: 
+ * @param h     Heat content of the fuel type (Btu/lb | kJ/kg).
+ *              All the 53 standard fuel models use 8,000 Btu/lb.
+ * @param S_T   Total mineral content (unitless fraction: mineral mass / total dry mass).
+ *              For all standard fuel models this is 5.55% (0.0555).
+ * @param S_e   Effective mineral content (unitless fraction: (mineral mass – mass silica) / total dry mass).
+ *              For all standard fuel models this is 1% (0.01).
+ * @param rho_p Fuel particle density (lb/ft^3 | kg/m^3).
+ *              All the 53 standard fuel models use 32 lb/ft^3.
+ *
+ * Settings:
+ * @param useWindLimit Use the wind limit calculation or not.
+ * @param units Specify the class of units for the inputs.
+ * @param debug Print calculation component values.  This may be removed in the future.
+ *
+ * @returns R rate of spread in ft/min | m/min.
+ */
 double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
                                       double M_f, double U, double slopeSteepness,
                                       double heatContent,//h
@@ -1736,46 +1738,47 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
 	return calcs;
 }
 
-//Albini 1976 modified Rothermel spread model for heterogeneous fuels:
-//
-//Input variables / parameters:
-//	Some of the input variables differ from the homogeneous fuels form in that they are vectors
-//rather than scalars.
-//
-//Fuel array:
-//SAV_ij = Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
-//w_o_ij = An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
-//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
-//M_x_1 = Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
-//liveDead = An array indicating if each index in each of the other input variables represents a
-//	dead or live fuel category.  Note: This is placed later in the argument list to allow for a
-//	default value.  If omitted it is assumed a standard fuel model with 5 fuel types is in use.
-//
-//Environmental:
-//M_f_ij = Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
-//U = Wind speed at midflame height (ft/min | m/min).
-//slopeSteepness = Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
-//
-//Fuel particle properties: 
-//h_ij = Heat content of the fuel types (Btu/lb | kJ/kg).
-//	All the 53 standard fuel models use 8,000 Btu/lb.
-//S_T_ij = An array of total mineral content for each fuel type (unitless fraction).
-//	For all standard fuel models this is 5.55% (0.0555).
-//S_e_ij = Effective mineral content for each fuel type (unitless fraction:
-//	(mineral mass – mass silica) / total dry mass).  For all standard fuel models this is 1% (0.01).
-//rho_p_ij = Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
-//	All the 53 standard fuel models use 32 lb/ft^3.
-//
-//Settings:
-//useWindLimit = Use the wind limit calculation or not.  Recent suggestion are that it not be used.
-//units = Specify the class of units for the inputs.
-//debug = Print calculation component values.  This may be removed in the future.
-//
-//Returns: R = rate of spread in ft/min | m/min.
-//
-//Note: This function takes a lot of arguments.  These parameters could be combined into fuel model
-//and environment objects.  Maintaining this generic interface will still need to be retained for
-//full flexibility of use.
+/* Albini 1976 modified Rothermel spread model for heterogeneous fuels:
+ *
+ * @par Input variables / parameters:
+ * Some of the input variables differ from the homogeneous fuels form in that they are vectors
+ * rather than scalars.
+ *
+ * Fuel array:
+ * @param SAV_ij Characteristic surface-area-to-volume ratios for each fuel type (ft^2/ft^3 | cm^2/cm^3).
+ * @param w_o_ij An array of oven dry fuel load for each fuel type (lb/ft^2 | kg/m^2).
+ * @param fuelBedDepth Fuel bed depth, AKA delta (ft | m).
+ * @param M_x_1 Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
+ * @param liveDead An array indicating if each index in each of the other input variables represents a
+ * 	dead or live fuel category.  Note: This is placed later in the argument list to allow for a
+ * 	default value.  If omitted it is assumed a standard fuel model with 5 fuel types is in use.
+ *
+ * Environmental:
+ * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+ * @param U Wind speed at midflame height (ft/min | m/min).
+ * @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+ *
+ * Fuel particle properties: 
+ * @param h_ij     Heat content of the fuel types (Btu/lb | kJ/kg).
+ *                 All the 53 standard fuel models use 8,000 Btu/lb.
+ * @param S_T_ij   An array of total mineral content for each fuel type (unitless fraction).
+ *                 For all standard fuel models this is 5.55% (0.0555).
+ * @param S_e_ij   Effective mineral content for each fuel type (unitless fraction:
+ *                 (mineral mass – mass silica) / total dry mass).  For all standard fuel models this is 1% (0.01).
+ * @param rho_p_ij Fuel particle density for each fuel type (lb/ft^3 | kg/m^3).
+ *                 All the 53 standard fuel models use 32 lb/ft^3.
+ *
+ * Settings:
+ * @param useWindLimit Use the wind limit calculation or not.  Recent suggestion are that it not be used.
+ * @param units Specify the class of units for the inputs.
+ * @param debug Print calculation component values.  This may be removed in the future.
+ *
+ * @returns R rate of spread in ft/min | m/min.
+ *
+ * This function takes a lot of arguments.  These parameters could be combined into fuel model
+ * and environment objects.  Maintaining this generic interface will still need to be retained for
+ * full flexibility of use.
+ */
 double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> w_o_ij,
                                      double fuelBedDepth,
