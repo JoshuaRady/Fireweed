@@ -170,6 +170,10 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
                                       bool useWindLimit = true,
                                       UnitsType units = US,
                                       bool debug = false);
+double SpreadRateRothermelAlbini_Homo(FuelModel fuelModel,
+                                      double M_f, double U, double slopeSteepness,
+                                      bool useWindLimit = true,
+                                      bool debug = false);
 
 SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
                                             double M_f, double U, double slopeSteepness,
