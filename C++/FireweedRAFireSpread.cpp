@@ -1644,32 +1644,8 @@ double SpreadRateRothermelAlbini_Homo(FuelModel fuelModel,
 {
 	SpreadCalcs calcs;
 
-	//Check the fuel model units.  Conversions could be applied:
-	if (fuelModel.units == US)
-	{
-		if (fuelModel.w_o_Units == tonPerAc)
-		{
-			Stop("Loading units are in tons per acre and need to be in lb per ft^2.")
-		}
-		
-		if (fuelModel.M_x_Units == Percent)
-		{
-			Stop("M_x units are in perceent and need to be a fraction.")
-		}
-	}
-
-	calcs = SpreadCalcsRothermelAlbini_Homo(fuelModel.SAV_ij[0],
-	                                        fuelModel.w_o_ij[0],
-	                                        fuelModel.delta,
-	                                        fuelModel.M_x,
-	                                        M_f, U, slopeSteepness,
-	                                        fuelModel.h_ij[0],
-	                                        fuelModel.S_T_ij[0],
-	                                        fuelModel.S_e_ij[0],
-	                                        fuelModel.rho_p_ij[0],
-	                                        useWindLimit,
-	                                        fuelModel.units,
-	                                        debug);
+	calcs = SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel, M_f, U, slopeSteepness,
+	                                        useWindLimit, debug);
 	return calcs.R;
 }
 
@@ -1792,6 +1768,65 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
 		LogMsg("Heat sink = ", heatSink);
 	}
 
+	return calcs;
+}
+
+/** Albini 1976 modified Rothermel spread model for homogeneous fuels, fuel model version:
+ *
+ * 	Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+ * This variant returns many of the component calculated values in the spread rate calculation.
+ * The function parameters are the same as fuel model version of SpreadRateRothermelAlbini_Homo().
+ *
+ * @par Input variables / parameters:
+ * This version greatly reduces the number of parameters by taking a fuel model object that contains
+ * the properties of the fuel bed.
+ *
+ * @param fuelModel A fuel model object.
+ *
+ * Environmental:
+ * @param M_f Fuel moisture content (fraction: water weight/dry fuel weight).
+ * @param U Wind speed at midflame height (ft/min | m/min).
+ * @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+ *
+ * Settings: (optional)
+ * @param useWindLimit Use the wind limit calculation or not.
+ * @param debug Print calculation component values.  This may be removed in the future.
+ *
+ * @returns R rate of spread in ft/min | m/min.
+ */
+SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
+                                            double M_f, double U, double slopeSteepness,
+                                            bool useWindLimit,
+                                            bool debug)
+{
+	SpreadCalcs calcs;
+
+	//Check the fuel model units.  Conversions could be applied:
+	if (fuelModel.units == US)
+	{
+		if (fuelModel.w_o_Units == tonPerAc)
+		{
+			Stop("Loading units are in tons per acre and need to be in lb per ft^2.")
+		}
+		
+		if (fuelModel.M_x_Units == Percent)
+		{
+			Stop("M_x units are in perceent and need to be a fraction.")
+		}
+	}
+
+	calcs = SpreadCalcsRothermelAlbini_Homo(fuelModel.SAV_ij[0],
+	                                        fuelModel.w_o_ij[0],
+	                                        fuelModel.delta,
+	                                        fuelModel.M_x,
+	                                        M_f, U, slopeSteepness,
+	                                        fuelModel.h_ij[0],
+	                                        fuelModel.S_T_ij[0],
+	                                        fuelModel.S_e_ij[0],
+	                                        fuelModel.rho_p_ij[0],
+	                                        useWindLimit,
+	                                        fuelModel.units,
+	                                        debug);
 	return calcs;
 }
 

@@ -183,6 +183,10 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
                                             bool useWindLimit = true,
                                             UnitsType units = US,
                                             bool debug = false);
+SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
+                                            double M_f, double U, double slopeSteepness,
+                                            bool useWindLimit = true,
+                                            bool debug = false);
 
 double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> w_o_ij,
