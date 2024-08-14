@@ -128,7 +128,7 @@ functions used to manage units in the code.
  * This should not be set directly.  [Use SetModelUnits().]
  * 
  * Note*: This global is not integrated in the same way it is in the R code.  It establishes default
- * units for fucntions but the code does not curently change.  The R code provides SetModelUnits()
+ * units for functions but the code does not curently change.  The R code provides SetModelUnits()
  * to set the units for a session.  It is unclear how useful this would be for the C++ uses cases.
  */
 UnitsType ModelUnits = US;
@@ -1861,7 +1861,7 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 //The function parameters are the same as SpreadRateRothermelAlbini_Het().
 //
 //Returns: A SpreadCalcs object.
-//Note: To avoid code repetition this fucntion is called by the spread rate only functions.
+//Note: To avoid code repetition this function is called by the spread rate only functions.
 SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
                                            std::vector <double> w_o_ij,
                                            double fuelBedDepth,
@@ -2164,7 +2164,7 @@ double StdRho_p(UnitsType units)
  * @param liveDeadCat The Live / Dead catagory value to get.
  *
  * This is a working draft.  It could return the sum (an array) for each class rather than specifying one.
- * This fucntion is currently C++ only.
+ * This function is currently C++ only.
  */
 //double SumByClass(std::vector<double> x_ij, std::vector<int> liveDead, FuelCategory liveDeadCat)
 double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat)
@@ -2192,7 +2192,7 @@ double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liv
  * Representing fuel model X_ij varaibles as vectors has the disadvantage of making mapping to
  * individual classes awkward.  This function makes this simple but remains somewhat inelegant.
  *
- * This fucntion is currently C++ only.
+ * This function is currently C++ only.
  */
 int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//Or FMClassIndex, ClassIndex
 {
