@@ -1540,78 +1540,13 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
                                       UnitsType units,
                                       bool debug)
 {
-	double rho_b, packingRatio, optPackingRatio;//Bulk density and packing ratio.
-	double GammaPrime, w_n, eta_M, eta_s, I_R;//Reaction intensity & intermediates.
-	double xi, phi_s, phi_w, epsilon, Q_ig;//Other intermediate terms.
-	double R;//Return value.
+	SpreadCalcs calcs;
 
-	//Up front calculations:
-	//The bulk density is needed to calculate the packing ratio and therefore is used in the numerator
-	//and denominator.
-	rho_b = BulkDensity(w_o, fuelBedDepth);
+	calcs = SpreadCalcsRothermelAlbini_Homo(SAV, w_o, fuelBedDepth, M_x, M_f, U, slopeSteepness,
+	                                        heatContent, S_T, S_e, rho_p, useWindLimit, units,
+	                                        debug);
 
-	packingRatio = PackingRatio(rho_b, rho_p);
-	optPackingRatio = OptimumPackingRatio(SAV, units);
-
-	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
-	//front of it (AKA propagating flux) in BTU/min/ft^2 | kW/m^2:
-	//Numerator of Rothermel 1972 equation 52:
-	//IR𝜉(1 + 𝜙w + 𝜙s)
-
-	//Reaction intensity I_R:
-	GammaPrime = OptimumReactionVelocity(packingRatio, SAV, units);
-	w_n = NetFuelLoad_Homo(w_o, S_T);
-	eta_M = MoistureDampingCoefficient_Homo(M_f, M_x);
-	eta_s = MineralDampingCoefficient_Homo(S_e);
-	I_R = ReactionIntensity_Homo(GammaPrime, w_n, heatContent, eta_M, eta_s);
-
-	//Other terms:
-	xi = PropagatingFluxRatio(packingRatio, SAV, units);
-	phi_s = SlopeFactor(packingRatio, slopeSteepness);
-
-	//Apply wind limit check:
-	if (useWindLimit)
-	{
-		U = WindLimit(U, I_R, units);
-	}
-
-	phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U, units);
-
-	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
-	//kJ/m^3:
-	//Denominator of Rothermel 1972 equation 52:
-	//ρbεQig
-
-	epsilon = EffectiveHeatingNumber(SAV, units);
-	Q_ig = HeatOfPreignition(M_f, units);
-
-	//Full spread calculation for homogeneous fuels:
-	//Rothermel 1972 equation 52:
-	//Rate of spread = heat source / heat sink
-	//R = I_R𝝃(1 + 𝜙w + 𝜙s) / ρbεQig
-	R = (I_R * xi * (1 + phi_w + phi_s)) / (rho_b * epsilon * Q_ig);
-
-	//For debugging:
-	if (debug)
-	{
-		LogMsg("Homogeneous Spread Calc components:");
-		LogMsg("GammaPrime =", GammaPrime);
-		LogMsg("w_n =", w_n);
-		LogMsg("h =", heatContent);
-		LogMsg("eta_M =", eta_M);
-		LogMsg("eta_s =", eta_s);
-		LogMsg("I_R =", I_R);
-		LogMsg("xi =", xi);
-		LogMsg("phi_s =", phi_s);
-		LogMsg("phi_w =", phi_w);
-		LogMsg("Heat source =", I_R * xi * (1 + phi_s + phi_w));
-		LogMsg("rho_b =", rho_b);
-		LogMsg("epsilon =", epsilon);
-		LogMsg("Qig =", Q_ig);
-		LogMsg("Heat sink = ", rho_b * epsilon * Q_ig);
-	}
-
-	return R;
+	return calcs.R;
 }
 
 /*This is a wrapper for SpreadRateRothermelAlbini_Homo() that allows it to be called from R via .C():
