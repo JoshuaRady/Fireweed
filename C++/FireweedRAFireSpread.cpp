@@ -1679,6 +1679,127 @@ extern "C" void SpreadRateRothermelAlbini_HomoR(const double* SAV, const double*
                                         debugBool);
 }
 
+/** Albini 1976 modified Rothermel spread model for homogeneous fuels:
+ *
+ * Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+ * This variant returns many of the component calculated values in the spread rate calculation.
+ * The function parameters are the same as SpreadRateRothermelAlbini_Homo().
+ *
+ * @returns A SpreadCalcs object.
+ *
+ * @note To avoid code repetition this function is called by the spread rate only functions.
+ */
+SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
+                                            double M_f, double U, double slopeSteepness,
+                                            double heatContent,
+                                            double S_T, double S_e,
+                                            double rho_p,
+                                            bool useWindLimit,
+                                            UnitsType units,
+                                            bool debug)
+{
+	double rho_b, packingRatio, optPackingRatio;//Bulk density and packing ratio.
+	double GammaPrime, w_n, eta_M, eta_s, I_R;//Reaction intensity & intermediates.
+	double xi, phi_s, phi_w, epsilon, Q_ig;//Other intermediate terms.
+	double heatSource, heatSink;
+	double R;//Spread rate.
+	SpreadCalcs calcs;//Return value.
+
+	//Up front calculations:
+	//The bulk density is needed to calculate the packing ratio and therefore is used in the numerator
+	//and denominator.
+	rho_b = BulkDensity(w_o, fuelBedDepth);
+
+	packingRatio = PackingRatio(rho_b, rho_p);
+	optPackingRatio = OptimumPackingRatio(SAV, units);
+
+	//The heat source term (numerator) represents the heat flux from the fire front to the fuel in
+	//front of it (AKA propagating flux) in BTU/min/ft^2 | kW/m^2:
+	//Numerator of Rothermel 1972 equation 52:
+	//IR𝜉(1 + 𝜙w + 𝜙s)
+
+	//Reaction intensity I_R:
+	GammaPrime = OptimumReactionVelocity(packingRatio, SAV, units);
+	w_n = NetFuelLoad_Homo(w_o, S_T);
+	eta_M = MoistureDampingCoefficient_Homo(M_f, M_x);
+	eta_s = MineralDampingCoefficient_Homo(S_e);
+	I_R = ReactionIntensity_Homo(GammaPrime, w_n, heatContent, eta_M, eta_s);
+
+	//Other terms:
+	xi = PropagatingFluxRatio(packingRatio, SAV, units);
+	phi_s = SlopeFactor(packingRatio, slopeSteepness);
+
+	//Apply wind limit check:
+	if (useWindLimit)
+	{
+		U = WindLimit(U, I_R, units);
+	}
+
+	phi_w = WindFactor(SAV, packingRatio, optPackingRatio, U, units);
+
+	heatSource = I_R * xi * (1 + phi_w + phi_s);
+
+	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
+	//kJ/m^3:
+	//Denominator of Rothermel 1972 equation 52:
+	//ρbεQig
+
+	epsilon = EffectiveHeatingNumber(SAV, units);
+	Q_ig = HeatOfPreignition(M_f, units);
+
+	heatSink = rho_b * epsilon * Q_ig
+
+	//Full spread calculation for homogeneous fuels:
+	//Rothermel 1972 equation 52:
+	//Rate of spread = heat source / heat sink
+	//R = I_R𝝃(1 + 𝜙w + 𝜙s) / ρbεQig
+	//R = (I_R * xi * (1 + phi_w + phi_s)) / (rho_b * epsilon * Q_ig);
+	R = heatSource / heatSink;
+
+	calcs.units = units;
+	calcs.R = R;
+	//calcs.weights can remain empty.  We could make a single element set of weights but that seems unnecessary.
+	calcs.GammaPrime = GammaPrime;
+	calcs.w_n_i = w_n;
+	calcs.h_i = heatContent;
+	calcs.eta_M_i = eta_M;
+	calcs.eta_s_i = eta_s;
+	calcs.I_R = I_R;
+	calcs.xi = xi;
+	calcs.phi_s = phi_s;
+	calcs.phi_w = phi_w;
+	calcs.heatSource = heatSource;
+	calcs.rho_b_bar = rho_b;//The mean of a single value is itself.
+	//Shoud add epsilon!!!!!
+	calcs.Q_ig_ij = Q_ig;
+	calcs.heatSink = heatSink;
+	calcs.cSAV = SAV;
+	calcs.meanPackingRatio = packingRatio;//The mean of a single value is itself.
+	calcs.optimumPR = optPackingRatio;
+
+	//For debugging:
+	if (debug)
+	{
+		LogMsg("Homogeneous Spread Calc components:");
+		LogMsg("GammaPrime =", GammaPrime);
+		LogMsg("w_n =", w_n);
+		LogMsg("h =", heatContent);
+		LogMsg("eta_M =", eta_M);
+		LogMsg("eta_s =", eta_s);
+		LogMsg("I_R =", I_R);
+		LogMsg("xi =", xi);
+		LogMsg("phi_s =", phi_s);
+		LogMsg("phi_w =", phi_w);
+		LogMsg("Heat source =", heatSource);
+		LogMsg("rho_b =", rho_b);
+		LogMsg("epsilon =", epsilon);
+		LogMsg("Qig =", Q_ig);
+		LogMsg("Heat sink = ", heatSink);
+	}
+
+	return calcs;
+}
+
 //Albini 1976 modified Rothermel spread model for heterogeneous fuels:
 //
 //Input variables / parameters:

@@ -145,7 +145,7 @@ double EffectiveHeatingNumber(double SAV, UnitsType units = ModelUnits);
 double HeatOfPreignition(double M_f, UnitsType units = ModelUnits);
 std::vector <double> HeatOfPreignition(std::vector <double> M_f_ij, UnitsType units = ModelUnits);
 
-//
+//These are utilities that need to be declared here to be available for the following functions:
 double StdHeatContent(UnitsType units = ModelUnits);
 double StdRho_p(UnitsType units = ModelUnits);
 
@@ -158,6 +158,16 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
                                       bool useWindLimit = true,
                                       UnitsType units = US,
                                       bool debug = false);
+
+SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDepth, double M_x,
+                                            double M_f, double U, double slopeSteepness,
+                                            double heatContent = StdHeatContent(),
+                                            double S_T = 0.0555, double S_e = 0.01,
+                                            double rho_p = StdRho_p(),
+                                            bool useWindLimit = true,
+                                            UnitsType units = US,
+                                            bool debug = false);
+
 double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> w_o_ij,
                                      double fuelBedDepth,
@@ -203,9 +213,6 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
                                            bool debug = false);
 
 //Utilities:
-
-//double StdHeatContent(UnitsType units = ModelUnits);
-//double StdRho_p(UnitsType units = ModelUnits);
 
 double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat);
 int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex);
