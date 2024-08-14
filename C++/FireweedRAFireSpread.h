@@ -32,8 +32,11 @@ implementing the Rothermel fire spread model (Rothermel 1972) with the modificat
  */
 extern UnitsType ModelUnits;
 
-//Fuel class weights from Albini 1976:
-//This may be converted into a class.
+/** @struct SpreadCalcs
+ * @brief A data structure that holds fuel class weights from Albini 1976.
+ *
+ * @note This may be converted into a class?????
+ */
 struct FuelWeights {
 	std::vector<double> f_ij;
 	//f_i will always be length 2 so we could use an array or initialize the length with a constructor. 
@@ -41,44 +44,53 @@ struct FuelWeights {
 	std::vector<double> g_ij;
 };
 
-//The values of the live dead categories are forced to match the matching array indexes so they may
-//be used to access arrays of the form X_i (values are language specific):
-//enum FuelCategory {Dead = 0, Live = 1};//Having some issues with casting this.
-//const int Dead = 0;
-//const int Live = 1;
-//Moved to FireweedFuelModels.h!!!!!
+/** See FireweedFuelModels.h for explanation of live dead categories */
 
-//A data structure that holds the intermediate calculations of the spread rate calculation:
-//This currently assumes heterogenous fuels.
-//The x_i variables could probably be safely made fixed arrays of length 2.  However if we were to
-//expand this to work with homogeneous fuels that could be a problem
-//A print() function could be useful.
+/** @struct SpreadCalcs
+ * @brief A data structure that holds the intermediate calculations of the spread rate calculation.
+ *
+ * The homogeneous and heterogenous forms of the spread calculations have some differences in their
+ * intermediate calculations.  Members that have different interpretations based on the fuel model
+ * type are indicated by trailing x subscripts (i.e. _x).  See the comments below.
+ *
+ * @note Adding a print() function could be useful.
+ */
 struct SpreadCalcs {//Name????? SpreadComponents
 	UnitsType units;//The unit type for the values.
+	bool homogeneous;//True if homogeneous fuel model output, false if heterogeneous fuel model output.
+	
 	double R;//Rate of spread in ft/min | m/min.
-	FuelWeights weights;//Weights.
+	FuelWeights weights;//Weights.  Only calculated for heterogeneous fuels!
+	
 	//Heat source components:
 	double GammaPrime;//Optimum reaction velocity (min^-1).
-	std::vector <double> w_n_i;//Net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2).
-	std::vector <double> h_i;//Heat content for live/dead fuel (Btu/lb | kJ/kg).
-	std::vector <double> eta_M_i;//Moisture damping coefficient for live/dead fuel categories (unitless).
-	std::vector <double> eta_s_i;//Mineral damping coefficient for live/dead fuel categories (unitless).
+	//Net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2): 
+	std::vector <double> w_n_x;//homogeneous: w_n, heterogeneous: w_n_i
+	//Heat content for live/dead fuel (Btu/lb | kJ/kg):
+	std::vector <double> h_x;//homogeneous: h, heterogeneous: h_i
+	//Moisture damping coefficient for live/dead fuel categories (unitless):
+	std::vector <double> eta_M_x;//homogeneous: eta_M_i, heterogeneous: eta_M_i
+	//Mineral damping coefficient for live/dead fuel categories (unitless):
+	std::vector <double> eta_s_x;//homogeneous: eta_s, heterogeneous: eta_s_i
 	double I_R;//Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
 	double xi;//Propagating flux ratio (dimensionless ratio).
 	double phi_s;//Slope factor (dimensionless).
 	double phi_w;//Wind factor (dimensionless).
 	double heatSource;
+	
 	//Heat sink components:
-	double rho_b_bar;//Mean bulk density
-	//double epsilon;//Effective heating number.  Only calculated for homogeneous fuels!
-	std::vector <double> Q_ig_ij;//Head of preignition
+	double rho_b_x;//(Mean) bulk density: homogeneous: rho_b, heterogeneous: rho_b_bar
+	double epsilon;//Effective heating number.  Only calculated for homogeneous fuels! (-1 otherwise)
+	std::vector <double> Q_ig_x;//Heat of preignition: homogeneous: Q_ig, heterogeneous: Q_ig_ij
 	double heatSink;
+	
 	//Other components that can be informative:
-	double cSAV;//Fuel bed characteristic SAV
-	double meanPackingRatio;
+	double cSAV;//Fuel bed characteristic SAV (= SAV for homogeneous)
+	double packingRatio;//(Mean) packing ratio		xPackingRatio?????
 	double optimumPR;//Optimum packing ratio
-	//RelativePR = (meanPackingRatio / optPackingRatio),#Overkill?
 };
+
+//Functions:----------------------------------------------------------------------------------------
 
 //Bulk Density:
 double BulkDensity(double w_o, double fuelBedDepth);

@@ -1692,24 +1692,25 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
 	R = heatSource / heatSink;
 
 	calcs.units = units;
+	calcs.homogeneous = false;
 	calcs.R = R;
 	//calcs.weights can remain empty.  We could make a single element set of weights but that seems unnecessary.
 	calcs.GammaPrime = GammaPrime;
-	calcs.w_n_i = w_n;
-	calcs.h_i = heatContent;
-	calcs.eta_M_i = eta_M;
-	calcs.eta_s_i = eta_s;
+	calcs.w_n_x = std::vector <double> {w_n};
+	calcs.h_x = std::vector <double> {heatContent};
+	calcs.eta_M_x = std::vector <double> {eta_M};
+	calcs.eta_s_x = std::vector <double> {eta_s};
 	calcs.I_R = I_R;
 	calcs.xi = xi;
 	calcs.phi_s = phi_s;
 	calcs.phi_w = phi_w;
 	calcs.heatSource = heatSource;
-	calcs.rho_b_bar = rho_b;//The mean of a single value is itself.
-	//Shoud add epsilon!!!!!
-	calcs.Q_ig_ij = Q_ig;
+	calcs.rho_b_x = rho_b;//The mean of a single value is itself.
+	calcs.epsilon = epsilon;
+	calcs.Q_ig_x = std::vector <double> {Q_ig};
 	calcs.heatSink = heatSink;
 	calcs.cSAV = SAV;
-	calcs.meanPackingRatio = packingRatio;//The mean of a single value is itself.
+	calcs.packingRatio = packingRatio;//The mean of a single value is itself.
 	calcs.optimumPR = optPackingRatio;
 
 	//For debugging:
@@ -1937,7 +1938,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 	FuelWeights weights;
 	double meanPackingRatio, fuelBedSAV, optPackingRatio;
 	double GammaPrime, IR, xi, phi_s, phi_w, rho_b_bar;//Scalar intermediates.
-	double I_R, heatSink;
+	double I_R, heatSource, heatSink;
 	std::vector <double> w_n_i(2, 0), h_i(2, 0), M_x_i(2, 0), eta_M_i(2, 0), eta_s_i(2, 0), heatSink_i(2, 0);//Live/dead intermediates.
 	std::vector <double> Q_ig_ij(w_o_ij.size(), 0);
 	double R;//Spread rate.
@@ -2000,6 +2001,8 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	phi_w = WindFactor(fuelBedSAV, meanPackingRatio, optPackingRatio, U, units);
 
+	heatSource = I_R * xi * (1 + phi_w + phi_s);
+
 	//The heat sink term (denominator) represents the energy required to ignite the fuel in Btu/ft^3 |
 	//kJ/m^3:
 	//The heat sink term is calculated using weights without calculating epsilon explicitly.
@@ -2035,27 +2038,30 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//Rothermel 1972 equation 75:
 	//Rate of spread = heat source / heat sink
 	//R = I_Rξ(1 + φw + φs) / ρbεQig
-	R = (I_R * xi * (1 + phi_s + phi_w)) / heatSink;
+	//R = (I_R * xi * (1 + phi_w + phi_s)) / heatSink;
+	R = heatSource / heatSink;
 
 	//Pack the calculations into the struct:
 	calcs.units = units;
+	calcs.homogeneous = true;
 	calcs.R = R;
 	calcs.weights = weights;
 	calcs.GammaPrime = GammaPrime;
-	calcs.w_n_i = w_n_i;
-	calcs.h_i = h_i;
-	calcs.eta_M_i = eta_M_i;
-	calcs.eta_s_i = eta_s_i;
+	calcs.w_n_x = w_n_i;
+	calcs.h_x = h_i;
+	calcs.eta_M_x = eta_M_i;
+	calcs.eta_s_x = eta_s_i;
 	calcs.I_R = I_R;
 	calcs.xi = xi;
 	calcs.phi_s = phi_s;
 	calcs.phi_w = phi_w;
 	calcs.heatSource = I_R * xi * (1 + phi_s + phi_w);
-	calcs.rho_b_bar = rho_b_bar;
-	calcs.Q_ig_ij = Q_ig_ij;
+	calcs.rho_b_x = rho_b_bar;
+	calcs.epsilon = -1;//Not calculated for heterogeneous fuels.
+	calcs.Q_ig_x = Q_ig_ij;
 	calcs.heatSink = heatSink;
 	calcs.cSAV = fuelBedSAV;
-	calcs.meanPackingRatio = meanPackingRatio;
+	calcs.packingRatio = meanPackingRatio;
 	calcs.optimumPR = optPackingRatio;
 	
 	//For debugging:
@@ -2071,7 +2077,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 		LogMsg("eta_M_i =", eta_M_i);
 		LogMsg("eta_s_i =", eta_s_i);
 		LogMsg("I_R =", I_R);
-		LogMsg("Heat source =", calcs.heatSource);
+		LogMsg("Heat source =", heatSource);
 		LogMsg("rho_b_bar =", rho_b_bar);
 		LogMsg("Q_ig_ij =", Q_ig_ij);
 		LogMsg("Heat sink =", heatSink);
