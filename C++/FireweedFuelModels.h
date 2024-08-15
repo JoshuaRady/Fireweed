@@ -88,6 +88,11 @@ const int Live = 1;
  * importantly, this was necessary to represent dynamic fuel model behavior since calculating dynamic
  * fuel model moisture changes the structure of the fuel model itself.
  *
+ * @par
+ * The fuel moisture representation is currently focused on heterogeneous fuel moisture.  The
+ * homogeneous case is less essential since M_f is a single value that is static.  It may be added
+ * in the future.
+ *
  * @par Fuel Model Properties:
  * For more information on fuel model data members see the documentation in FireweedRAFireSpread.cpp.
  * Add more here!!!!! ...
