@@ -318,7 +318,7 @@ std::ostream& FuelModel::Print(std::ostream& output) const
  * been previously set but curing has not been applied we allow the value to be overwritten.  The
  * utility of overwriting is uncertain so we currently warn when this happens.
  *
- * @Note This function could overloaded to take a sigle value (M_f) for the homogenous case.
+ * @note This function could overloaded to take a sigle value (M_f) for the homogenous case.
  */
 void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 {
@@ -350,6 +350,19 @@ void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 	}
 
 	this->M_f_ij = M_f_ij;
+}
+
+/** The the (heterogenous) fuel moisture.
+ *
+ * The vector returned may be empty if the fuel moisture has not been assigned.  The calling code
+ * should check for this.
+ *
+ * @note This function is specific about returning M_f_ij, which is alway a vector.  Homogenous
+ * moisture M_f is a scalar which could be added in the future.
+ */
+std::vector <double> FuelModel::GetM_f_ij()//Or just M_f_ij()?????
+{
+	return M_f_ij;
 }
 
 /** Calculate and apply the curing of herbaceous fuels based on the herbaceous fuel moisture (per Scott & Burgan 2005).
