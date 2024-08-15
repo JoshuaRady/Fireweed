@@ -2336,24 +2336,26 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
                                            bool useWindLimit,
                                            bool debug)
 {
-	std::vector <double> theM_f_ij;
+	std::vector <double> theM_f_ij, fmM_f_ij;
 	SpreadCalcs calcs;
 
 	//The fuel moisture may have already been added to the fuel model and if not should be supplied.
 	//If both are provided that could be an error so warn and use the argument value as if intended to
 	//override the fuel model:
+	fmM_f_ij = fuelModel.GetM_f_ij()
+	
 	if (!M_f_ij.empty())
 	{
 		theM_f_ij = M_f_ij;
 
-		if (!fuelModel.M_f_ij.empty())
+		if (!fmM_f_ij.empty())
 		{
 			Warning("M_f_ij argument provided but fuel model also has fuel moistures.");
 		}
 	}
-	else if (!fuelModel.M_f_ij.empty())
+	else if (!fmM_f_ij.empty())
 	{
-		theM_f_ij = fuelModel.M_f_ij;
+		theM_f_ij = fmM_f_ij;
 	}
 	else
 	{
