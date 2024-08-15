@@ -167,7 +167,7 @@ double SpreadRateRothermelAlbini_Homo(double SAV, double w_o, double fuelBedDept
                                       double heatContent = StdHeatContent(),
                                       double S_T = 0.0555, double S_e = 0.01,
                                       double rho_p = StdRho_p(),
-                                      bool useWindLimit = true,
+                                      bool useWindLimit = true,//True for all homo versions!!!!!
                                       UnitsType units = US,
                                       bool debug = false);
 double SpreadRateRothermelAlbini_Homo(FuelModel fuelModel,
@@ -216,6 +216,11 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      bool useWindLimit = false,
                                      UnitsType units = US,
                                      bool debug = false);
+double SpreadRateRothermelAlbini_Het(FuelModel fuelModel,
+                                     double U, double slopeSteepness,
+                                     std::vector <double> M_f_ij,
+                                     bool useWindLimit = false,
+                                     bool debug = false);
 
 SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
                                            std::vector <double> w_o_ij,
@@ -230,6 +235,11 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
                                            std::vector <int> liveDead = {Dead, Dead, Dead, Live, Live},//Standard fuel model 5 classes.
                                            bool useWindLimit = false,
                                            UnitsType units = US,
+                                           bool debug = false);
+SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
+                                           double U, double slopeSteepness,
+                                           std::vector <double> M_f_ij,
+                                           bool useWindLimit = false,
                                            bool debug = false);
 
 //Utilities:

@@ -1817,7 +1817,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
 
 	calcs = SpreadCalcsRothermelAlbini_Homo(fuelModel.SAV_ij[0],
 	                                        fuelModel.w_o_ij[0],
-	                                        fuelModel.delta,
+	                                        fuelModel.delta,//fuelBedDepth
 	                                        fuelModel.M_x,
 	                                        M_f, U, slopeSteepness,
 	                                        fuelModel.h_ij[0],
@@ -1867,9 +1867,9 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
  *
  * @returns R rate of spread in ft/min | m/min.
  *
- * This function takes a lot of arguments.  These parameters could be combined into fuel model
- * and environment objects.  Maintaining this generic interface will still need to be retained for
- * full flexibility of use.
+			 * This function takes a lot of arguments.  These parameters could be combined into fuel model
+			 * and environment objects.  Maintaining this generic interface will still need to be retained for
+			 * full flexibility of use. !!!!!
  */
 double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      std::vector <double> w_o_ij,
@@ -2007,6 +2007,40 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
 	*R = SpreadRateRothermelAlbini_Het(SAV_ijVec, w_o_ijVec, *fuelBedDepth, *M_x_1, M_f_ijVec, *U,
 	                                   *slopeSteepness, h_ijVec, S_T_ijVec, S_e_ijVec, rho_p_ijVec,
 	                                   liveDeadVec, useWindLimitBool, cUnits, debugBool);
+}
+
+/* Albini 1976 modified Rothermel spread model for heterogeneous fuels, fuel model version:
+ *
+ * @par Input variables / parameters:
+ * This version greatly reduces the number of parameters by taking a fuel model object that contains
+ * the properties of the fuel bed.
+ *
+ * @param fuelModel A fuel model object.
+ *
+ * Environmental:
+ * @param U Wind speed at midflame height (ft/min | m/min).
+ * @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+ * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+ *               This is not required if the fuel moisture has already been added to the fuel model.
+ *
+ * Settings:
+ * @param useWindLimit Use the wind limit calculation or not.  Recent suggestion are that it not be used.
+ * @param debug Print calculation component values.  This may be removed in the future.
+ *
+ * @returns R rate of spread in ft/min | m/min.
+ */
+double SpreadRateRothermelAlbini_Het(FuelModel fuelModel,
+                                     double U, double slopeSteepness,
+                                     std::vector <double> M_f_ij,
+                                     bool useWindLimit,
+                                     bool debug)
+{
+	SpreadCalcs calcs;
+
+	calcs = SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel, M_f, U, slopeSteepness,
+	                                       useWindLimit, debug);
+
+	return calcs.R;
 }
 
 //This variant returns many of the component calculated values in the spread rate calculation.
@@ -2260,7 +2294,7 @@ extern "C" void SpreadCalcsRothermelAlbini_HetR(const double* SAV_ij, const doub
 	{
 		debugBool = true;
 	}
-	else//The NA value is possible it NAOK = TRUE in .C().
+	else//The NA value is possible if NAOK = TRUE in .C().
 	{
 		Stop("Invalid value passed for debugBool.");
 	}
@@ -2274,6 +2308,88 @@ extern "C" void SpreadCalcsRothermelAlbini_HetR(const double* SAV_ij, const doub
 	*I_R = calcs.I_R;
 	*heatSource = calcs.heatSource;
 	*heatSink = calcs.heatSink;
+}
+
+/* Albini 1976 modified Rothermel spread model for heterogeneous fuels, fuel model version:
+ *
+ * @par Input variables / parameters:
+ * This version greatly reduces the number of parameters by taking a fuel model object that contains
+ * the properties of the fuel bed.
+ *
+ * @param fuelModel A fuel model object.
+ *
+ * Environmental:
+ * @param U Wind speed at midflame height (ft/min | m/min).
+ * @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal distance).
+ * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
+ *               This is not required if the fuel moisture has already been added to the fuel model.
+ *
+ * Settings:
+ * @param useWindLimit Use the wind limit calculation or not.  Recent suggestion are that it not be used.
+ * @param debug Print calculation component values.  This may be removed in the future.
+ *
+ * @returns R rate of spread in ft/min | m/min.
+ */
+SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
+                                           double U, double slopeSteepness,
+                                           std::vector <double> M_f_ij,
+                                           bool useWindLimit,
+                                           bool debug)
+{
+	std::vector <double> theM_f_ij;
+	SpreadCalcs calcs;
+
+	//The fuel moisture may have already been added to the fuel model and if not should be supplied.
+	//If both are provided that could be an error so warn and use the argument value as if intended to
+	//override the fuel model:
+	if (!M_f_ij.empty())
+	{
+		theM_f_ij = M_f_ij;
+
+		if (!fuelModel.M_f_ij.empty())
+		{
+			Warning("M_f_ij argument provided but fuel model also has fuel moistures.");
+		}
+	}
+	else if (!fuelModel.M_f_ij.empty())
+	{
+		theM_f_ij = fuelModel.M_f_ij;
+	}
+	else
+	{
+		Stop("Either the fuel model must have fuel moistures or M_f_ij argument must be provided.");
+	}
+
+	//Check the fuel model units.  Conversions could be applied:
+	if (fuelModel.units == US)
+	{
+		if (fuelModel.w_o_Units == tonPerAc)
+		{
+			Stop("Loading units are in tons per acre and need to be in lb per ft^2.")
+		}
+		
+		if (fuelModel.M_x_Units == Percent)
+		{
+			Stop("M_x units are in perceent and need to be a fraction.")
+		}
+	}
+
+	calcs = SpreadCalcsRothermelAlbini_Het(fuelModel.SAV_ij,
+	                                       fuelModel.w_o_ij.
+	                                       fuelModel.delta,//fuelBedDepth
+	                                       fuelModel.M_x_1.
+	                                       theM_f_ij;
+	                                       U, slopeSteepness,
+	                                       fuelModel.h_ij,
+	                                       fuelModel.S_T_ij,
+	                                       fuelModel.S_e_ij,
+	                                       fuelModel.rho_p_ij,
+	                                       fuelModel.liveDead,
+	                                       useWindLimit,
+	                                       fuelModel.units,
+	                                       debug);
+
+	return calcs;
 }
 
 //Utilities:----------------------------------------------------------------------------------------
