@@ -314,9 +314,11 @@ std::ostream& FuelModel::Print(std::ostream& output) const
  * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
  *
  * This function checks M_f_ij and stores it if valid, without apply curing.  If curing has been
- * previously applied the  value can not be overwritten and an error is generated.  If the value has
+ * previously applied the value can not be overwritten and an error is generated.  If the value has
  * been previously set but curing has not been applied we allow the value to be overwritten.  The
  * utility of overwriting is uncertain so we currently warn when this happens.
+ *
+ * @Note This function could overloaded to take a sigle value (M_f) for the homogenous case.
  */
 void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 {
@@ -326,7 +328,8 @@ void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 		//Stop("M_f_ij not of proper length.");//Add lengths of inputs and numClasses?????
 		Stop("M_f_ij has length " + std::to_string(M_f_ij.size()) + " while numClasses = " + std::to_string(numClasses));
 	}
-	
+
+	//Confirm values are valid:
 	for (int i = 0; i < M_f_ij.size(); i++)
 	{
 		if (!ValidProportion(M_f_ij[i]))
@@ -334,8 +337,8 @@ void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 			Stop("M_f_ij contains invalid values: " + VectorToStr(M_f_ij));
 		}
 	}
-	
-	//Checking if curing has already been run for this fuel model:
+
+	//Checking if curing has already been calculated for this fuel model:
 	if (cured == true)
 	{
 		Stop("Fuel model has already had curing applied.");

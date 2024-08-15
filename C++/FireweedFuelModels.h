@@ -33,25 +33,64 @@ const int Dead = 0;
 const int Live = 1;
 
 /* @class FuelModel
- * @brief The FuelModel class represents the fuel properties and quantities necessary for a location.
- * [More?????]
- *
- * For more information on fuel model data members see the documentation in FireweedRAFireSpread.cpp ...
- *
- * Number of fuel classes:
- *   The standard fuel models have five fuel classes but this is not strictly fixed.  Homogeneous
- * fuel models with one fuel type are described in the Rothermel 
- * Some of the standard fuel models, 1 and 3 from the original 13, are in fact homogenous.  In
- * published tables they are presented with empty columns.  Additionally application of curing to
- * dynamic fuel models introduces a sixth dead herbaceous fuel class.
- *   Out implementation allow for ana arbitrary number of fuel classes.  The liveDead flag and   is used
+ * @brief This class represents the fuel properties and quantities for a fuel bed.
  * 
- *   The homogeneous fuels case can be represented as a FuelModel object with a single fuel class.
- * However, the homogenous fuels version of the spread rate calculation uses different,
- * unsubscripted, notation than the heterogenous version.  For convenience homogeneous notation
- * aliases are provided for the moisture of extinction and fuel particle properties.
- * Note: These aliases are turning out to be a problem because they can't be updated when the
- * heterogeneous members are resized.
+ * FuelModel objects are used to hold and manipulate fire behavior fuel models for use with the
+ * Rothermel Albini fire spread model.
+ * 
+ * Similar fuel models are used for other purposes such as fire danger.  This class could be
+ * expanded in the future for those applications.
+ *
+ * @par Number of Fuel Types:
+ *   The Rothermel Albini fire spread model includes calculations for homogenous (single fuel) and
+ * heterogenous (multiple fuel) cases.  The standard fuel models have five fuel types and this
+ * convention is commonly used for other related US models.  The number of fuel types is not fixed
+ * and the number can vary in practice.
+ *
+ * @par
+ *   Additionally, the number of fuel types in a fuel model may not represent the actual number of
+ * fuel types.  For example some of the standard fuel models, 1 and 3 from the original 13, are in
+ * fact homogenous.  In published tables they are presented with empty columns.  Other fuel models
+ * leave some fuel columns empty as well.
+ *
+ * @par
+ * Further, application of curing for dynamic fuel models introduces a sixth dead herbaceous fuel
+ * class (assuming the five standard staring classes).
+ *
+ * @par
+ * Our fuel model implementation allows for an arbitrary number of fuel types.
+ *
+ * @par Homogeneous Fuels:
+ * The homogeneous fuels case can be represented as a FuelModel object with a single fuel class.
+ * Such a fuel model can be fed into the homogeneous versions of the spread model equations.  A
+ * complicating factor is the fact that the homogenous fuels version of the spread rate calculation
+ * use slightly different, unsubscripted notation than the heterogenous versions.
+ *
+ * @par
+ * Attempts were made to include both notations in the FuelModel object with some problems.  For
+ * convenience homogeneous notation aliases are provided for the moisture of extinction and fuel
+ * particle properties.  Aliases were used to prevent homogenous and heterogenous members from
+ * getting out of sync.  These aliases turned out to be a problem because they can't be updated when
+ * the heterogeneous members are resized.  This is a ubiquitous problem because currently the
+ * members start empty and so have to be resized during initialization.
+ *
+ * @par
+ * The homogeneous members remain pending revision but should not be used.  If we can't find a way
+ * to make them work they could be replaced with getter functions.
+ *
+ * @par Fuel Moisture:
+ * Since fuel moisture is highly dynamic it is not included in fuel model tables and traditionally
+ * may not be treated as part of a fuel model itself.  We have made the choice to optionally allow
+ * fuel moisture to be recorded in the FuelModel object.  There are several reasons for this.  First
+ * is is convient to keep all the fuel properties together.  More importantly the fuel moisture
+ * values are linked with number and types of fuels.  Adding them to the fuel model allows us to
+ * check them and make sure they are valid and consistent the fuels.  Finally, and perhaps most
+ * importantly, this was necessary to represent dynamic fuel model behavior since calculating dynamic
+ * fuel model moisture changes the structure of the fuel model itself.
+ *
+ * @par Fuel Model Properties:
+ * For more information on fuel model data members see the documentation in FireweedRAFireSpread.cpp.
+ * Add more here!!!!! ...
  */
 class FuelModel {
 	public:
