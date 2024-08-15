@@ -1846,12 +1846,16 @@ SpreadRateRothermelAlbini_HetFM <- function(fuelModel,
     
     if ("M_f_ij" %in% fuelModel)
     {
-      warning(M_f_ij)
+      warning("M_f_ij argument provided but fuel model also has fuel moisture.")
     }
   }
   else if ("M_f_ij" %in% fuelModel)
   {
     theM_f_ij = fuelModel$M_f_ij
+  }
+  else
+  {
+    stop("Either the fuel model must have fuel moistures or M_f_ij argument must be provided.")
   }
   
   #Check the fuel model units.  Conversions could be applied:
