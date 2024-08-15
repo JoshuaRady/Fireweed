@@ -1644,8 +1644,8 @@ double SpreadRateRothermelAlbini_Homo(FuelModel fuelModel,
 {
 	SpreadCalcs calcs;
 
-	calcs = SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel, M_f, U, slopeSteepness,
-	                                        useWindLimit, debug);
+	calcs = SpreadCalcsRothermelAlbini_Homo(fuelModel, M_f, U, slopeSteepness, useWindLimit, debug);
+
 	return calcs.R;
 }
 
@@ -1806,12 +1806,12 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
 	{
 		if (fuelModel.w_o_Units == tonPerAc)
 		{
-			Stop("Loading units are in tons per acre and need to be in lb per ft^2.")
+			Stop("Loading units are in tons per acre and need to be in lb per ft^2.");
 		}
 		
 		if (fuelModel.M_x_Units == Percent)
 		{
-			Stop("M_x units are in perceent and need to be a fraction.")
+			Stop("M_x units are in perceent and need to be a fraction.");
 		}
 	}
 
@@ -2037,7 +2037,7 @@ double SpreadRateRothermelAlbini_Het(FuelModel fuelModel,
 {
 	SpreadCalcs calcs;
 
-	calcs = SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel, M_f, U, slopeSteepness,
+	calcs = SpreadCalcsRothermelAlbini_Het(fuelModel, U, slopeSteepness, M_f_ij,
 	                                       useWindLimit, debug);
 
 	return calcs.R;
@@ -2365,20 +2365,20 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
 	{
 		if (fuelModel.w_o_Units == tonPerAc)
 		{
-			Stop("Loading units are in tons per acre and need to be in lb per ft^2.")
+			Stop("Loading units are in tons per acre and need to be in lb per ft^2.");
 		}
 		
 		if (fuelModel.M_x_Units == Percent)
 		{
-			Stop("M_x units are in perceent and need to be a fraction.")
+			Stop("M_x units are in perceent and need to be a fraction.");
 		}
 	}
 
 	calcs = SpreadCalcsRothermelAlbini_Het(fuelModel.SAV_ij,
-	                                       fuelModel.w_o_ij.
+	                                       fuelModel.w_o_ij,
 	                                       fuelModel.delta,//fuelBedDepth
-	                                       fuelModel.M_x_1.
-	                                       theM_f_ij;
+	                                       fuelModel.M_x_1,
+	                                       theM_f_ij,
 	                                       U, slopeSteepness,
 	                                       fuelModel.h_ij,
 	                                       fuelModel.S_T_ij,
