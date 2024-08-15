@@ -218,7 +218,7 @@ double SpreadRateRothermelAlbini_Het(std::vector <double> SAV_ij,
                                      bool debug = false);
 double SpreadRateRothermelAlbini_Het(FuelModel fuelModel,
                                      double U, double slopeSteepness,
-                                     std::vector <double> M_f_ij,
+                                     std::vector <double> M_f_ij = {},
                                      bool useWindLimit = false,
                                      bool debug = false);
 
@@ -238,7 +238,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
                                            bool debug = false);
 SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
                                            double U, double slopeSteepness,
-                                           std::vector <double> M_f_ij,
+                                           std::vector <double> M_f_ij = {},
                                            bool useWindLimit = false,
                                            bool debug = false);
 
