@@ -2342,7 +2342,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
 	//The fuel moisture may have already been added to the fuel model and if not should be supplied.
 	//If both are provided that could be an error so warn and use the argument value as if intended to
 	//override the fuel model:
-	fmM_f_ij = fuelModel.GetM_f_ij()
+	fmM_f_ij = fuelModel.GetM_f_ij();
 	
 	if (!M_f_ij.empty())
 	{
