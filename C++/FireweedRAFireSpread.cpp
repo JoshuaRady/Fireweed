@@ -2028,6 +2028,9 @@ extern "C" void SpreadRateRothermelAlbini_HetR(const double* SAV_ij, const doubl
  * @param debug Print calculation component values.  This may be removed in the future.
  *
  * @returns R rate of spread in ft/min | m/min.
+ *
+ * @note Note since M_f_ij is optional the argument order is differnt than the equivalent version of
+ * SpreadRateRothermelAlbini_Homo().
  */
 double SpreadRateRothermelAlbini_Het(FuelModel fuelModel,
                                      double U, double slopeSteepness,
@@ -2329,6 +2332,9 @@ extern "C" void SpreadCalcsRothermelAlbini_HetR(const double* SAV_ij, const doub
  * @param debug Print calculation component values.  This may be removed in the future.
  *
  * @returns R rate of spread in ft/min | m/min.
+ *
+ * @note Note since M_f_ij is optional the argument order is differnt than the equivalent version of
+ * SpreadRateRothermelAlbini_Homo().
  */
 SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
                                            double U, double slopeSteepness,
