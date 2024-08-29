@@ -12,8 +12,12 @@ string utilities.
 #ifndef FIREWEEDSTRINGUTILS_H
 #define FIREWEEDSTRINGUTILS_H
 
+#include <string>
 #include <vector>
 
-
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter);
+std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool allowQuotes);
+std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator = ", ");
+std::string VectorToStr(const std::vector <double> vec, std::string separator = ", ");
 
 #endif //FIREWEEDSTRINGUTILS_H
