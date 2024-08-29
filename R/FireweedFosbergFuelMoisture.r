@@ -31,6 +31,7 @@
 #___________________________________________________________________________________________________
 
 source("FireweedUnits.r")
+source("FireweedUtils.r")
 
 #Code:----------------------------------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ CtoF <- function(degreesC)
 #slopePct = Percent slope of the location (rise / run x 100%).
 #aspectCardinal = The aspect of the slope as a cardinal direction (N, E, S, W).
 #shaded = Does the location have 50% or greater canopy cover or is there full cloud cover.
+#  This could be converted to a percentage.
 #elevation = A code indicating the slope position for the prediction relative to where the weather
 #  conditions were taken.  Values are:
 #  B: The fire is 1000 - 2000 feet below the location where weather was recorded,
@@ -303,16 +305,18 @@ FosbergNWCG_GetCorrection <- function(tableFilePath, hourOfDay, slopePct, aspect
   }
   
   #Find the matching column:
-  #The hours are by threes so we should do a skip and do a nested loop!
-  numTimeBins = length(hourStart)
-  for (i in 1:numTimeBins)
+  steps = seq(1, length(hourStart), by = 3)#The hours ranges are repeated by threes (B, L, A).
+  for (i in steps)
   {
     if (hourOfDay >= hourStart[i] && hourOfDay < hourEnd[i])
     {
-      if (elevation == elevationCode[i])
+      for (j in i:(i+2))
       {
-        theCol = i
-        break
+        if (elevation == elevationCode[j])
+        {
+          theCol = j
+          break
+        }
       }
     }
   }
