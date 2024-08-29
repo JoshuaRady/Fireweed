@@ -6,7 +6,7 @@ Started: 8/12/2024
 Reference: Proj. 11 Exp. 19
 
 	This file is part of the Fireweed wildfire code library.
-	This header file defines a set of (general) utilities.
+	This file defines a set of (general) utilities.
 
 ***************************************************************************************************/
 
