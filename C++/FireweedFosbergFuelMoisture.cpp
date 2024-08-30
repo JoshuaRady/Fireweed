@@ -346,6 +346,7 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	for (int i = 0; i < numCols; i++)
 	{
 		lineStr >> hourStart[i];
+		hourStart[i] = hourStart[i] / 100;
 	}
 
 	std::getline(tableFile, line);
@@ -354,6 +355,7 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	for (int i = 0; i < numCols; i++)
 	{
 		lineStr >> hourEnd[i];
+		hourEnd[i] = hourEnd[i] / 100;
 	}
 
 	//Parameter checking (after extracting hours):
