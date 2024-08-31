@@ -456,13 +456,13 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		}
 	}
 
-	if (theRow = -1)
+	if (theRow == -1)
 	{
 		Stop("Failed to find a matching row.");
 	}
 
 	//Find the matching column:
-	for (int j = 0; j < numRows; j += 3)//The hours ranges are repeated by threes (B, L, A).
+	for (int j = 0; j < numCols; j += 3)//The hours ranges are repeated by threes (B, L, A).
 	{
 		if (hourOfDay >= hourStart[j] && hourOfDay < hourEnd[j])
 		{
@@ -477,7 +477,7 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		}
 	}
 
-	if (theCol = -1)
+	if (theCol == -1)
 	{
 		Stop("Failed to find a matching column.");
 	}
