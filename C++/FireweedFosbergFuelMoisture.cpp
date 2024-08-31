@@ -97,11 +97,8 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 		tempF = CtoF(temp);
 	}
 
-	std::cout << "Before FosbergNWCG_GetRFM()." << std::endl;//Temp debugging.
-
 	rfm = FosbergNWCG_GetRFM(tableA_Path, tempF, rh);//Look up the reference fuel moisture.
-	std::cout << "After FosbergNWCG_GetRFM()." << std::endl;//Temp debugging.
-	
+
 	if (monthOfYear >= 5 && monthOfYear <= 7)//May - July
 	{
 		correctionTablePath = tableB_Path;
@@ -152,7 +149,6 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 	//Look up the correction factor for the conditions specified:
 	correction = FosbergNWCG_GetCorrection(correctionTablePath, hourOfDay, slopePct, aspectCardinal,
 	                                       shaded, elevation);
-	std::cout << "After FosbergNWCG_GetCorrection()." << std::endl;//Temp debugging.
 
 	return rfm + correction;//Combine and return.
 }
@@ -162,7 +158,7 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
  * @param tableA_Path = A path to a tab delimited file holding lookup table A from Rothermel 1981 & the NWCG.
  *
  * @param temp The air temperature at 4.5 feet / 1.37 meters above ground level (degrees F / C).
- *             The results is undefined below 10 degrees Fahrenheit!!!!!
+ *             The result is undefined below 10 degrees Fahrenheit!!!!!
  * @param rh Relative humidity (percent).
  *
  * @returns Reference fuel moisture (fraction: water weight/dry fuel weight).
@@ -230,7 +226,6 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 	tempIndex = -1;//Reset to use as the search index.
 
 	//Search for the matching value:
-	//numTempBins = tempRangeBottoms.size();
 	for (int i = 0; i < numTempBins; i++)
 	{
 		if (i < (numTempBins - 1))
@@ -256,7 +251,6 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 		}
 	}
 
-	//numRHBins = rhRangeBottoms.size();
 	for (int j; j < j < numRHBins; j++)
 	{
 		if (j < numRHBins)
@@ -282,7 +276,7 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 		}
 	}
 
-	return luMatrix[tempIndex][rhIndex];//Integer!!!!!
+	return luMatrix[tempIndex][rhIndex];//The value is actually integer but will be cast to double.
 }
 
 /** Look up the Fosberg fuel moisture correction (NWCG variant) for the conditions passed:
@@ -296,6 +290,7 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
  * @param aspectCardinal The slope aspect as a cardinal direction (N, E, S, W).
  *   Note: We could add the ability to take the aspect as degrees.
  * @param shaded Does the location have 50% or greater canopy cover or is there full cloud cover.
+ *   Note: We could also accept a percentage.
  * @param elevation A code indicating the slope position for the prediction relative to where the
  *                  weather conditions were taken.  Values are:
  *  B: The fire is 1000 - 2000 feet below the location where weather was recorded,
@@ -333,8 +328,6 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 
 	int luMatrix[numRows][numCols];
 
-	std::cout << "About to open table file:" << std::endl;//Temp debugging.
-
 	//Open the file:
 	std::ifstream tableFile(tableFilePath);
 	//Error handling?????
@@ -365,7 +358,6 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	}
 
 	//Parameter checking (after extracting hours):
-	//if (!InRange(hourOfDay, min(hourStart), max(hourEnd)))
 	if (!InRange(hourOfDay, *std::min_element(hourStart, hourStart + numCols),
 	             *std::max_element(hourEnd, hourEnd + numCols)))
 	{
@@ -382,7 +374,6 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	{
 		Stop("Invalid aspect.  Must be a cardinal direction.");
 	}
-	//Shaded should be logical but we could also accept a percentage.
 	if (!(elevation == 'B' || elevation == 'L' || elevation == 'A'))
 	{
 		Stop("Invalid relative elevation code.");
@@ -391,7 +382,6 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	std::getline(tableFile, line);
 	lineStr.clear();
 	lineStr.str(line);
-	//for (int i = 0; i < numRows; i++)
 	for (int i = 0; i < numCols; i++)
 	{
 		lineStr >> elevationCode[i];
@@ -408,17 +398,13 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		lineStr >> shadeID[counter] >> aspects[counter] >> slopeClass[counter];
 
 		//The rest of the line is lookup table values:
-		//for (int j = 0; j < numRows; j++)
 		for (int i = 0; i < numCols; i++)
 		{
-			//lineStr >> luMatrix[counter][j];
 			lineStr >> luMatrix[counter][i];
 		}
 
 		counter += 1;
 	}
-
-	std::cout << "Table file input." << std::endl;//Temp debugging.
 
 	//Find the matching row by ID:
 	std::string theShadeID;
@@ -443,14 +429,10 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	
 	for (int j = 0; j < numRows; j++)
 	{
-		//if (shadeID[j] == theShadeID)
 		if (theShadeID == shadeID[j])
 		{
-			//if (slopeClass[j] == theSlopeID)
-			//if (theSlopeID == slopeClass[j])
 			if (shaded || (theSlopeID == slopeClass[j]))//Only check the slope when unshaded.
 			{
-				//if (aspects[j] == aspectCardinal)
 				if (aspectCardinal == aspects[j])
 				{
 					theRow = j;
@@ -472,7 +454,6 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		{
 			for (int k = j; k < (j + 2); k++)
 			{
-				//if (elevation == elevationCode[j])
 				if (elevation == elevationCode[k])
 				{
 					theCol = k;
@@ -487,7 +468,7 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		Stop("Failed to find a matching column.");
 	}
 
-	return luMatrix[theRow][theCol];//Integer!!!!!
+	return luMatrix[theRow][theCol];//The value is actually integer but will be cast to double.
 }
 
 /* Make an estimate of the 100-hour dead fuel moisture:
