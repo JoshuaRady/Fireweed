@@ -443,11 +443,15 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	
 	for (int j = 0; j < numRows; j++)
 	{
-		if (shadeID[j] == theShadeID)
+		//if (shadeID[j] == theShadeID)
+		if (theShadeID == shadeID[j])
 		{
-			if (slopeClass[j] == theSlopeID)
+			//if (slopeClass[j] == theSlopeID)
+			//if (theSlopeID == slopeClass[j])
+			if (shaded || (theSlopeID == slopeClass[j]))//Only check the slope when unshaded.
 			{
-				if (aspects[j] == aspectCardinal)
+				//if (aspects[j] == aspectCardinal)
+				if (aspectCardinal == aspects[j])
 				{
 					theRow = j;
 					break;
@@ -468,7 +472,8 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		{
 			for (int k = j; k < (j + 2); k++)
 			{
-				if (elevation == elevationCode[j])
+				//if (elevation == elevationCode[j])
+				if (elevation == elevationCode[k])
 				{
 					theCol = k;
 					break;
