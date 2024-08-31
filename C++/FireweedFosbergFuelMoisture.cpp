@@ -97,7 +97,10 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 		tempF = CtoF(temp);
 	}
 
+	std::cout << "Before FosbergNWCG_GetRFM()." << std::endl;//Temp debugging.
+
 	rfm = FosbergNWCG_GetRFM(tableA_Path, tempF, rh);//Look up the reference fuel moisture.
+	std::cout << "After FosbergNWCG_GetRFM()." << std::endl;//Temp debugging.
 	
 	if (monthOfYear >= 5 && monthOfYear <= 7)//May - July
 	{
@@ -149,6 +152,7 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 	//Look up the correction factor for the conditions specified:
 	correction = FosbergNWCG_GetCorrection(correctionTablePath, hourOfDay, slopePct, aspectCardinal,
 	                                       shaded, elevation);
+	std::cout << "After FosbergNWCG_GetCorrection()." << std::endl;//Temp debugging.
 
 	return rfm + correction;//Combine and return.
 }
@@ -329,6 +333,8 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 
 	int luMatrix[numRows][numCols];
 
+	std::cout << "About to open table file:" << std::endl;//Temp debugging.
+
 	//Open the file:
 	std::ifstream tableFile(tableFilePath);
 	//Error handling?????
@@ -382,7 +388,11 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		Stop("Invalid relative elevation code.");
 	}
 
-	for (int i = 0; i < numRows; i++)
+	std::getline(tableFile, line);
+	lineStr.clear();
+	lineStr.str(line);
+	//for (int i = 0; i < numRows; i++)
+	for (int i = 0; i < numCols; i++)
 	{
 		lineStr >> elevationCode[i];
 	}
@@ -398,13 +408,17 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		lineStr >> shadeID[counter] >> aspects[counter] >> slopeClass[counter];
 
 		//The rest of the line is lookup table values:
-		for (int j = 0; j < numRows; j++)
+		//for (int j = 0; j < numRows; j++)
+		for (int i = 0; i < numCols; i++)
 		{
-			lineStr >> luMatrix[counter][j];
+			//lineStr >> luMatrix[counter][j];
+			lineStr >> luMatrix[counter][i];
 		}
 
 		counter += 1;
 	}
+
+	std::cout << "Table file input." << std::endl;//Temp debugging.
 
 	//Find the matching row by ID:
 	std::string theShadeID;
