@@ -139,11 +139,11 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
   
   #Break into IDs and data:
   
-  #Relative humidity row IDs:
+  #Relative humidity column IDs:
   rhRangeBottoms = df[1, -1]
   rhRangeBottoms = as.numeric(as.vector(rhRangeBottoms))
   
-  #Temperature column IDs:
+  #Temperature row IDs:
   tempRangeBottoms = df[-1, 1]
   
   #Extract the lookup table values:
@@ -155,6 +155,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
   {
     if (i < numTempBins)
     {
+      #The top bound for each bin is the bottom of the next:
       if (tempF >= tempRangeBottoms[i] && tempF < tempRangeBottoms[i + 1])
       {
         tempIndex = i
@@ -163,6 +164,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
     }
     else
     {
+      #The last bin only has a lower temperature bound:
       if (tempF >= tempRangeBottoms[i])
       {
         tempIndex = i
@@ -179,6 +181,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
   {
     if (j < numRHBins)
     {
+      #The top bound for each bin is the bottom of the next:
       if (rh >= rhRangeBottoms[j] && rh < rhRangeBottoms[j + 1])
       {
         rhIndex = j
@@ -187,6 +190,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
     }
     else
     {
+      #The value must match the final bin but we check anyway:
       if (rh == rhRangeBottoms[j])
       {
         rhIndex = j
@@ -213,6 +217,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
 #aspectCardinal = The slope aspect as a cardinal direction (N, E, S, W).
 #  Note: We could add the ability to take the aspect as degrees.
 #shaded = Does the location have 50% or greater canopy cover or is there full cloud cover.
+#  Note: We could also accept a percentage.
 #elevation = A code indicating the slope position for the prediction relative to where the weather
 #  conditions were taken.  Values are:
 #  B: The fire is 1000 - 2000 feet below the location where weather was recorded,
@@ -229,7 +234,7 @@ FosbergNWCG_GetCorrection <- function(tableFilePath, hourOfDay, slopePct, aspect
   #Read in the header IDs as data to avoid conversion to prepended strings:
   df = read.delim(tableFilePath, header = FALSE)
   
-  #Break into IDs and data.  There are 2 row IDs and 3 column IDs:
+  #Break into IDs and data.  There are 3 column IDs and 3 row IDs:
   
   #Column IDs:
   idCols = 1:3
@@ -245,7 +250,7 @@ FosbergNWCG_GetCorrection <- function(tableFilePath, hourOfDay, slopePct, aspect
     stop("Invalid hour of day value or nighttime value passed.")
   }
   #The problem with percent slope is that is becomes huge as it approaches 90 degrees.  However,
-  #realisticly very high slopes should be very rare.  This check is minimal.
+  #realistically very high slopes should be very rare.  This check is minimal.
   if (!InRange(slopePct, 0, 1000))#0 - ~85 degrees.
   {
     stop("Invalid percent slope")
@@ -254,8 +259,7 @@ FosbergNWCG_GetCorrection <- function(tableFilePath, hourOfDay, slopePct, aspect
   {
     stop("Invalid aspect.  Must be a cardinal direction.")
   }
-  #Shaded should be logical but we could also accept a percentage.
-  if (!elevation %in% c("B", "L", "A"))#Could allow lowercase.
+   if (!elevation %in% c("B", "L", "A"))#Could allow lowercase.
   {
     stop("Invalid relative elevation code.")
   }
@@ -306,15 +310,15 @@ FosbergNWCG_GetCorrection <- function(tableFilePath, hourOfDay, slopePct, aspect
   
   #Find the matching column:
   steps = seq(1, length(hourStart), by = 3)#The hours ranges are repeated by threes (B, L, A).
-  for (i in steps)
+  for (j in steps)
   {
-    if (hourOfDay >= hourStart[i] && hourOfDay < hourEnd[i])
+    if (hourOfDay >= hourStart[j] && hourOfDay < hourEnd[j])
     {
-      for (j in i:(i+2))
+      for (k in j:(j+2))
       {
-        if (elevation == elevationCode[j])
+        if (elevation == elevationCode[k])
         {
-          theCol = j
+          theCol = k
           break
         }
       }
@@ -328,7 +332,8 @@ FosbergNWCG_GetCorrection <- function(tableFilePath, hourOfDay, slopePct, aspect
 #The estimation is based on the 1-hour Fosberg fuel moisture.  Rothermel 1981 suggests adding 1%.
 #NWCG suggests adding ~1-2%.  We use the middle of the latter recommendation.
 #
-#Parameters: Fosberg NWCG prediction of 1-hr fuel moisture (fraction: water weight/dry fuel weight).
+#Parameters:
+#oneHrFM = Fosberg NWCG prediction of 1-hr fuel moisture (fraction: water weight/dry fuel weight).
 #
 #Returns: 10-hour fuel moisture (fraction: water weight/dry fuel weight).
 NWCG_10hrFM <- function(oneHrFM)
@@ -340,7 +345,8 @@ NWCG_10hrFM <- function(oneHrFM)
 #The estimation is based on the 1-hour Fosberg fuel moisture.  Rothermel 1981 suggests adding 2%.
 #NWCG suggests adding ~2-4%.  We use the middle of the latter recommendation.
 #
-#Parameters: Fosberg NWCG prediction of 1-hr fuel moisture (fraction: water weight/dry fuel weight).
+#Parameters:
+#oneHrFM = Fosberg NWCG prediction of 1-hr fuel moisture (fraction: water weight/dry fuel weight).
 #
 #Returns: 100-hour fuel moisture (fraction: water weight/dry fuel weight).
 NWCG_100hrFM <- function(oneHrFM)
