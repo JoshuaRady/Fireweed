@@ -169,8 +169,8 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 	the shape.  The RH bins can be easily counted since they are on the first line.  The number
 	of temperature bins on the other hand would require counting rows, which causes a bit more
 	complication.*/
-	const int numRHBins = 21;
-	const int numTempBins = 6;
+	const int numRHBins = 21;//Columns
+	const int numTempBins = 6;//Rows
 	
 	//The temperatures and RHs are all integer but we could treat them as doubles?
 	int rhRangeBottoms[numRHBins];
@@ -200,9 +200,9 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 	std::stringstream lineStr(line);//This line as a stream.
 
 	//The first field will be empty whitespace and will be ignored, the rest are the RH bounds:
-	for (int i = 0; i < numRHBins; i++)
+	for (int j = 0; j < numRHBins; j++)
 	{
-		lineStr >> rhRangeBottoms[i];
+		lineStr >> rhRangeBottoms[j];
 	}
 
 	//Process he following lines:
@@ -342,19 +342,19 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	std::stringstream lineStr(line);//This line as a stream.
 
 	//The first field will be empty whitespace and will be ignored, the rest are the hour bounds:
-	for (int i = 0; i < numCols; i++)
+	for (int j = 0; j < numCols; j++)
 	{
-		lineStr >> hourStart[i];
-		hourStart[i] = hourStart[i] / 100;
+		lineStr >> hourStart[j];
+		hourStart[j] = hourStart[j] / 100;
 	}
 
 	std::getline(tableFile, line);
 	lineStr.clear();
 	lineStr.str(line);
-	for (int i = 0; i < numCols; i++)
+	for (int j = 0; j < numCols; j++)
 	{
-		lineStr >> hourEnd[i];
-		hourEnd[i] = hourEnd[i] / 100;
+		lineStr >> hourEnd[j];
+		hourEnd[j] = hourEnd[j] / 100;
 	}
 
 	//Parameter checking (after extracting hours):
@@ -382,9 +382,9 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	std::getline(tableFile, line);
 	lineStr.clear();
 	lineStr.str(line);
-	for (int i = 0; i < numCols; i++)
+	for (int j = 0; j < numCols; j++)
 	{
-		lineStr >> elevationCode[i];
+		lineStr >> elevationCode[j];
 	}
 
 	//Process he following lines:
@@ -398,9 +398,9 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		lineStr >> shadeID[counter] >> aspects[counter] >> slopeClass[counter];
 
 		//The rest of the line is lookup table values:
-		for (int i = 0; i < numCols; i++)
+		for (int j = 0; j < numCols; j++)
 		{
-			lineStr >> luMatrix[counter][i];
+			lineStr >> luMatrix[counter][j];
 		}
 
 		counter += 1;
@@ -427,15 +427,15 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	  theSlopeID = ">30%";
 	}
 	
-	for (int j = 0; j < numRows; j++)
+	for (int i = 0; i < numRows; i++)
 	{
-		if (theShadeID == shadeID[j])
+		if (theShadeID == shadeID[i])
 		{
-			if (shaded || (theSlopeID == slopeClass[j]))//Only check the slope when unshaded.
+			if (shaded || (theSlopeID == slopeClass[i]))//Only check the slope when unshaded.
 			{
-				if (aspectCardinal == aspects[j])
+				if (aspectCardinal == aspects[i])
 				{
-					theRow = j;
+					theRow = i;
 					break;
 				}
 			}
