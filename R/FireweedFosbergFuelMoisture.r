@@ -40,7 +40,7 @@ source("FireweedUtils.r")
 #Parameters:
 #degreesC = The temperature to convert (degrees Celsius).
 #
-#Note: This chould be moved either to a met utilities or to units.
+#Note: This should be moved either to a met utilities or to units.
 CtoF <- function(degreesC)
 {
   return(degreesC * 9/5 + 32)
