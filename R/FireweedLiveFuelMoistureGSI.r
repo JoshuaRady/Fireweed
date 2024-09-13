@@ -131,15 +131,15 @@ GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
     iPhoto = 1
   }
   
-  GSI = iT_Min * iVPD * iPhoto
-  return(GSI)
+  gsi = iT_Min * iVPD * iPhoto
+  return(gsi)
 }
 
 #Convert the Growing Season Index to live fuel moisture:
 #GSI is linearly scaled to a range of live fuel moisture estimates for a live fuel type with the
 #moisture range passed in.
 #This generic function should not normally be called directly.  Use HerbaceousLiveFuelMoisture()
-#WoodyLiveFuelMoisture() for standard NFDRS 2016 behavior.
+#and WoodyLiveFuelMoisture() for standard NFDRS 2016 behavior.
 #
 #Parameters:
 #gsi = The Growing Season Index value for the location.
@@ -151,11 +151,11 @@ GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
 GSI_LiveFuelMoisture <- function(gsi, lfmMin, lfmMax, gu = 0.5)
 {
   #Validity checking:
-  if (gsi < 0 || gsi > 1.0)
+  if (gsi < 0.0 || gsi > 1.0)
   {
     stop(paste("Invalid GSI value:", gsi))
   }
-  if (gu < 0 || gu > 1.0)#Values at the edges are unlikley too.
+  if (gu < 0.0 || gu > 1.0)#Values at the edges are unlikley too.
   {
     stop(paste("Invalid greenup threshold value:", gu))
   }
