@@ -8,6 +8,17 @@
 #  This file is part of the Fireweed wildfire code library.  It contains an implementation of the
 #GSI live fuel moisture model used in the National Danger Rating System (NFDRS) 2016.
 #
+#  Growing Season Index (GSI) is a index that can be used to predict phenological stage, such as
+#greenup and greendown globally.  It is calculated from daily weather conditions and during the
+#growing season its value can be viewed as a predictor of moisture content in plants that respond
+#quickly to environmental conditions.  NFDRS uses GSI as a basis for prediction of live fuel
+#moisture.
+#  GSI, as well as herbaceous, and woody live fuel moisture are calculated daily but these values
+#should not be used directly.  GSI values can change quickly with daily weather and plants should
+#not be expected to respond as quickly.  Therefore the standard procedure is to a 21 day running
+#average.  The authors also suggest that using monthly mean values as inputs may also provide an
+#appropriate smoothing.
+#
 #References:----------------------------------------------------------------------------------------
 #
 #A Generalized, Bioclimatic Index to Predict Foliar Phenology in Response to Climate.
@@ -38,8 +49,6 @@
 #dayLength = Daylight length or photoperiod (seconds).
 #
 #Returns: The Growing Season Index (GSI) ranging from 0 (inactive) - 1 (unconstrained) (unitless).
-#
-#Modified slightly from Proj_11_Exp_20_Analysis.r GrowingSeasonIndexD2().
 GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
 {
   #Model parameters defining the range over with plants go from phenologially inactive to
@@ -52,6 +61,27 @@ GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
   VPD_Max = 4100#Pa
   Photo_Min = 36000#Seconds = 10 hours
   Photo_Max = 39600#Seconds = 11 hours
+  
+  #Validity checking:
+  #For temperatures any value above 0K is valid, but this doesn't seem like a very useful check.
+  #We could check that the value is in a likely range.
+  #VPD reaches ~10,000 Pa at 46C and 0% RH at sea level.  That is extremely high so this may not
+  #catch much, especially since we use Pa.  Using the wrong units will likely decrease the value
+  #(e.g. using kPa or hPa):
+  if (vpdPa < 0)
+  {
+    stop("VPD must be positive.")
+  }
+  else if (vpdPa > 10000)
+  {
+    warning(paste("Very unlikely VPD value:", vpdPa))
+  }
+  #Day length can reach extreems in the far north.  Since we are using seconds we are unlikely to
+  #catch the wrong units (e.g. hours or minutes):
+  if (dayLength < 0 || dayLength > 86400)#24 hours
+  {
+    stop(paste("Invalid day length:", dayLength))
+  }
   
   #Minimum temperature index:
   #Jolly, Nemani, & Running 2005 equation 1.
@@ -120,6 +150,16 @@ GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
 #Returns: Percent live fuel moisture (water weight/dry fuel weight * 100%).
 GSI_LiveFuelMoisture <- function(gsi, lfmMin, lfmMax, gu = 0.5)
 {
+  #Validity checking:
+  if (gsi < 0 || gsi > 1.0)
+  {
+    stop(paste("Invalid GSI value:", gsi))
+  }
+  if (gu < 0 || gu > 1.0)#Values at the edges are unlikley too.
+  {
+    stop(paste("Invalid greenup threshold value:", gu))
+  }
+  
   m = (lfmMax - lfmMin) / (1.0 - gu)#Slope
   b = lfmMax - m#Intercept
   
