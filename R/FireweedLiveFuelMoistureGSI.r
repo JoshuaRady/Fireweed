@@ -39,7 +39,7 @@
 #
 #Returns: The Growing Season Index (GSI) ranging from 0 (inactive) - 1 (unconstrained) (unitless).
 #
-#Modified slight from Proj_11_Exp_20_Analysis.r GrowingSeasonIndexD2().
+#Modified slightly from Proj_11_Exp_20_Analysis.r GrowingSeasonIndexD2().
 GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
 {
   #Model parameters defining the range over with plants go from phenologially inactive to
@@ -103,4 +103,64 @@ GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
   
   GSI = iT_Min * iVPD * iPhoto
   return(GSI)
+}
+
+#Convert the Growing Season Index to live fuel moisture:
+#GSI is linearly scaled to a range of live fuel moisture estimates for a live fuel type with the
+#moisture range passed in.
+#This generic function should not normally be called directly.  Use HerbaceousLiveFuelMoisture()
+#WoodyLiveFuelMoisture() for standard NFDRS 2016 behavior.
+#
+#Parameters:
+#gsi = The Growing Season Index value for the location.
+#lfmMin = Minimum live fuel moisture parameter.
+#lfmMax = Maximum live fuel moisture parameter.
+#gu = GSI greenup threshold, defaults to 0.5 (unitless index value).
+#
+#Returns: Percent live fuel moisture (water weight/dry fuel weight * 100%).
+GSI_LiveFuelMoisture <- function(gsi, lfmMin, lfmMax, gu = 0.5)
+{
+  m = (lfmMax - lfmMin) / (1.0 - gu)#Slope
+  b = lfmMax - m#Intercept
+  
+  if (gsi < gu)
+  {
+    lfm = lfmMin
+  }
+  else#(gsi >= gu)
+  {
+    lfm = m * gsi + b
+  }
+  
+  return(lfm)
+}
+
+#Live herbaceous fuel moisture:
+#
+#Parameters:
+#gsi = The Growing Season Index value for the location.
+#
+#Returns: Percent live fuel moisture (water weight/dry fuel weight * 100%).
+HerbaceousLiveFuelMoisture <- function(gsi)
+{
+  Min_H = 30#Minimum live fuel moisture parameter.
+  Max_H = 250#Maximum live fuel moisture parameter.
+  gu_H = 0.5#Default GSI greenup threshold.
+
+  return(GSI_LiveFuelMoisture(gsi, Min_H, Max_H, gu_H))
+}
+
+#Live woody fuel moisture:
+#
+#Parameters:
+#gsi = The Growing Season Index value for the location.
+#
+#Returns: Percent live fuel moisture (water weight/dry fuel weight * 100%).
+WoodyLiveFuelMoisture <- function(gsi)
+{
+  Min_W = 60#Minimum live fuel moisture parameter.
+  Max_W = 200#Maximum live fuel moisture parameter.
+  gu_W = 0.5#Default GSI greenup threshold.
+  
+  return(GSI_LiveFuelMoisture(gsi, Min_W, Max_W, gu_W))
 }
