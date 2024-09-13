@@ -40,7 +40,7 @@ reference but it is the only documentation I have been able to find thus far.
 
 #include <string>
 
-#include FireweedLiveFuelMoistureGSI.h
+#include "FireweedLiveFuelMoistureGSI.h"
 #include "FireweedMessaging.h"
 
 //Code:---------------------------------------------------------------------------------------------
