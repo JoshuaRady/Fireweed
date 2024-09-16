@@ -70,5 +70,6 @@ const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;
  */
  
 double CtoF(double degreesC);
+double FtoC(double degreesF);
 
 #endif

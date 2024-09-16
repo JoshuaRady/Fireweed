@@ -58,5 +58,16 @@ tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre#*
 #Returns: Temperature in degrees Fahrenheit.
 CtoF <- function(degreesC)
 {
-  return(degreesC * 9/5 + 32)
+  return((degreesC * 9/5) + 32)
+}
+
+#Convert a temperature in degrees Fahrenheit to degrees Celsius:
+#
+#Parameters:
+#degreesF = The temperature to convert (degrees Fahrenheit).
+#
+#Returns: Temperature in degrees Celsius.
+FtoC <- function(degreesF)
+{
+  return((degreesF - 32) * 5/9)
 }
