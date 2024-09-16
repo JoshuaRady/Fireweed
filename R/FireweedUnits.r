@@ -6,7 +6,7 @@
 #
 #Description:---------------------------------------------------------------------------------------
 #  This file is part of the Fireweed wildfire code library.
-#  This file defines unit constants and conversion factors used in the library.
+#  This file contains unit constants, conversion factors, and functions used in the library.
 #
 #___________________________________________________________________________________________________
 
