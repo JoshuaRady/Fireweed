@@ -35,17 +35,6 @@ source("FireweedUtils.r")
 
 #Code:----------------------------------------------------------------------------------------------
 
-#Convert a temperature in degrees Celsius to degrees Fahrenheit:
-#
-#Parameters:
-#degreesC = The temperature to convert (degrees Celsius).
-#
-#Note: This should be moved either to a met utilities or to units.
-CtoF <- function(degreesC)
-{
-  return(degreesC * 9/5 + 32)
-}
-
 #Return an estimate of the 1-hour dead fuel moisture based on the conditions passed.  The modified
 #Fosberg lookup table method presented in Rothermel 1981 and adopted by the NWCG is used.
 #

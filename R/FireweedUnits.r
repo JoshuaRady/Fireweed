@@ -47,3 +47,16 @@ kJPerBtu = 1.05435
 
 #tons/ac -> lb/ft^2: (See fuel loading note in FireweedFuelModels.r.)
 tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre#*
+
+#Code:----------------------------------------------------------------------------------------------
+
+#Convert a temperature in degrees Celsius to degrees Fahrenheit:
+#
+#Parameters:
+#degreesC = The temperature to convert (degrees Celsius).
+#
+#Returns: Temperature in degrees Fahrenheit.
+CtoF <- function(degreesC)
+{
+  return(degreesC * 9/5 + 32)
+}
