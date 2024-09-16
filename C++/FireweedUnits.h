@@ -6,7 +6,8 @@ Started: 7/12/2024
 Reference: Proj. 11 Exp. 19
 
 	This file is part of the Fireweed wildfire code library.
-	This header file defines unit constants and conversion factors used in the library.
+	This header file defines unit constants and conversion factors and declares unit functions used
+in the library.
 
 ***************************************************************************************************/
 #ifndef FIREWEEDUNITS_H
@@ -62,5 +63,12 @@ const double kJPerBtu = 1.05435;
 
 //tons/ac -> lb/ft^2: (See fuel loading note in FireweedFuelModels.cpp.)
 const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;
+
+//--------------------------------------------------------------------------------------------------
+/** Unit Functions
+ *
+ */
+ 
+double CtoF(double degreesC);
 
 #endif

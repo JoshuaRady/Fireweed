@@ -42,17 +42,6 @@ Wildfire Coordinating Group (NWCG) and are included in the NWCG Incident Respons
 
 //Code:---------------------------------------------------------------------------------------------
 
-/** Convert a temperature in degrees Celsius to degrees Fahrenheit:
-* 
-* @param degreesC The temperature to convert (degrees Celsius).
-* 
-* @note This chould be moved either to a met utilities or to units.
- */
-double CtoF(double degreesC)
-{
-  return degreesC * 9/5 + 32;
-}
-
 /** Return an estimate of the 1-hour dead fuel moisture based on the conditions passed.  The
  * modified Fosberg lookup table method presented in Rothermel 1981 and adopted by the NWCG is used.
  * 
