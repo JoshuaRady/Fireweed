@@ -2,8 +2,8 @@
 FireweedUnits.cpp
 Programmed by: Joshua M. Rady
 Woodwell Climate Research Center
-Started: 9/16/2024
-Reference: Proj. 11 Exp. 19
+2024
+Reference: Proj. 11 Exp. 19, 20
 
 	This file is part of the Fireweed wildfire code library.
 	This header file defines unit conversion functions used in the library.
