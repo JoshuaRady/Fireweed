@@ -1,5 +1,5 @@
 /***************************************************************************************************
-FireweedFosbergFuelMoisture.h
+FireweedDeadFuelMoistureFosberg.h
 Programmed by: Joshua M. Rady
 Woodwell Climate Research Center
 2024
@@ -10,8 +10,8 @@ Description:--------------------------------------------------------------------
 Fosberg dead fuel moisture model, specifically the Rothermel 1981 / NWCG variant.
 
 ***************************************************************************************************/
-#ifndef FIREWEEDFOSBERGFUELMOISTURE_H
-#define FIREWEEDFOSBERGFUELMOISTURE_H
+#ifndef FIREWEEDDEADFUELMOISTUREFOSBERG_H
+#define FIREWEEDDEADFUELMOISTUREFOSBERG_H
 
 #include <string>
 #include <vector>
@@ -31,4 +31,4 @@ double NWCG_100hrFM(double oneHrFM);
 bool FosbergNWCG_1HrFM_UnitTest(std::string tableA_Path, std::string tableB_Path,
                                 std::string tableC_Path, std::string tableD_Path);
 
-#endif //FIREWEEDFOSBERGFUELMOISTURE_H
+#endif //FIREWEEDDEADFUELMOISTUREFOSBERG_H

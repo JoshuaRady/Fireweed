@@ -1,4 +1,4 @@
-#FireweedFosbergFuelMoisture.r
+#FireweedDeadFuelMoistureFosberg.r
 #Programmed by: Joshua M. Rady
 #Woodwell Climate Research Center
 #2024

@@ -1,5 +1,5 @@
 /***************************************************************************************************
-FireweedFosbergFuelMoisture.cpp
+FireweedDeadFuelMoistureFosberg.cpp
 Programmed by: Joshua M. Rady
 Woodwell Climate Research Center
 2024
@@ -36,7 +36,7 @@ Wildfire Coordinating Group (NWCG) and are included in the NWCG Incident Respons
 #include <iostream>
 #include <sstream>
 
-#include "FireweedFosbergFuelMoisture.h"
+#include "FireweedDeadFuelMoistureFosberg.h"
 #include "FireweedMessaging.h"
 #include "FireweedUtils.h"
 
