@@ -78,7 +78,7 @@ SaturationVaporPressureTetens <- function(tempC)
 #Parameters:
 #tempC = The air temperature (degrees Celsius).
 #p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
-#  This is used for the enhangment factor calculation,
+#  This is used for the enhancement factor calculation,
 #
 #Returns: The saturation vapor pressure of water in moist air, P_s or e' sub s (hPa = millibars).
 #
@@ -138,4 +138,45 @@ SaturationVaporPressureBuck <- function(tempC, p_hPa = 1013)
   }
   
   return(P_s)
+}
+
+#Calculate the vapor pressure deficit (VPD) from relative humidity, temperature, and the saturation
+#vapor pressure of water.
+#
+#This version allows the use to choose how they calculate P_s.
+#
+#Parameters:
+#tempC = The air temperature (degrees Celsius).
+#rhPct = Relactive humidity (%).
+#p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
+#P_s = The saturation vapor pressure of water in moist air (hPa).
+#
+#Returns: Vapor pressure deficit (hPa).
+VPDfromRH <- function(tempC, rhPct, P_s)
+{
+  vpd_hPa = P_s * (1 - (rhPct / 100))
+  
+  #Check value for validity:
+  if (vpd_hPa < 0)
+  {
+    stop(paste("Invalid VPD:", vpd_hPa))
+  }
+  
+  return(vpd_hPa)
+}
+
+#Calculate the vapor pressure deficit (VPD) from relative humidity and temperature and using the
+#Buck equation for he saturation vapor pressure of water in moist air:
+#
+#Parameters:
+#tempC = The air temperature (degrees Celsius).
+#rhPct = Relactive humidity (%).
+#p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
+#
+#Returns: Vapor pressure deficit (hPa).
+VPDfromRHBuck <- function(tempC, rhPct, p_hPa = 1013)
+{
+  P_s = SaturationVaporPressureBuck(tempC, p_hPa)
+  vpd_hPa = VPDfromRH(tempC, rhPct, P_s)
+  return(vpd_hPa)
 }
