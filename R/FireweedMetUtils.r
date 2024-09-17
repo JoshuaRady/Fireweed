@@ -38,6 +38,8 @@
 
 #Code:----------------------------------------------------------------------------------------------
 
+#Saturation Vapor Pressure:-------------------------------------------------------------------------
+
 #Calculate the saturation vapor pressure of water vapor using the Tetens equation:
 #
 #The Tetens equation is the Magnus equation form with different parameters.  I have not be able to
@@ -50,7 +52,7 @@
 #Parameters:
 #tempC = The air temperature (degrees Celsius).
 #
-#Returns: The saturation vapor pressure of water vapor, P_s or e_s (hPa = millibar).
+#Returns: The saturation vapor pressure of water vapor, P_s, P_sat, vp_sat, or e_s (hPa = millibar).
 SaturationVaporPressureTetens <- function(tempC)
 {
   #The formulation in Murray 1967 is:
@@ -139,6 +141,11 @@ SaturationVaporPressureBuck <- function(tempC, p_hPa = 1013)
   
   return(P_s)
 }
+
+#Dew Point:-----------------------------------------------------------------------------------------
+
+
+#Vapor Pressure Deficit:----------------------------------------------------------------------------
 
 #Calculate the vapor pressure deficit (VPD) from relative humidity, temperature, and the saturation
 #vapor pressure of water.
