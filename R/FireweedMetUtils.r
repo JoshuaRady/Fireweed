@@ -80,7 +80,7 @@ SaturationVaporPressureTetens <- function(tempC)
 #Parameters:
 #tempC = The air temperature (degrees Celsius).
 #p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
-#  This is used for the enhancement factor calculation,
+#  This is used for the enhancement factor calculation.
 #
 #Returns: The saturation vapor pressure of water in moist air, P_s or e' sub s (hPa = millibars).
 #
@@ -144,6 +144,65 @@ SaturationVaporPressureBuck <- function(tempC, p_hPa = 1013)
 
 #Dew Point:-----------------------------------------------------------------------------------------
 
+#Relative Humidity:---------------------------------------------------------------------------------
+
+#Calculate relative humidity from vapor pressures.
+#
+#This function is not that useful by itself because having both vapor pressures as inputs is not
+#that common.  Rather this function is used by other functions with more useful inputs.  This also
+#allows error checks to be centralized.
+#
+#Parameters:
+#P = The partial pressure of water vapor in air (hPa or other).
+#P_s = The saturation vapor pressure of water in air (hPa or other).
+#
+#Returns: Relative humidity (%).
+#
+#Note: As long as the units of both pressures are the same the the result will be valid.
+RHfromVP <- function(P, P_s)
+{
+  #Negative pressures are not physically possible:
+  if (P < 0)
+  {
+    stop("The partial pressure of water can't be negative")
+  }
+  if (P_s < 0)
+  {
+    stop("The saturation vapor pressure of water can't be negative")
+  }
+  
+  rhPct = P / P_s * 100
+  
+  #Check that the calulated value is valid:
+  if (rhPct > 100)
+  {
+    #Because of small numerical inaccuracies in the pressures the calculated RH might exceed 100%.
+    #The error should be small though, and the user may want to know:
+    #I need to determine a reasonable upper cutoff.
+    warning(paste("Calculated relative humidity it above 100: ", rhPct, "%. Setting to 100.",
+                  sep = ''))
+    rhPct = 100
+  }
+  
+  return(rhPct)
+}
+
+#Convert dew point at a given temperature to relative humidity using the Buck equation.
+#
+#Parameters:
+#tempC = The air temperature (degrees Celsius).
+#T_d = Dew point temperature (degrees Celsius).
+#p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
+#
+#Returns: Relative humidity (%).
+RHfromDewPointBuck <- function(tempC, T_d, p_hPa = 1013)#or DewPointToRH_Buck
+{
+  P_s = SaturationVaporPressureBuck2(tempC, p_hPa)
+  P = SaturationVaporPressureBuck2(T_d, p_hPa)
+  
+  rhPct = RHfromVP(P, P_s)
+  return(rhPct)
+}
 
 #Vapor Pressure Deficit:----------------------------------------------------------------------------
 
@@ -154,7 +213,7 @@ SaturationVaporPressureBuck <- function(tempC, p_hPa = 1013)
 #
 #Parameters:
 #tempC = The air temperature (degrees Celsius).
-#rhPct = Relactive humidity (%).
+#rhPct = Relative humidity (%).
 #p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
 #P_s = The saturation vapor pressure of water in moist air (hPa).
 #
