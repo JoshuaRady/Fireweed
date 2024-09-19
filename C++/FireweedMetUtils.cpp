@@ -145,3 +145,66 @@ double SaturationVaporPressureBuck(double tempC, double p_hPa)
 
 	return P_s;
 }
+
+//Relative Humidity:--------------------------------------------------------------------------------
+
+/* Calculate relative humidity from vapor pressures.
+ * 
+ * This function is not that useful by itself because having both vapor pressures as inputs is not
+ * that common.  Rather this function is used by other functions with more useful inputs.  This also
+ * allows error checks to be centralized.
+ * 
+ * @aram P The partial pressure of water vapor in air (hPa or other).
+ * @aram P_s The saturation vapor pressure of water in air (hPa or other).
+ * 
+ * @returns Relative humidity (%).
+ * 
+ * Note: As long as the units of both pressures are the same the the result will be valid.
+ */
+double RHfromVP(double P, double P_s)
+{
+	double rhPct;//Return value.
+
+	//Negative pressures are not physically possible:
+	if (P < 0)
+	{
+		Stop("The partial pressure of water can't be negative.");
+	}
+	if (P_s < 0)
+	{
+		Stop("The saturation vapor pressure of water can't be negative.");
+	}
+
+	rhPct = P / P_s * 100;
+
+	//Check that the calulated value is valid:
+	if (rhPct > 100)
+	{
+		//Because of small numerical inaccuracies in the pressures the calculated RH might exceed 100%.
+		//The error should be small though, and the user may want to know:
+		//I need to determine a reasonable upper cutoff.
+		Warning("Calculated relative humidity it above 100: " + std::tp_string(rhPct) + "%. Setting to 100.");
+		rhPct = 100;
+	}
+
+	return rhPct;
+}
+
+/* Convert dew point at a given temperature to relative humidity using the Buck equation.
+ * 
+ * @aram tempC The air temperature (degrees Celsius).
+ * @aram T_d Dew point temperature (degrees Celsius).
+ * @aram p_hPa (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
+ * 
+ * @returns Relative humidity (%).
+ */
+double RHfromDewPointBuck(double tempC, double T_d, double p_hPa)
+{
+	double rhPct;//Return value.
+
+	double P_s = SaturationVaporPressureBuck2(tempC, p_hPa);
+	double P = SaturationVaporPressureBuck2(T_d, p_hPa);
+
+	rhPct = RHfromVP(P, P_s);
+	return(rhPct)
+}
