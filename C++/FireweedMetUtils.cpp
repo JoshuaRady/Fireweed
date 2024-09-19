@@ -208,3 +208,45 @@ double RHfromDewPointBuck(double tempC, double T_d, double p_hPa)
 	rhPct = RHfromVP(P, P_s);
 	return(rhPct)
 }
+
+//Vapor Pressure Deficit:---------------------------------------------------------------------------
+
+/** Calculate the vapor pressure deficit (VPD) from relative humidity, temperature, and the
+ * saturation vapor pressure of water.
+ * 
+ * This version allows the user to choose how they calculate P_s.
+ * 
+ * @aram tempC The air temperature (degrees Celsius).
+ * @aram rhPct Relative humidity (%).
+ * @aram P_s The saturation vapor pressure of water in moist air (hPa).
+ * 
+ * @returns Vapor pressure deficit (hPa).
+ */
+double VPDfromRH(double tempC, double rhPct, double P_s)
+{
+	double vpd_hPa = P_s * (1 - (rhPct / 100));
+
+	//Check value for validity:
+	if (vpd_hPa < 0)
+	{
+		Stop("Invalid VPD:" + std::to_string(vpd_hPa));
+	}
+
+	return vpd_hPa;
+}
+
+/** Calculate the vapor pressure deficit (VPD) from relative humidity and temperature and using the
+ * Buck equation for he saturation vapor pressure of water in moist air:
+ * 
+ * @aram tempC The air temperature (degrees Celsius).
+ * @aram rhPct Relactive humidity (%).
+ * @aram p_hPa (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
+ * 
+ * @returns Vapor pressure deficit (hPa).
+ */
+double VPDfromRHBuck(double tempC, double rhPct, double p_hPa = 1013)
+{
+	double P_s = SaturationVaporPressureBuck(tempC, p_hPa);
+	double vpd_hPa = VPDfromRH(tempC, rhPct, P_s);
+	return vpd_hPa;
+}
