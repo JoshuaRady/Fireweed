@@ -89,7 +89,8 @@ SaturationVaporPressureBuck <- function(tempC, p_hPa = 1013)
   #The upper bound of the range is unclear with these parameters, it may be as high as 100C.
   if (tempC < -80 || tempC > 50)
   {
-    warning(paste("Temperature", tempC, "C is outside accuracy range of Buck equation parameters."))
+    warning(paste("Temperature", tempC,
+                  "C may be outside the accuracy range of this Buck equation parameter set."))
   }
   
   #Buck 1981 actually includes a set related equations with three or four parameters fit for
@@ -159,11 +160,11 @@ RHfromVP <- function(P, P_s)
   #Negative pressures are not physically possible:
   if (P < 0)
   {
-    stop("The partial pressure of water can't be negative")
+    stop("The partial pressure of water can't be negative.")
   }
   if (P_s < 0)
   {
-    stop("The saturation vapor pressure of water can't be negative")
+    stop("The saturation vapor pressure of water can't be negative.")
   }
   
   rhPct = P / P_s * 100
@@ -204,7 +205,7 @@ RHfromDewPointBuck <- function(tempC, T_d, p_hPa = 1013)#or DewPointToRH_Buck
 #Calculate the vapor pressure deficit (VPD) from relative humidity, temperature, and the saturation
 #vapor pressure of water.
 #
-#This version allows the use to choose how they calculate P_s.
+#This version allows the user to choose how they calculate P_s.
 #
 #Parameters:
 #tempC = The air temperature (degrees Celsius).
