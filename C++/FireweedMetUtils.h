@@ -13,6 +13,7 @@ Description:--------------------------------------------------------------------
 #ifndef FIREWEEDMETUTILS_H
 #define FIREWEEDMETUTILS_H
 
-
+double SaturationVaporPressureTetens(double tempC);
+double SaturationVaporPressureBuck(double tempC, double p_hPa = 1013);
 
 #endif //FIREWEEDMETUTILS_H
