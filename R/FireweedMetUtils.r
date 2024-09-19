@@ -6,7 +6,7 @@
 #
 #Description:---------------------------------------------------------------------------------------
 #  This is part of the Fireweed wildfire code library.
-#  This file contains utility function for meteorological properties.
+#  This file contains utility functions for calculatina and converting meteorological properties.
 #
 #References:----------------------------------------------------------------------------------------
 #
@@ -32,9 +32,6 @@
 #2012 but this appendix has was last revised in 1996 and sources cite it as Buck 1996.
 #
 #___________________________________________________________________________________________________
-
-# source("FireweedUnits.r")
-# source("FireweedUtils.r")
 
 #Code:----------------------------------------------------------------------------------------------
 
@@ -141,8 +138,6 @@ SaturationVaporPressureBuck <- function(tempC, p_hPa = 1013)
   
   return(P_s)
 }
-
-#Dew Point:-----------------------------------------------------------------------------------------
 
 #Relative Humidity:---------------------------------------------------------------------------------
 
