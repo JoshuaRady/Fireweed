@@ -34,7 +34,7 @@ factor equation, which can replace the table values from the original paper.
 
 ***************************************************************************************************/
 
-#include <math.h>//pow()
+#include <cmath>//pow()
 
 #include "FireweedMessaging.h"
 #include "FireweedMetUtils.h"
