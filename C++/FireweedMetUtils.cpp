@@ -34,6 +34,8 @@ factor equation, which can replace the table values from the original paper.
 
 ***************************************************************************************************/
 
+#include <math.h>//pow()
+
 #include "FireweedMessaging.h"
 #include "FireweedMetUtils.h"
 
@@ -66,7 +68,7 @@ double SaturationVaporPressureTetens(double tempC)
 	}
 	else//Over ice:
 	{
-		e_s = 6.1078 * exp((21.8745584 * tempC) / (tempC + 265.5))
+		e_s = 6.1078 * exp((21.8745584 * tempC) / (tempC + 265.5));
 	}
 
 	return e_s;
@@ -106,17 +108,17 @@ double SaturationVaporPressureBuck(double tempC, double p_hPa)
 
 	//Buck coefficients for over water:
 	//These are the values from Buck 1996.  They are most similar to Buck 1981 parameter set e_w4.
-	buck_a_w = 6.1121;//hPa
-	buck_b_w = 18.678;
-	buck_c_w = 257.14;//Degrees C
-	buck_d_w = 234.5;//Degrees C
+	double buck_a_w = 6.1121;//hPa
+	double buck_b_w = 18.678;
+	double buck_c_w = 257.14;//Degrees C
+	double buck_d_w = 234.5;//Degrees C
 	
 	//Buck coefficients for over ice:
 	//These are the same for Buck 1981 parameter set e_i3 and Buck 1996.
-	buck_a_i = 6.1115;//hPa
-	buck_b_i = 23.036;
-	buck_c_i = 279.82;//Degrees C
-	buck_d_i = 333.7;//Degrees C
+	double buck_a_i = 6.1115;//hPa
+	double buck_b_i = 23.036;
+	double buck_c_i = 279.82;//Degrees C
+	double buck_d_i = 333.7;//Degrees C
 	
 	//The original Buck 1981 notation is (equation 4a):
 	//e_w or e_i = a x exp[(b - T/d)T / (T + c)]
@@ -130,7 +132,7 @@ double SaturationVaporPressureBuck(double tempC, double p_hPa)
 	{
 		//Enhancement factor over water:
 		//This EF version as function of pressure and temp is from Buck 1996.
-		double EF_w = 1 + 10^-4 * (7.2 + p_hPa * (0.0320 + 5.9 * 10^-6 * pow(tempC, 2)));
+		double EF_w = 1 + pow(10, -4) * (7.2 + p_hPa * (0.0320 + 5.9 * pow(10, -6) * pow(tempC, 2)));
 
 		P_s = EF_w * buck_a_w * exp((buck_b_w - (tempC / buck_d_w)) * (tempC / (buck_c_w + tempC)));
 	}
@@ -138,7 +140,7 @@ double SaturationVaporPressureBuck(double tempC, double p_hPa)
 	{
 		//Enhancement factor over ice:
 		//This EF version as a function of pressure and temp is from Buck 1996.
-		double EF_i = 1 + 10^-4 * (2.2 + p_hPa * (0.0383 + 6.4 * 10^-6 * pow(tempC, 2)));
+		double EF_i = 1 + pow(10, -4) * (2.2 + p_hPa * (0.0383 + 6.4 * pow(10, -6) * pow(tempC, 2)));
 	
 		P_s = EF_i * buck_a_i * exp((buck_b_i - (tempC / buck_d_i)) * (tempC / (buck_c_i + tempC)));
 	}
@@ -183,7 +185,7 @@ double RHfromVP(double P, double P_s)
 		//Because of small numerical inaccuracies in the pressures the calculated RH might exceed 100%.
 		//The error should be small though, and the user may want to know:
 		//I need to determine a reasonable upper cutoff.
-		Warning("Calculated relative humidity it above 100: " + std::tp_string(rhPct) + "%. Setting to 100.");
+		Warning("Calculated relative humidity it above 100: " + std::to_string(rhPct) + "%. Setting to 100.");
 		rhPct = 100;
 	}
 
@@ -202,11 +204,11 @@ double RHfromDewPointBuck(double tempC, double T_d, double p_hPa)
 {
 	double rhPct;//Return value.
 
-	double P_s = SaturationVaporPressureBuck2(tempC, p_hPa);
-	double P = SaturationVaporPressureBuck2(T_d, p_hPa);
+	double P_s = SaturationVaporPressureBuck(tempC, p_hPa);
+	double P = SaturationVaporPressureBuck(T_d, p_hPa);
 
 	rhPct = RHfromVP(P, P_s);
-	return(rhPct)
+	return rhPct;
 }
 
 //Vapor Pressure Deficit:---------------------------------------------------------------------------
@@ -244,7 +246,7 @@ double VPDfromRH(double tempC, double rhPct, double P_s)
  * 
  * @returns Vapor pressure deficit (hPa).
  */
-double VPDfromRHBuck(double tempC, double rhPct, double p_hPa = 1013)
+double VPDfromRHBuck(double tempC, double rhPct, double p_hPa)
 {
 	double P_s = SaturationVaporPressureBuck(tempC, p_hPa);
 	double vpd_hPa = VPDfromRH(tempC, rhPct, P_s);
