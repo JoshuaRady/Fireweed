@@ -193,8 +193,8 @@ RHfromVP <- function(P, P_s)
 #Returns: Relative humidity (%).
 RHfromDewPointBuck <- function(tempC, T_d, p_hPa = 1013)#or DewPointToRH_Buck
 {
-  P_s = SaturationVaporPressureBuck2(tempC, p_hPa)
-  P = SaturationVaporPressureBuck2(T_d, p_hPa)
+  P_s = SaturationVaporPressureBuck(tempC, p_hPa)
+  P = SaturationVaporPressureBuck(T_d, p_hPa)
   
   rhPct = RHfromVP(P, P_s)
   return(rhPct)
