@@ -7,7 +7,7 @@ Reference: Proj. 11 Exp. 20
 
 Description:---------------------------------------------------------------------------------------
 	This is part of the Fireweed wildfire code library.
-	This file declares utility functions for calculatina and converting meteorological properties.
+	This file declares utility functions for calculating and converting meteorological properties.
 
 ***************************************************************************************************/
 #ifndef FIREWEEDMETUTILS_H

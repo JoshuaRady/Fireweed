@@ -7,7 +7,10 @@ Reference: Proj. 11 Exp. 20
 
 Description:---------------------------------------------------------------------------------------
 	This is part of the Fireweed wildfire code library.
-	This file defines utility functions for calculatina and converting meteorological properties.
+	This file defines utility functions for calculating and converting meteorological properties.
+
+	This is not intended to be a comprehensive library.  Rather it provides a few calculations that
+are helpful when using and connecting other components of the library.
 
 References:----------------------------------------------------------------------------------------
 
@@ -212,6 +215,8 @@ double RHfromDewPointBuck(double tempC, double T_d, double p_hPa)
 }
 
 //Vapor Pressure Deficit:---------------------------------------------------------------------------
+//Vapor pressure deficit seems to be most commonly reported in kPs.  We used hPa here to be
+//consistent across equations.
 
 /** Calculate the vapor pressure deficit (VPD) from relative humidity, temperature, and the
  * saturation vapor pressure of water.
@@ -238,7 +243,7 @@ double VPDfromRH(double tempC, double rhPct, double P_s)
 }
 
 /** Calculate the vapor pressure deficit (VPD) from relative humidity and temperature and using the
- * Buck equation for he saturation vapor pressure of water in moist air:
+ * Buck equation for the saturation vapor pressure of water in moist air:
  * 
  * @aram tempC The air temperature (degrees Celsius).
  * @aram rhPct Relactive humidity (%).
