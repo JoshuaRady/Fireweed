@@ -48,7 +48,9 @@ The Rothermel Albini spread model use the concept of **fuel models** to characte
 
 ### Fuel Moisture
 
-Equations for calculating dead fuel moisture according using the Rothermel 1981 / NWCG variant of the Fosberg model are included.  Dead fuel moisture can be calculated using the GSI based system used in NFDRS 2016.
+Equations for calculating dead fuel moisture are provided using the Rothermel 1981 / NWCG variant of the Fosberg model.  This method has the advantage of only requiring current day weather conditions but its estimates are made through a simple lookup table based calculation.  We plan to add more robust method in the near future.
+
+Dead fuel moisture can be calculated using an implementation of the GSI based system used in NFDRS 2016.
 
 ### Other
 
