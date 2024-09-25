@@ -49,7 +49,8 @@ source("FireweedUtils.r")
 #monthOfYear = The numeric month of year (1 - 12).
 #hourOfDay = The numeric hour of day in 24 hour format (1 - 24).
 #slopePct = Percent slope of the location (rise / run x 100%).
-#aspectCardinal = The aspect of the slope as a cardinal direction (N, E, S, W).
+#aspect = The aspect of the local slope as a cardinal direction (N, E, S, W passed as a character)
+#  or a bearing (degrees from North, 0-360).
 #shaded = Does the location have 50% or greater canopy cover or is there full cloud cover.
 #  This could be converted to a percentage.
 #elevation = A code indicating the slope position for the prediction relative to where the weather
@@ -64,7 +65,7 @@ source("FireweedUtils.r")
 #
 #Based on Proj_11_Exp_20_Analysis.r FosbergNWCG_Table1HrFM2().
 FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path,
-                              temp, rh, monthOfYear, hourOfDay, slopePct, aspectCardinal,
+                              temp, rh, monthOfYear, hourOfDay, slopePct, aspect,
                               shaded = FALSE, elevation = "L", units = "Metric")
 {
   #Convert the temperature if needed:
@@ -75,6 +76,56 @@ FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path
   else#units == "Metric"
   {
     tempF = CtoF(temp)
+  }
+  
+  #Check the aspect:
+  aspectErrStr = "Invalid aspect. Aspect must be a cardinal direction (N, E, S, W) or bearing in degrees."
+  
+  if (class(aspect) == "character")
+  {
+    if (aspect %in% c("N", "E", "S", "W"))
+    {
+      aspectCardinal = aspect
+    }
+    else
+    {
+      stop(aspectErrStr)
+    }
+  }
+  else if (is.numeric())
+  {
+    if (InRange(aspect, 0, 360))
+    {
+      #This is imperfect as NE = 45 degrees must be lumped into either N or E, and so on.  We lump
+      #counterclockwise.
+      if (aspect > 45)
+      {
+        if (aspect <= 135)
+        {
+          aspectCardinal = "E"
+        }
+        else if (aspect <= 225)
+        {
+          aspectCardinal = "S"
+        }
+        else if (aspect <= 315)
+        {
+          aspectCardinal = "W"
+        }
+      }
+      else
+      {
+        aspectCardinal = "N"
+      }
+    }
+    else
+    {
+      stop(aspectErrStr)
+    }
+  }
+  else
+  {
+    stop(aspectErrStr)
   }
   
   rfm = FosbergNWCG_GetRFM(tableA_Path, tempF, rh)#Look up the reference fuel moisture.
