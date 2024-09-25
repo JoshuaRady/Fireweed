@@ -18,10 +18,10 @@ Fosberg dead fuel moisture model, specifically the Rothermel 1981 / NWCG variant
 
 #include <FireweedUnits.h>
 
- FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::string tableC_Path,
+double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::string tableC_Path,
                          std::string tableD_Path, double temp, double rh, int monthOfYear,
                          int hourOfDay, double slopePct, char aspectCardinal, bool shaded = false,
-                         char elevation = 'L', UnitsType units = US);
+                         char elevation = 'L', UnitsType units = Metric);
 double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh);
 double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, double slopePct,
                                  char aspectCardinal, bool shaded, char elevation = 'L');

@@ -65,7 +65,7 @@ source("FireweedUtils.r")
 #Based on Proj_11_Exp_20_Analysis.r FosbergNWCG_Table1HrFM2().
 FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path,
                               temp, rh, monthOfYear, hourOfDay, slopePct, aspectCardinal,
-                              shaded = FALSE, elevation = "L", units = "US")
+                              shaded = FALSE, elevation = "L", units = "Metric")
 {
   #Convert the temperature if needed:
   if (units == "US")
