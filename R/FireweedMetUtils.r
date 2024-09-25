@@ -36,6 +36,9 @@
 #
 #___________________________________________________________________________________________________
 
+#Constants:-----------------------------------------------------------------------------------------
+StdAtm_hPa = 1013.25#Standard atmosphere in hectopascals.
+
 #Code:----------------------------------------------------------------------------------------------
 
 #Saturation Vapor Pressure:-------------------------------------------------------------------------
@@ -86,7 +89,7 @@ SaturationVaporPressureTetens <- function(tempC)
 #
 #p_hPa could be made optional.  If p_hPa was null the enhancement factor would not be applied and
 #saturation vapor pressure of water vapor would be returned.
-SaturationVaporPressureBuck <- function(tempC, p_hPa = 1013)
+SaturationVaporPressureBuck <- function(tempC, p_hPa = StdAtm_hPa)
 {
   #Check temp:
   #The upper bound of the range is unclear with these parameters, it may be as high as 100C.
@@ -194,7 +197,7 @@ RHfromVP <- function(P, P_s)
 #p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
 #
 #Returns: Relative humidity (%).
-RHfromDewPointBuck <- function(tempC, T_d, p_hPa = 1013)#or DewPointToRH_Buck
+RHfromDewPointBuck <- function(tempC, T_d, p_hPa = StdAtm_hPa)#or DewPointToRH_Buck
 {
   P_s = SaturationVaporPressureBuck(tempC, p_hPa)
   P = SaturationVaporPressureBuck(T_d, p_hPa)
@@ -241,7 +244,7 @@ VPDfromRH <- function(tempC, rhPct, P_s)
 #p_hPa = (Atmospheric) pressure (hPa).  Defaults to typical air pressure at sea level.
 #
 #Returns: Vapor pressure deficit (hPa).
-VPDfromRHBuck <- function(tempC, rhPct, p_hPa = 1013)
+VPDfromRHBuck <- function(tempC, rhPct, p_hPa = StdAtm_hPa)
 {
   P_s = SaturationVaporPressureBuck(tempC, p_hPa)
   vpd_hPa = VPDfromRH(tempC, rhPct, P_s)
