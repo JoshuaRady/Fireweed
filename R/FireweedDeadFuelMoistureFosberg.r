@@ -81,18 +81,27 @@ FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path
   #Check the aspect:
   aspectErrStr = "Invalid aspect. Aspect must be a cardinal direction (N, E, S, W) or bearing in degrees."
   
-  if (class(aspect) == "character")
+  rfm = FosbergNWCG_GetRFM(tableA_Path, tempF, rh)#Look up the reference fuel moisture.
+  
+  if (monthOfYear %in% 5:7)#May - July
   {
-    if (aspect %in% c("N", "E", "S", "W"))
-    {
-      aspectCardinal = aspect
-    }
-    else
-    {
-      stop(aspectErrStr)
-    }
+    correctionTablePath = tableB_Path
   }
-  else if (is.numeric())
+  else if (monthOfYear %in% c(2:4, 8:10))#Feb - April, Aug - Oct
+  {
+    correctionTablePath = tableC_Path
+  }
+  else if (monthOfYear %in% c(1, 11, 12))#Nov - Jan
+  {
+    correctionTablePath = tableD_Path
+  }
+  else
+  {
+    stop("Invalid month value. Please supply the integer month of year.")
+  }
+  
+  #If the aspect is input as degrees check and convert before passing it on:
+  if (is.numeric(aspect))
   {
     if (InRange(aspect, 0, 360))
     {
@@ -123,29 +132,11 @@ FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path
       stop(aspectErrStr)
     }
   }
-  else
+  else if (class(aspect) != "character")
   {
     stop(aspectErrStr)
   }
-  
-  rfm = FosbergNWCG_GetRFM(tableA_Path, tempF, rh)#Look up the reference fuel moisture.
-  
-  if (monthOfYear %in% 5:7)#May - July
-  {
-    correctionTablePath = tableB_Path
-  }
-  else if (monthOfYear %in% c(2:4, 8:10))#Feb - April, Aug - Oct
-  {
-    correctionTablePath = tableC_Path
-  }
-  else if (monthOfYear %in% c(1, 11, 12))#Nov - Jan
-  {
-    correctionTablePath = tableD_Path
-  }
-  else
-  {
-    stop("Invalid month value. Please supply the integer month of year.")
-  }
+  #Values are checked in FosbergNWCG_GetCorrection().
   
   #Look up the correction factor for the conditions specified:
   correction = FosbergNWCG_GetCorrection(correctionTablePath, hourOfDay, slopePct, aspectCardinal,
@@ -255,7 +246,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
 #hourOfDay = The numeric hour of day in 24 hour format (1 - 24).
 #slopePct = Percent slope of the location (rise / run x 100%).
 #aspectCardinal = The slope aspect as a cardinal direction (N, E, S, W).
-#  Note: We could add the ability to take the aspect as degrees.
+#  Note: The ability to take the aspect as degrees is enabled in the calling code..
 #shaded = Does the location have 50% or greater canopy cover or is there full cloud cover.
 #  Note: We could also accept a percentage.
 #elevation = A code indicating the slope position for the prediction relative to where the weather
@@ -297,7 +288,7 @@ FosbergNWCG_GetCorrection <- function(tableFilePath, hourOfDay, slopePct, aspect
   }
   if (!(aspectCardinal %in% c("N", "S", "E", "W")))
   {
-    stop("Invalid aspect.  Must be a cardinal direction.")
+    stop("Invalid aspect.  Must be a cardinal direction (N, E, S, W).")
   }
    if (!elevation %in% c("B", "L", "A"))#Could allow lowercase.
   {
