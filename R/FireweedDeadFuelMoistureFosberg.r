@@ -78,9 +78,6 @@ FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path
     tempF = CtoF(temp)
   }
   
-  #Check the aspect:
-  aspectErrStr = "Invalid aspect. Aspect must be a cardinal direction (N, E, S, W) or bearing in degrees."
-  
   rfm = FosbergNWCG_GetRFM(tableA_Path, tempF, rh)#Look up the reference fuel moisture.
   
   if (monthOfYear %in% 5:7)#May - July
@@ -101,6 +98,7 @@ FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path
   }
   
   #If the aspect is input as degrees check and convert before passing it on:
+  aspectErrStr = "Invalid aspect. Aspect must be a cardinal direction (N, E, S, W) or bearing in degrees."
   if (is.numeric(aspect))
   {
     if (InRange(aspect, 0, 360))
