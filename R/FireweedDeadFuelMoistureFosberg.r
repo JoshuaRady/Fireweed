@@ -99,31 +99,30 @@ FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path
   
   #If the aspect is input as degrees check and convert before passing it on:
   aspectErrStr = "Invalid aspect. Aspect must be a cardinal direction (N, E, S, W) or bearing in degrees."
+  
   if (is.numeric(aspect))
   {
-    if (InRange(aspect, 0, 360))
+    #This is imperfect as NE = 45 degrees must be lumped into either N or E, and so on.  We lump
+    #counterclockwise:
+    if (aspect <= 45)
     {
-      #This is imperfect as NE = 45 degrees must be lumped into either N or E, and so on.  We lump
-      #counterclockwise.
-      if (aspect > 45)
-      {
-        if (aspect <= 135)
-        {
-          aspectCardinal = "E"
-        }
-        else if (aspect <= 225)
-        {
-          aspectCardinal = "S"
-        }
-        else if (aspect <= 315)
-        {
-          aspectCardinal = "W"
-        }
-      }
-      else
-      {
-        aspectCardinal = "N"
-      }
+      aspectCardinal = "N"
+    }
+    else if (aspect <= 135)
+    {
+      aspectCardinal = "E"
+    }
+    else if (aspect <= 225)
+    {
+      aspectCardinal = "S"
+    }
+    else if (aspect <= 315)
+    {
+      aspectCardinal = "W"
+    }
+    else if (aspect <= 360)
+    {
+      aspectCardinal = "N"
     }
     else
     {
