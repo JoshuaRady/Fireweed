@@ -55,7 +55,7 @@ Wildfire Coordinating Group (NWCG) and are included in the NWCG Incident Respons
  * @param monthOfYear The numeric month of year (1 - 12).
  * @param hourOfDay The numeric hour of day in 24 hour format (1 - 24).
  * @param slopePct Percent slope of the location (rise / run x 100%).
- * @param aspectCardinal The aspect of the slope as a cardinal direction (N, E, S, W).
+ * @param aspectCardinal The aspect of the local slope as a cardinal direction (N, E, S, W).
  * @param shaded Does the location have 50% or greater canopy cover or is there full cloud cover.
  *               This could be converted to a percentage.
  * @param elevation A code indicating the slope position for the prediction relative to where the
@@ -140,6 +140,72 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 	                                       shaded, elevation);
 
 	return rfm + correction;//Combine and return.
+}
+
+/** Return an estimate of the 1-hour dead fuel moisture based on the conditions passed.  This
+ * variant takes the aspect in degrees.
+ * 
+ * @param tableA_Path - tableD_Path = Paths to tab delimited files holding the lookup table data.
+ *   These tables are used in Rothermel 1981 and are also the NWCG website and the 2022 IPTG.
+ *   These paths add to an already large number of parameters.  Their file location can not be safely
+ *   assumed but there values could be consolidated in a list of placed in globals.
+ * 
+ * @param temp The air temperature at 4.5 feet / 1.37 meters above ground level (degrees F / C).
+ * @param rh Relative humidity (percent).
+ * @param monthOfYear The numeric month of year (1 - 12).
+ * @param hourOfDay The numeric hour of day in 24 hour format (1 - 24).
+ * @param slopePct Percent slope of the location (rise / run x 100%).
+ * @param aspect The aspect of the local slope as a bearing (degrees from North, 0-360).
+ * @param shaded Does the location have 50% or greater canopy cover or is there full cloud cover.
+ *               This could be converted to a percentage.
+ * @param elevation A code indicating the slope position for the prediction relative to where the
+ *                  weather conditions were taken.  Values are:
+ *  B: The fire is 1000 - 2000 feet below the location where weather was recorded,
+ *  L: The fire is within 1000 feet of elevation from the the location where weather was recorded,
+ *  A: The fire is 1000 - 2000 feet above the location where weather was recorded,
+ *  This is for field use only and may be omitted for other applications.
+ * @param units: The units to use.  Only relevant to temp.
+ *
+ * @returns 1-hour fuel moisture (fraction: water weight/dry fuel weight).
+ */
+double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::string tableC_Path,
+                         std::string tableD_Path, double temp, double rh, int monthOfYear,
+                         int hourOfDay, double slopePct, double aspect, bool shaded,
+                         char elevation, UnitsType units)
+{
+	char aspectCardinal;
+	
+	//Check and convert the aspect before passing it on:
+	//This is imperfect as NE = 45 degrees must be lumped into either N or E, and so on.  We lump
+	//counterclockwise.
+	if (aspect <= 45)
+	{
+		aspectCardinal = 'N';
+	}
+	else if (aspect <= 135)
+	{
+		aspectCardinal = 'E';
+	}
+	else if (aspect <= 225)
+	{
+		aspectCardinal = 'S';
+	}
+	else if (aspect <= 315)
+	{
+		aspectCardinal = 'W';
+	}
+	else if (aspect <= 360)
+	{
+		aspectCardinal = 'N';
+	}
+	else
+	{
+		Stop("Invalid aspect. Bearing must be in degrees (0 - 360).");
+	}
+
+	return FosbergNWCG_1HrFM(tableA_Path, tableB_Path, tableC_Path, tableD_Path, temp, rh,
+	                         monthOfYear, hourOfDay, slopePct, aspectCardinal, shaded, elevation,
+	                         units);
 }
 
 /** Look up the Fosberg reference fuel moisture (NWCG variant) given the temperature and humidity:
@@ -361,7 +427,7 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	if (!(aspectCardinal == 'N' || aspectCardinal == 'S' ||
 	      aspectCardinal == 'E' || aspectCardinal == 'W'))
 	{
-		Stop("Invalid aspect.  Must be a cardinal direction.");
+		Stop("Invalid aspect.  Must be a cardinal direction (N, E, S, W).");
 	}
 	if (!(elevation == 'B' || elevation == 'L' || elevation == 'A'))
 	{
