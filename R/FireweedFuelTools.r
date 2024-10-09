@@ -11,6 +11,10 @@
 #
 #___________________________________________________________________________________________________
 
+source("FireweedUtils.r")
+
+#Code:----------------------------------------------------------------------------------------------
+
 #Take a set of fuel loadings and redistribute the fuel to a second set of size classes.  All the
 #fuel for each input class is placed into the nearest output size class.
 #
@@ -38,7 +42,7 @@ RedistributeFuelNearest <- function(inputSizes, loadings, outputSizes)
   {
     w_o_final = vector("numeric", length(outputSizes))
     
-    #Find the closest out size class for each input class:
+    #Find the closest output size class for each input class:
     for (i in 1:length(loadings))
     {
       #Need to convert to loop in C++:
@@ -67,7 +71,7 @@ RedistributeFuelNearest <- function(inputSizes, loadings, outputSizes)
 #
 #Returns: A vector of fuel loadings for each size class specified with outputSizes.  Units will
 #match inputSizes.
-RedistributeFuelProportional <- function(inputSizes, loadings, outputSizes)#Or loadings?
+RedistributeFuelProportional <- function(inputSizes, loadings, outputSizes)
 {
   #Parameter checking:
   if (!SameLengths(inputSizes, loadings))
@@ -159,7 +163,7 @@ RedistributeFuelProportional <- function(inputSizes, loadings, outputSizes)#Or l
     w_o_output = rev(w_o_output)
   }
   
-  return(w_o_output)#We could name the values with SAVs.
+  return(w_o_output)#We could name the values with sizes.
 }
 
 #Distribute a pool of fuel across a set of size classes.
@@ -209,11 +213,11 @@ DistributeFuel <- function(distribSizes, distribWts, totalLoading, outputSizes,
   #Redistribute the mass to the requested size classes:
   if (method == "Nearest")
   {
-    w_o_final = RedistributeFuelNearestD1(distribSizes, w_o_initial, outputSizes)
+    w_o_final = RedistributeFuelNearest(distribSizes, w_o_initial, outputSizes)
   }
   else if (method == "Proportional")
   {
-    w_o_final = RedistributeFuelProportionalD1(distribSizes, w_o_initial, outputSizes)
+    w_o_final = RedistributeFuelProportional(distribSizes, w_o_initial, outputSizes)
   }
   else
   {
