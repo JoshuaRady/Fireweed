@@ -38,7 +38,7 @@ spread model and related models.
  * - Consider adding version information or a format specifier to the file format.
  */
 
-#include <algorithm>//For std:all_of(), find().
+#include <algorithm>//For std:all_of(), find(), count().
 #include <fstream>
 #include <iostream>
 #include <math.h>//For pow()
@@ -309,6 +309,128 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	return output;
 }
 
+//--------------------------------------------------------------------------------------------------
+/** @par Fuel Type Index Functions:
+ * For standard fuel models the number and order of fuel types is fixed but there are complicating
+ * factors in practice.  First, many of the fuel models only represent either one of the herbaceous
+ * or woody fuel types.  Both index positions will be present but the underrepresented class should
+ * not be used without making changes to the model.  Adding fuel loadings for these 'missing' size
+ * classes should not prevent the Rothermel Albini spread model from running but the fuel will
+ * effectively be ignored and no have impact on fire behavior output, though this is not well
+ * tested.  Second, when dynamic fuel models are used the number of fuel types and indexes may
+ * change.
+ *
+ * The public liveDead member can be used to infer the fuel categories and the FuelClassIndex()
+ * function can be used to get indexes by category more conveniently.  Still additional assumptions
+ * must be used to know exactly what each index represents.  Additionally we could change the way we
+ * represent fuel types in the future.  For example we may add a live moss category in the future.
+ *
+ * To futureproof the code and to reduce the need for calling code to understand the way the fuel
+ * types are organized the following accessor and information functions are provided.
+ *
+ * @note These are currently C++ only.
+ */
+
+/** 
+ * We have the public numClasses member to give the number of fuel types (numTypes might be a
+ * better name).  It is provided in part for convenience since the number of fuels can be inferred
+ * from the length of many of the data members.  I can also be used as the standard to check against
+ * to ensure other members are correct.  However, I have worried about having it be public since it
+ * should be read only.  It would be safer to make it private, if slightly less convenient.
+ */
+// int FuelModel::NumFuelTypes() const
+// {
+// 	return numClasses;
+// }
+
+/** How many size classes are there in a given live / dead fuel category.
+ *
+ */
+// int FuelModel::NumSizeClasses(int liveDeadCat) const
+// {
+// 	//Since Live and Dead are not currently enums an invalid value could be passed.  If so 0 will be
+// 	//returned, which is accurate.  Passing a bad category is should probably be an error.
+// 	//Or we could just include two functions.
+// 	return std::count(liveDead.begin(), liveDead.end(), liveDeadCat);
+// }
+
+/** How many size classes are there in the dead fuel category?
+ *
+ */
+int FuelModel::NumDeadClasses(int liveDeadCat) const
+{
+	return std::count(liveDead.begin(), liveDead.end(), Dead);
+}
+
+/** How many size classes are there in the live fuel category?
+ *
+ */
+int FuelModel::NumLiveClasses(int liveDeadCat) const
+{
+	return std::count(liveDead.begin(), liveDead.end(), Live);
+}
+
+/** Return the index (k) of the live herbaceous fuel type.
+ *
+ */
+int FuelModel::LiveHerbaceousIndex() const
+{
+	return(FuelClassIndex(liveDead, Live, 0);//In the future the 0 index may not be guaranteed.
+}
+
+/** Return the index (k) of the live woody fuel type.
+ *
+ */
+int FuelModel::LiveWoodyIndex() const//Or just WoodyIndex()?
+{
+	return(FuelClassIndex(liveDead, Live, 1);//In the future the 1 index may not be guaranteed.
+}
+
+/** Return the index (k) of the dead herbaceous fuel type, if present.  If not present returns -1.
+ * Check cured first to see if it is present.
+ */
+int FuelModel::DeadHerbaceousIndex() const
+{
+	if (cured)
+	{
+		//We put the dead herbaceous fuel in the second dead postion.  See DynamicFuelCuringCore().
+		//This could change in the future.
+		return(FuelClassIndex(liveDead, Dead, 1);
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+/** Is the live herbaceous fuel type active in this fuel model?
+ *
+ */
+bool FuelModel::LiveHerbaceousPresent() const
+{
+	//We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
+	return (SAV_ij[LiveHerbaceousIndex()] != 0);
+}
+
+/** Is the live woody fuel type active in this fuel model?
+ *
+ */
+bool FuelModel::LiveWoodyPresent() const
+{
+	//We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
+	return (SAV_ij[LiveWoodyIndex()] != 0);
+}
+
+/** Is the dead herbaceous fuel type present in this fuel model?
+ * We could be include this for completeness but checking cured gives the same result.
+ */
+// bool FuelModel::DeadHerbaceousPresent() const
+// {
+// 	return cured;
+// }
+
+//Fuel Moisture functions:--------------------------------------------------------------------------
+
 /** Record the fuel moisture content values.
  *
  * @param M_f_ij Fuel moisture content for each fuel type (fraction: water weight/dry fuel weight).
@@ -352,7 +474,7 @@ void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 	this->M_f_ij = M_f_ij;
 }
 
-/** The the (heterogenous) fuel moisture.
+/** The (heterogenous) fuel moisture.
  *
  * The vector returned may be empty if the fuel moisture has not been assigned.  The calling code
  * should check for this.
@@ -443,7 +565,7 @@ void FuelModel::CalculateDynamicFuelCuring(double curing, bool warn)
 	}
 }
 
-//Private functions:--------------------------------------------------------------------------------
+//Private Functions:--------------------------------------------------------------------------------
 
 /** Initialize members to a consistant 'no fuel' initial state.
  *
@@ -752,7 +874,7 @@ void FuelModel::DynamicFuelCuringCore(double cureFrac)
 		Stop("Fuel model has already had curing applied.");
 	}
 
-	//The live herbaceous is the first dead fuel.  The index should be 3 (base 0) for standard fuel models:
+	//The live herbaceous is the first live fuel.  The index should be 3 (base 0) for standard fuel models:
 	//int liveHerbIndex = std::find(liveDead.begin(), liveDead.end(), Live)
 	std::vector <int>::iterator liveHerbIt = std::find(liveDead.begin(), liveDead.end(), Live);
 	int liveHerbIndex = liveHerbIt - liveDead.begin();
