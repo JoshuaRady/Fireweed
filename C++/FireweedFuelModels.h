@@ -199,5 +199,6 @@ FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, int modelNumb
 FuelModel GetFuelModelFromCSV(const std::string fuelModelFilePath, std::string modelCode,
                               bool spreadModelUnits = true);
 std::ostream& operator<<(std::ostream& output, const FuelModel& fm);
+int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex);
 
 #endif
