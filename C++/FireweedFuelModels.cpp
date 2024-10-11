@@ -955,15 +955,15 @@ std::ostream& operator<<(std::ostream& output, const FuelModel& fm)
 
 /** Return the index (k) in a variable array of the form X_ij given the (live/dead, size) index pair.
  *
+ * Representing fuel model X_ij varaibles as vectors has the disadvantage of making mapping to
+ * individual classes awkward.  This function makes this simple but remains somewhat inelegant.
+ *
  * @param liveDead An array indicating if each index in the input variables represents a dead or
  *                 live fuel category.
  * @param liveDeadCat The Live / Dead catagory value to get.
  * @param sizeIndex The index (0 based) of the size class to get.
  *
- * Representing fuel model X_ij varaibles as vectors has the disadvantage of making mapping to
- * individual classes awkward.  This function makes this simple but remains somewhat inelegant.
- *
- * This function is currently C++ only.
+ * @note This function is currently C++ only.
  */
 int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//Or FMClassIndex, ClassIndex
 {
@@ -972,10 +972,9 @@ int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//O
 
 	if (liveDeadCat == Dead)
 	{
-		//if (sizeIndex > -1 && sizeIndex < numDead)
 		if (sizeIndex < 0 || sizeIndex >= numDead)
 		{
-			//Error!!!!!
+			Stop("Invalid dead size index.");
 		}
 		else
 		{
@@ -986,7 +985,7 @@ int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//O
 	{
 		if (sizeIndex < 0 || sizeIndex >= numLive)
 		{
-			//Error!!!!!
+			Stop("Invalid live size index.");
 		}
 		else
 		{
@@ -995,8 +994,8 @@ int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//O
 	}
 	else
 	{
-		//Error!!!!!
+		Stop("Invalid live / dead category.");
 	}
 
-	return -1;//Error!!!!!
+	//return -1;//We could make the size index errors above warnings and return.
 }
