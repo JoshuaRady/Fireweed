@@ -343,17 +343,6 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 // 	return numClasses;
 // }
 
-/** How many size classes are there in a given live / dead fuel category.
- *
- */
-// int FuelModel::NumSizeClasses(int liveDeadCat) const
-// {
-// 	//Since Live and Dead are not currently enums an invalid value could be passed.  If so 0 will be
-// 	//returned, which is accurate.  Passing a bad category is should probably be an error.
-// 	//Or we could just include two functions.
-// 	return std::count(liveDead.begin(), liveDead.end(), liveDeadCat);
-// }
-
 /** How many size classes are there in the dead fuel category?
  *
  */
