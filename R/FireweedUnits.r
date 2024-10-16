@@ -71,3 +71,27 @@ FtoC <- function(degreesF)
 {
   return((degreesF - 32) * 5/9)
 }
+
+#Convert from percent slope to slope steepness as used by the Rothermel Albini spread model.
+#
+#Parameters:
+#slopePct = The slope or grade etc. of the landscape in percent.
+#
+#Returns: Slope steepness (unitless fraction: vertical rise / horizontal distance), AKA tan ϕ.
+SlopePctToSteepness <- function(slopePct)
+{
+  #The percent slope is simply the rise / run x 100%:
+  return(slopePct / 100)
+}
+
+#Convert from slope in degrees to slope steepness as used by the Rothermel Albini spread model.
+#
+#Parameters:
+#slopeDegrees = The slope or grade etc. of the landscape in degrees.
+#
+#Returns: Slope steepness (unitless fraction: vertical rise / horizontal distance), AKA tan ϕ.
+SlopeDegreesToSteepness <- function(slopeDegrees)
+{
+  #tan() takes degrees:
+  return(tan(slopeDegrees * (pi/180)))
+}
