@@ -980,10 +980,7 @@ MineralDampingCoefficient_Het <- function(S_e_ij, f_ij, liveDead)
 SlopeFactor <- function(packingRatio, slopeSteepness)
 {
   #Parameter checking:
-  if (!ValidProportion(slopeSteepness))
-  {
-    stop("Slope steepness must be from 0-1.")
-  }
+  CheckSlope(slopeSteepness)
   
   phi_s = 5.275 * packingRatio^-0.3 * slopeSteepness^2
   return(phi_s)

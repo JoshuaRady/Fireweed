@@ -122,11 +122,11 @@ SlopeDegreesToSteepness <- function(slopeDegrees)
 #However, realistically very high slopes should be very rare on the landscape.
 #This check is minimal and might be improved.
 #
-#Returns: Nothing.  Posts a warning.  Could return a status instead.
+#Returns: Nothing.  Posts a warning.  Could return a status instead.  ValidSlope()?
 CheckSlope <- function(slopeSteepness)
 {
   if (!InRange(slopePct, 0, 11.43005))#0 - ~85 degrees.
   {
-    warning("Invalid percent slope")
+    warning("Questionable slope value.")
   }
 }
