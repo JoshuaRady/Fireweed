@@ -86,7 +86,7 @@ SlopePctToSteepness <- function(slopePct)
   #The percent slope is simply the rise / run x 100%:
   slopeSteepness = abs(slopePct) / 100
   
-  #Check that the value is reasonable.
+  CheckSlope(slopeSteepness)#Check that the value is reasonable.
   
   return(slopeSteepness)
 }
@@ -111,5 +111,22 @@ SlopeDegreesToSteepness <- function(slopeDegrees)
   #tan() takes degrees:
   slopeSteepness = tan(abs(slopeDegrees) * (pi/180))
   
+  CheckSlope(slopeSteepness)#Check that the value is reasonable.
+  
   return(slopeSteepness)
+}
+
+#Check if a slope is reasonable:
+#
+#The problem with fractional or percent slope is that is becomes huge as it approaches 90 degrees.
+#However, realistically very high slopes should be very rare on the landscape.
+#This check is minimal and might be improved.
+#
+#Returns: Nothing.  Posts a warning.  Could return a status instead.
+CheckSlope <- function(slopeSteepness)
+{
+  if (!InRange(slopePct, 0, 11.43005))#0 - ~85 degrees.
+  {
+    warning("Invalid percent slope")
+  }
 }
