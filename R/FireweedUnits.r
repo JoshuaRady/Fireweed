@@ -10,6 +10,8 @@
 #
 #___________________________________________________________________________________________________
 
+source("FireweedUtils.r")
+
 #The units class to be used or in use is specified by a string.  The options are 'US' for United
 #States customary units or 'Metric' for metric.
 
@@ -78,10 +80,15 @@ FtoC <- function(degreesF)
 #slopePct = The slope or grade etc. of the landscape in percent.
 #
 #Returns: Slope steepness (unitless fraction: vertical rise / horizontal distance), AKA tan ϕ.
+#Slope values are forced to postive values.
 SlopePctToSteepness <- function(slopePct)
 {
   #The percent slope is simply the rise / run x 100%:
-  return(slopePct / 100)
+  slopeSteepness = abs(slopePct) / 100
+  
+  #Check that the value is reasonable.
+  
+  return(slopeSteepness)
 }
 
 #Convert from slope in degrees to slope steepness as used by the Rothermel Albini spread model.
@@ -90,8 +97,19 @@ SlopePctToSteepness <- function(slopePct)
 #slopeDegrees = The slope or grade etc. of the landscape in degrees.
 #
 #Returns: Slope steepness (unitless fraction: vertical rise / horizontal distance), AKA tan ϕ.
+#Slope values are forced to postive values.
 SlopeDegreesToSteepness <- function(slopeDegrees)
 {
+  #While any degree value may be mathematically valid values beyond 90 are not really used to
+  #express slopes.  Large values may indicate the input value was miscomputed.  Negative slopes
+  #could be valid too but are questionable.  Allow but warn:
+  if (!InRange(slopeDegrees, 0, 90))
+  {
+    warning("Slope is outside the expected range of 0 - 90 degrees.")
+  }
+  
   #tan() takes degrees:
-  return(tan(slopeDegrees * (pi/180)))
+  slopeSteepness = tan(abs(slopeDegrees) * (pi/180))
+  
+  return(slopeSteepness)
 }
