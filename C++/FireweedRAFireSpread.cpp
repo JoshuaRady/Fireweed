@@ -1032,10 +1032,7 @@ double SlopeFactor(double packingRatio, double slopeSteepness)
 	double phi_s;
 
 	//Parameter checking:
-	if (!ValidProportion(slopeSteepness))
-	{
-		Stop("Slope steepness must be from 0-1.");
-	}
+	CheckSlope(slopeSteepness);
 
 	phi_s = 5.275 * pow(packingRatio, -0.3) * pow(slopeSteepness, 2);
 	return phi_s;

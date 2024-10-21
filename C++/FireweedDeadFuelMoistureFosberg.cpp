@@ -418,17 +418,16 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	{
 		Stop("Invalid hour of day value or nighttime value passed.");
 	}
-	//The problem with percent slope is that is becomes huge as it approaches 90 degrees.  However,
-	//realistically very high slopes should be very rare.  This check is minimal.
-	if (!InRange(slopePct, 0, 1000))//0 - ~85 degrees.
-	{
-		Stop("Invalid percent slope");
-	}
+
+	//Very high slopes should be very rare on the landscape:
+	CheckSlope(slopePct / 100);
+
 	if (!(aspectCardinal == 'N' || aspectCardinal == 'S' ||
 	      aspectCardinal == 'E' || aspectCardinal == 'W'))
 	{
 		Stop("Invalid aspect.  Must be a cardinal direction (N, E, S, W).");
 	}
+
 	if (!(elevation == 'B' || elevation == 'L' || elevation == 'A'))
 	{
 		Stop("Invalid relative elevation code.");
