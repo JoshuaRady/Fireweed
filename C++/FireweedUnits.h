@@ -13,6 +13,8 @@ in the library.
 #ifndef FIREWEEDUNITS_H
 #define FIREWEEDUNITS_H
 
+#include <cmath>//Include in the header for nonstandard M_PI.
+
 /** UnitsType
  *
  * A type to specify the units class to be used or in use.  The options are 'US' for United States
@@ -64,6 +66,13 @@ const double kJPerBtu = 1.05435;
 //tons/ac -> lb/ft^2: (See fuel loading note in FireweedFuelModels.cpp.)
 const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;
 
+//pi:
+#ifdef M_PI
+	double Pi = M_PI;
+#else
+	double Pi = 3.14159265358979323846;
+#endif 
+
 //--------------------------------------------------------------------------------------------------
 /** Units Functions
  *
@@ -76,4 +85,4 @@ double SlopePctToSteepness(double slopePct);
 double SlopeDegreesToSteepness(double slopeDegrees);
 void CheckSlope(double slopeSteepness);
 
-#endif
+#endif //FIREWEEDUNITS_H

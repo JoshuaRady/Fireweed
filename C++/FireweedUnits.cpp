@@ -10,7 +10,6 @@ Reference: Proj. 11 Exp. 19, 20, 18
 
 ***************************************************************************************************/
 
-#include <cmath>
 #include "FireweedUnits.h"
 #include "FireweedMessaging.h"
 #include "FireweedUtils.h"
