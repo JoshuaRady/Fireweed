@@ -65,11 +65,15 @@ const double kJPerBtu = 1.05435;
 const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;
 
 //--------------------------------------------------------------------------------------------------
-/** Unit Functions
+/** Units Functions
  *
  */
  
 double CtoF(double degreesC);
 double FtoC(double degreesF);
+
+double SlopePctToSteepness(double slopePct);
+double SlopeDegreesToSteepness(double slopeDegrees);
+void CheckSlope(double slopeSteepness);
 
 #endif
