@@ -2,7 +2,7 @@
 #Programmed by: Joshua M. Rady
 #Woodwell Climate Research Center
 #2024
-#Reference: Proj. 11 Exp. 19
+#Reference: Proj. 11 Exp. 19, 20, 18
 #
 #Description:---------------------------------------------------------------------------------------
 #  This file is part of the Fireweed wildfire code library.
@@ -122,10 +122,14 @@ SlopeDegreesToSteepness <- function(slopeDegrees)
 #However, realistically very high slopes should be very rare on the landscape.
 #This check is minimal and might be improved.
 #
+#Parameters:
+#slopeSteepness = Slope steepness (unitless fraction: vertical rise / horizontal distance).
+#  AKA tan ϕ.
+#
 #Returns: Nothing.  Posts a warning.  Could return a status instead.  ValidSlope()?
 CheckSlope <- function(slopeSteepness)
 {
-  if (!InRange(slopePct, 0, 11.43005))#0 - ~85 degrees.
+  if (!InRange(slopeSteepness, 0, 11.43005))#0 - ~85 degrees.
   {
     warning("Questionable slope value.")
   }
