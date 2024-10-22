@@ -165,13 +165,13 @@ class FuelModel {
 	std::ostream& Print(std::ostream& output) const;
 
 	//Fuel Type Index Functions:
-	int FuelModel::NumDeadClasses(int liveDeadCat) const;
-	int FuelModel::NumLiveClasses(int liveDeadCat) const;
-	int FuelModel::LiveHerbaceousIndex() const;
-	int FuelModel::LiveWoodyIndex() const;
-	int FuelModel::DeadHerbaceousIndex() const;
-	bool FuelModel::LiveHerbaceousPresent() const;
-	bool FuelModel::LiveWoodyPresent() const;
+	int NumDeadClasses(int liveDeadCat) const;
+	int NumLiveClasses(int liveDeadCat) const;
+	int LiveHerbaceousIndex() const;
+	int LiveWoodyIndex() const;
+	int DeadHerbaceousIndex() const;
+	bool LiveHerbaceousPresent() const;
+	bool LiveWoodyPresent() const;
 
 	//Fuel Moisture functions:
 	void SetFuelMoisture(std::vector <double> M_f_ij);
