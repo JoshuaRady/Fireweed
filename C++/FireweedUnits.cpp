@@ -46,7 +46,7 @@ double FtoC(double degreesF)
 double SlopePctToSteepness(double slopePct)
 {
 	//The percent slope is simply the rise / run x 100%:
-	slopeSteepness = std::abs(slopePct) / 100;
+	double slopeSteepness = std::abs(slopePct) / 100;
 	
 	CheckSlope(slopeSteepness);//Check that the value is reasonable.
 	
@@ -71,7 +71,7 @@ double SlopeDegreesToSteepness(double slopeDegrees)
 	}
 
 	//tan() takes degrees:
-	slopeSteepness = std::tan(std::abs(slopeDegrees) * (Pi/180));
+	double slopeSteepness = std::tan(std::abs(slopeDegrees) * (Pi/180));
 
 	CheckSlope(slopeSteepness);//Check that the value is reasonable.
 
