@@ -46,7 +46,6 @@ std::vector <double> RedistributeFuelNearest(std::vector <double> inputSizes,
 	}
 
 	//If the size classes are the same we are done:
-	//if (length(inputSizes) == length(outputSizes) && all(inputSizes == outputSizes))//!!!!!
 	if ((inputSizes.size() == outputSizes.size()) && (inputSizes == outputSizes))
 	{
 		w_o_final = loadings;//w_o_initial
@@ -56,8 +55,6 @@ std::vector <double> RedistributeFuelNearest(std::vector <double> inputSizes,
 		//Find the closest output size class for each input class:
 		for (int i = 0; i < loadings.size(); i++)
 		{
-			//double diffs[outputSizes.size()];
-			//std::array<double, outputSizes.size()> diffs;//!!!!!
 			std::vector<double> diffs(outputSizes.size(), 0);
 			
 			for (int j = 0; j < diffs.size(); j++)
@@ -109,18 +106,11 @@ std::vector <double> RedistributeFuelProportional(std::vector <double> inputSize
 	//ascending sizes we reverse the size bins and then reverse the output before returning it below.
 	bool sizesAscending = false;
 
-	//if (std::is_sorted(outputSizes))//Sizes are in ascending order.
 	if (std::is_sorted(outputSizes.begin(), outputSizes.end()))//Sizes are in ascending order.
 	{
-		//outputSizes = std::reverse(outputSizes.begin(), outputSizes.end());//In place.
 		std::reverse(outputSizes.begin(), outputSizes.end());
 		sizesAscending = true;
 	}
-	//else if (!std::is_sorted(std::reverse(outputSizes.begin(), outputSizes.end()))))//!!!!!
-// 	else if (!std::is_sorted(std::reverse(outputSizes.begin(), outputSizes.end())))
-// 	{
-// 		Stop("outputSizes must be in ascending or descending order.");
-// 	}
 	else
 	{
 		//std::vector <double> outputSizesRev = std::reverse(outputSizes.begin(), outputSizes.end());
@@ -134,20 +124,13 @@ std::vector <double> RedistributeFuelProportional(std::vector <double> inputSize
 	
 	//It is not strictly necessary for the input sizes to be ordered to be sorted.  They do need to be
 	//in the same order as the output for comparison purposes though:
-	//std::vector <double> inputSizesSorted(inputSizes.size(), 0);//!!!!!
 	std::vector <double> inputSizesSorted(inputSizes);
 	if (sizesAscending)
 	{
-		//inputSizesSorted = std::sort(inputSizes.begin(), inputSizes.end());//!!!!!
 		std::sort(inputSizesSorted.begin(), inputSizesSorted.end());
 	}
 	else
 	{
-		//inputSizesSorted =  std::reverse(std::sort(inputSizes.begin(), inputSizes.end()));//!!!!!
-		//std::vector <double> sizesSortedAscending = std::sort(inputSizes.begin(), inputSizes.end());
-		//inputSizesSorted = std::reverse(sizesSortedAscending.begin(), sizesSortedAscending.end());
-		//inputSizesSorted = std::sort(inputSizes.begin(), inputSizes.end());
-		//inputSizesSorted = std::reverse(inputSizesSorted.begin(), inputSizesSorted.end());
 		std::sort(inputSizesSorted.begin(), inputSizesSorted.end());
 		std::reverse(inputSizesSorted.begin(), inputSizesSorted.end());
 	}
@@ -204,8 +187,6 @@ std::vector <double> RedistributeFuelProportional(std::vector <double> inputSize
 	
 	if (sizesAscending)
 	{
-		//w_o_output = std::reverse(w_o_output);
-		//w_o_output = std::reverse(w_o_output.begin(), w_o_output.end());
 		std::reverse(w_o_output.begin(), w_o_output.end());
 	}
 	
@@ -252,15 +233,12 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
 	//Further checking will occur in the called fuctions.
 	
 	//Make sure the weights are valid and add up to 1 (allowing for floating point error):
-	//if (!isTRUE(all.equal(sum(distribWts), 1)))//!!!!!
-	//if (!FloatCompare(sum(distribWts), 1)))
 	double totalWt = std::accumulate(distribWts.begin(), distribWts.end(), 0);
 	if (totalWt != 1)//Temporary until FloatCompare() is moved!!!!!
 	{
-	//If they aren't we convert them:
+		//If they aren't we convert them:
 		Warning("Adjusting weights to sum to zero.");
 
-		//double totalWt = std::accumulate(distribWts.begin(), distribWts.end(), 0);//!!!!!
 		for (int i = 0; i < distribWts.size(); i++)
 		{
 			distribWts[i] = distribWts[i] / totalWt;
