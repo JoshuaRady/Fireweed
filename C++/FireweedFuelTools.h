@@ -29,7 +29,7 @@ std::vector <double> RedistributeFuelProportional(std::vector <double> inputSize
                                                   
 std::vector <double> DistributeFuel(std::vector <double> distribSizes,
                                     std::vector <double> distribWts,
-                                    std::vector <double> totalLoading,
+                                    double totalLoading,
                                     std::vector <double> outputSizes,
                                     DistribMethod method = Proportional)
 
