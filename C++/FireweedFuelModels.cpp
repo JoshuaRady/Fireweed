@@ -47,6 +47,7 @@ spread model and related models.
 
 #include "FireweedFuelModels.h"
 #include "FireweedMessaging.h"
+#include "FireweedStringUtils.h"
 #include "FireweedUtils.h"
 
 /** Default (empty) constructor
@@ -364,7 +365,7 @@ int FuelModel::NumLiveClasses(int liveDeadCat) const
  */
 int FuelModel::LiveHerbaceousIndex() const
 {
-	return(FuelClassIndex(liveDead, Live, 0);//In the future the 0 index may not be guaranteed.
+	return FuelClassIndex(liveDead, Live, 0);//In the future the 0 index may not be guaranteed.
 }
 
 /** Return the index (k) of the live woody fuel type.
@@ -372,7 +373,7 @@ int FuelModel::LiveHerbaceousIndex() const
  */
 int FuelModel::LiveWoodyIndex() const//Or just WoodyIndex()?
 {
-	return(FuelClassIndex(liveDead, Live, 1);//In the future the 1 index may not be guaranteed.
+	return FuelClassIndex(liveDead, Live, 1);//In the future the 1 index may not be guaranteed.
 }
 
 /** Return the index (k) of the dead herbaceous fuel type, if present.  If not present returns -1.
@@ -384,7 +385,7 @@ int FuelModel::DeadHerbaceousIndex() const
 	{
 		//We put the dead herbaceous fuel in the second dead postion.  See DynamicFuelCuringCore().
 		//This could change in the future.
-		return(FuelClassIndex(liveDead, Dead, 1);
+		return FuelClassIndex(liveDead, Dead, 1);
 	}
 	else
 	{
@@ -986,5 +987,5 @@ int FuelClassIndex(std::vector<int> liveDead, int liveDeadCat, int sizeIndex)//O
 		Stop("Invalid live / dead category.");
 	}
 
-	//return -1;//We could make the size index errors above warnings and return.
+	return -1;//We could make the size index errors above warnings and return.
 }
