@@ -20,7 +20,6 @@ fuel model loadings.
 #include "FireweedFuelTools.h"
 #include "FireweedMessaging.h"
 #include "FireweedUtils.h"
-//#include "FireweedMessaging.h"
 
 /* Take a set of fuel loadings and redistribute the fuel to a second set of size classes.  All the
  * fuel for each input class is placed into the nearest output size class.
@@ -234,7 +233,7 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
 	
 	//Make sure the weights are valid and add up to 1 (allowing for floating point error):
 	double totalWt = std::accumulate(distribWts.begin(), distribWts.end(), 0);
-	if (totalWt != 1)//Temporary until FloatCompare() is moved!!!!!
+	if (!FloatCompare(totalWt, 1.0))
 	{
 		//If they aren't we convert them:
 		Warning("Adjusting weights to sum to zero.");
