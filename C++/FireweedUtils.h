@@ -35,4 +35,6 @@ bool InRange(std::vector<double> value, double low, double high);
 bool ValidProportion(double value);
 bool ValidProportion(std::vector<double> value);
 
+bool FloatCompare(double val1, double val2, double precision = 0.0001);
+
 #endif

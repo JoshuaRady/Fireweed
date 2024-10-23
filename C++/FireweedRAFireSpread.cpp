@@ -2460,21 +2460,6 @@ double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liv
 	return sum;
 }
 
-//Compare two floating point values for near/effective equality:
-//Note: I'm not sure what the default should be for the precision of this comparison (see header).
-//C++ only.
-bool FloatCompare(double val1, double val2, double precision)//Or epsilon?
-{
-	if (std::fabs(val1 - val2) < precision)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 /*--------------------------------------------------------------------------------------------------
 Related Fire Property Equations:
 	These equations are not part of the Rothermel & Albini spread model per se but can be used with it

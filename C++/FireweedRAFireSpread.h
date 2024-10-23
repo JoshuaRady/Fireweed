@@ -243,9 +243,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
                                            bool debug = false);
 
 //Utilities:
-
 double SumByFuelCat(std::vector<double> x_ij, std::vector<int> liveDead, int liveDeadCat);
-bool FloatCompare(double val1, double val2, double precision = 0.0001);
 
 //Related Fire Property Equations:
 double EffectiveWindSpeed(double U, double phi_w, double phi_s, double meanPackingRatio,
