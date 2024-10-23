@@ -199,7 +199,7 @@ DistributeFuel <- function(distribSizes, distribWts, totalLoading, outputSizes,
   }
   #Further checking will occur in the called fuctions.
   
-  #Make sure the weights are valid add up to 1 (allowing for floating point error):
+  #Make sure the weights are valid and add up to 1 (allowing for floating point error):
   if (!isTRUE(all.equal(sum(distribWts), 1)))
   {
     #If they aren't we convert them:
