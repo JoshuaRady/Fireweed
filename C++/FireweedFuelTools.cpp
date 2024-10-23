@@ -221,7 +221,7 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
                                     std::vector <double> distribWts,
                                     double totalLoading,//std::vector <double> totalLoading,
                                     std::vector <double> outputSizes,
-                                    DistribMethod method = Proportional)
+                                    DistribMethod method)
 {
 	std::vector <double> w_o_final(outputSizes.size(), 0);//Return value.
 
