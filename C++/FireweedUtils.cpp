@@ -10,22 +10,26 @@ Reference: Proj. 11 Exp. 19
 
 ***************************************************************************************************/
 
+#include <cmath>//fabs()
+
 #include "FireweedUtils.h"
 
-//SameLengths():
-//This utility checks that the parameters (vectors) passed have the same length.  Between 2 and 4
-//arguments are accepted.
-/*
-Overloading has been used to reproduce the behavior of the R function, although that function can
-handle arguments of different types in any order.  We only handle a subset of possible type
-combinations.  This function is currently used primarily variable vectors of type double and
-liveDead, which is currently an integer but could be a boolean.  To reduce the number of
-possibilities we require liveDead to be last.  It might be possible to do this more compactly with
-template functions or ariadic arguments.
-
-Could change arguments to const &?
+/** This utility checks that the parameters (vectors) passed have the same length.  2-4 and 7
+ * arguments are accepted.
+ *
+ * Overloading has been used to reproduce the behavior of the R function, although that function can
+ * handle arguments of different types in any order.  We only handle a subset of possible type
+ * combinations.  This function is currently used primarily for variable vectors of type double and
+ * liveDead, which is currently an integer but could be a boolean.  To reduce the number of
+ * possibilities we require liveDead to be last.  It might be possible to do this more compactly
+ * with template functions or ariadic arguments.
+ *
+ * @param arg1, arg2, ... A series of vector argument to compare.
+ *
+ * @returns Do the vectors have the same number of elements.
+ *
+ * Could change arguments to const &?
  */
-//SameLengths <- function(arg1, arg2, arg3 = NULL, arg4 = NULL)
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2)
 {
 	return (arg1.size() == arg2.size());
@@ -96,20 +100,43 @@ bool InRange(std::vector<double> value, double low, double high)
 	return true;
 }
 
-//Check if a value is from 0 to 1, a valid proportion.
+/** Check if a value is from 0 to 1, a valid proportion.
+ *
+ * @param value A number to check.
+ *
+ * @returns Is the value from 0 to 1.
+ */
 bool ValidProportion(double value)
 {
 	return InRange(value, 0, 1);
 }
 
+/** Check if a value is from 0 to 1, a valid proportion.
+ *
+ * @param value A vector of numbers to check.
+ *
+ * @returns Are all the values from 0 to 1.
+ */
 bool ValidProportion(std::vector<double> value)
 {
 	return InRange(value, 0, 1);
 }
 
-//Compare two floating point values for near/effective equality:
-//Note: I'm not sure what the default should be for the precision of this comparison (see header).
-//C++ only.
+/** Compare two floating point values for near/effective equality:
+ *
+ * It is easy for math operations to result in small floating point errors that may make two
+ * variables you expect to be identical to be slightly different.  Use this fucntion in place of ==
+ * in such cases.
+ *
+ * @param val1 The first value to compare.
+ * @param val2 The second value to compare.
+ * @param precision How close must the values be to be "equal".
+ *
+ * @returns True if the two values are nearly equal.
+ *
+ * @note I'm not sure what the default should be for the precision of this comparison (see header for default value).
+ * @note This function is currently C++ only.
+ */
 bool FloatCompare(double val1, double val2, double precision)//Or epsilon?
 {
 	if (std::fabs(val1 - val2) < precision)
