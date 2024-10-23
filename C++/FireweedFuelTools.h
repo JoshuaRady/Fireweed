@@ -31,6 +31,6 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
                                     std::vector <double> distribWts,
                                     double totalLoading,
                                     std::vector <double> outputSizes,
-                                    DistribMethod method = Proportional)
+                                    DistribMethod method = Proportional);
 
 #endif //FIREWEEDFUELTOOLS_H
