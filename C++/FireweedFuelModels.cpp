@@ -347,7 +347,7 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 /** How many size classes are there in the dead fuel category?
  *
  */
-int FuelModel::NumDeadClasses(int liveDeadCat) const
+int FuelModel::NumDeadClasses() const
 {
 	return std::count(liveDead.begin(), liveDead.end(), Dead);
 }
@@ -355,7 +355,7 @@ int FuelModel::NumDeadClasses(int liveDeadCat) const
 /** How many size classes are there in the live fuel category?
  *
  */
-int FuelModel::NumLiveClasses(int liveDeadCat) const
+int FuelModel::NumLiveClasses() const
 {
 	return std::count(liveDead.begin(), liveDead.end(), Live);
 }

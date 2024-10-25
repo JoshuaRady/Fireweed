@@ -165,8 +165,8 @@ class FuelModel {
 	std::ostream& Print(std::ostream& output) const;
 
 	//Fuel Type Index Functions:
-	int NumDeadClasses(int liveDeadCat) const;
-	int NumLiveClasses(int liveDeadCat) const;
+	int NumDeadClasses() const;
+	int NumLiveClasses() const;
 	int LiveHerbaceousIndex() const;
 	int LiveWoodyIndex() const;
 	int DeadHerbaceousIndex() const;
