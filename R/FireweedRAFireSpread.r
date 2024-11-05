@@ -234,7 +234,7 @@ PackingRatio <- function(rho_b, rho_p)
 }
 
 #Mean Packing Ratio:
-#For heterogeneous fuelbeds the mean packing ratio (beta_bar) must be calculated.
+#For heterogeneous fuel beds the mean packing ratio (beta_bar) must be calculated.
 #
 #Rothermel 1972 equation 74:
 #β = 1/δ Σi Σj (wo)ij/(ρp)ij
@@ -272,7 +272,7 @@ MeanPackingRatio <- function(w_o_ij, rho_p_ij, fuelBedDepth)#Note: Argument orde
   if (length(fuelBedDepth) != 1)
   {
     #This can be caused if the arguments are out of order.
-    stop("A single fuelbed depth must be provided.")
+    stop("A single fuel bed depth must be provided.")
     #Add value checking? > 0, < ?
   }
   
@@ -1178,7 +1178,7 @@ OptimumReactionVelocity <- function(packingRatio, cSAV, units = ModelUnits)
   }
   if (length(cSAV) != 1)
   {
-    stop("A single SAV value is expected. Use the fuelbed SAV for heterogeneous fuels.")
+    stop("A single SAV value is expected. Use the fuel bed SAV for heterogeneous fuels.")
   }
   
   #Calculate the maximum reaction velocity (min^-1):

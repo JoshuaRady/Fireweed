@@ -215,7 +215,7 @@ double PackingRatio(double rho_b, double rho_p)
 }
 
 //Mean Packing Ratio:
-//For heterogeneous fuelbeds the mean packing ratio (beta_bar) must be calculated.
+//For heterogeneous fuel beds the mean packing ratio (beta_bar) must be calculated.
 //
 //Rothermel 1972 equation 74:
 //β = 1/δ Σi Σj (wo)ij/(ρp)ij
