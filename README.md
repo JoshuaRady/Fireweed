@@ -66,9 +66,12 @@ The R code is an informal library.  It is source-able but it not structured as a
 ### C++ Code
 The C++ code is structured so it can be compiled as a shared library or linked into an application.  The code includes R interface functions that allow some of the main code entry points in the shared library to be called from R code via the .C() function.
 
+## Input Data
+Input files containing the 53 standard fuel model parameters and the tables need for dead fuel moisture calculations are included.
+
 #### Shared Library Compilation
 
-The code can be compiled as a shared library via g++, a part of [GCC](https://gcc.gnu.org).  We are successfully using GCC 13 on MacOS / Darwin, but other versions and platforms should work.  To compile do something like the following:
+The C++ code can be compiled as a shared library via g++, a part of [GCC](https://gcc.gnu.org).  We are successfully using GCC 13 on MacOS / Darwin, but other versions and platforms should work.  To compile do something like the following:
 
 ```
 $ /usr/local/path/gcc/13.1.0/bin/g++-13 -c -o FireweedRAFireSpread.o FireweedRAFireSpread.cpp
