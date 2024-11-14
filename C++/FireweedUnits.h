@@ -68,9 +68,9 @@ const double tonsPerAcToLbPerSqFt = lbsPerTon / ft2PerAcre;
 
 //pi:
 #ifdef M_PI
-	double Pi = M_PI;
+	const double Pi = M_PI;
 #else
-	double Pi = 3.14159265358979323846;
+	const double Pi = 3.14159265358979323846;
 #endif 
 
 //--------------------------------------------------------------------------------------------------
