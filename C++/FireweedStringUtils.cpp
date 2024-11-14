@@ -9,7 +9,12 @@ Reference: Proj. 11 Exp. 20
 
 ***************************************************************************************************/
 
+#include <algorithm>//For std::all_of().
+#include <iostream>
+#include <sstream>
+
 #include "FireweedStringUtils.h"
+#include "FireweedMessaging.h"
 
 /** Split a delimited string into a vector of substrings.
  *
@@ -20,7 +25,7 @@ Reference: Proj. 11 Exp. 20
  */
 std::vector<std::string> SplitDelim(const std::string& str, char delimiter)
 {
-	std::stringstream strStrm(str);//THe string as a stream.
+	std::stringstream strStrm(str);//The string as a stream.
 	std::string substring;//To hold extracted substrings (or tokens).
 	std::vector<std::string> substrings;//Return value: A vector to hold the split string.
 	
