@@ -38,7 +38,7 @@ spread model and related models.
  * - Consider adding version information or a format specifier to the file format.
  */
 
-#include <algorithm>//For std:all_of(), find(), count().
+#include <algorithm>//For find(), count().
 #include <fstream>
 #include <iostream>
 #include <math.h>//For pow()
