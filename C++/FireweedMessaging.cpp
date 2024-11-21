@@ -10,6 +10,7 @@ simple error messaging and logging.
 
 ***************************************************************************************************/
 
+#include <exception>
 #include <iostream>
 #include "FireweedMessaging.h"
 
@@ -91,7 +92,10 @@ void Warning(const std::string& message)
 void Stop(const char* message)
 {
 	std::cout << message << "\n";
-	//Add error throwing.
+	//Without a termination handler this will just result in abort() being called, which is probably
+	//acceptable since we only expect Stop() to be called when we can;t recover.
+	//Perhaps there is a more robust error throwing approach.
+	std::terminate();
 }
 
 /** Post the passed message and shutdown (not yet implemented!!!!!).
@@ -101,5 +105,8 @@ void Stop(const char* message)
 void Stop(const std::string& message)
 {
 	std::cout << message << "\n";
-	//Add error throwing.
+	//Without a termination handler this will just result in abort() being called, which is probably
+	//acceptable since we only expect Stop() to be called when we can;t recover.
+	//Perhaps there is a more robust error throwing approach.
+	std::terminate();
 }
