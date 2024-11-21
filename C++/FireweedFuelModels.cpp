@@ -633,7 +633,10 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 
 	//Open the file:
 	std::ifstream fmCSV(fuelModelFilePath);
-	//Error handling?????
+	if (!fmCSV)
+	{
+		Stop("Couldn't open fuel model file at " + fuelModelFilePath);
+	}
 
 	//Skip the first 3 lines, which are human readable column headers.
 	for (int i = 3; i > 0; i--)
@@ -843,9 +846,17 @@ void FuelModel::LoadFromDelimited(const std::string& fuelModelFilePath, int mode
 	}
 	else
 	{
-		//Not finding the fuel model is probably an error.  At the least we should warn that no
-		//match was found.
-		Warning("No matching fuel model was found.");
+		//Not finding the fuel model is an error.
+		//There is currently no way for the calling code to know that a failure occured and there
+		//is little the code could do with an empty fuel model so it is better to throw an error.
+		if (modelNumber != -1)//The search was by the model number:
+		{
+			Stop("No matching fuel model was found for number " + std::to_string(modelNumber));
+		}
+		else//The search used the model code:
+		{
+			Stop("No matching fuel model was found for number " + modelCode);
+		}
 	}
 
 	fmCSV.close();

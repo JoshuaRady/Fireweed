@@ -246,7 +246,10 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 
 	//Open the file:
 	std::ifstream tableAFile(tableA_Path);
-	//Error handling?????
+	if (!tableAFile)
+	{
+		Stop("Couldn't open Fosberg table A file at " + tableA_Path);
+	}
 
 	//Break into IDs and data:
 	
@@ -385,7 +388,10 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 
 	//Open the file:
 	std::ifstream tableFile(tableFilePath);
-	//Error handling?????
+	if (!tableFile)
+	{
+		Stop("Couldn't open Fosberg table file at " + tableFilePath);
+	}
 
 	//Break into IDs and data.  There are 3 column IDs and 3 row IDs:
 
