@@ -36,7 +36,7 @@ std::vector <double> RedistributeFuelNearest(std::vector <double> inputSizes,
                                              std::vector <double> loadings,
                                              std::vector <double> outputSizes)
 {
-	std::vector <double> w_o_final(outputSizes.size(), 0);//Return value.
+	std::vector <double> w_o_final(outputSizes.size(), 0.0);//Return value.
 
 	//Parameter checking:
 	if (!SameLengths(inputSizes, loadings))
@@ -54,7 +54,7 @@ std::vector <double> RedistributeFuelNearest(std::vector <double> inputSizes,
 		//Find the closest output size class for each input class:
 		for (int i = 0; i < loadings.size(); i++)
 		{
-			std::vector<double> diffs(outputSizes.size(), 0);
+			std::vector <double> diffs(outputSizes.size(), 0.0);
 			
 			for (int j = 0; j < diffs.size(); j++)
 			{
@@ -91,7 +91,7 @@ std::vector <double> RedistributeFuelProportional(std::vector <double> inputSize
                                                   std::vector <double> loadings,
                                                   std::vector <double> outputSizes)
 {
-	std::vector <double> w_o_output(outputSizes.size(), 0);//Return value.
+	std::vector <double> w_o_output(outputSizes.size(), 0.0);//Return value.
 
 	//Parameter checking:
 	if (!SameLengths(inputSizes, loadings))
@@ -222,7 +222,7 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
                                     std::vector <double> outputSizes,
                                     DistribMethod method)
 {
-	std::vector <double> w_o_final(outputSizes.size(), 0);//Return value.
+	std::vector <double> w_o_final(outputSizes.size(), 0.0);//Return value.
 
 	//Parameter checking:
 	if (!SameLengths(distribSizes, distribWts))
@@ -232,7 +232,7 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
 	//Further checking will occur in the called fuctions.
 	
 	//Make sure the weights are valid and add up to 1 (allowing for floating point error):
-	double totalWt = std::accumulate(distribWts.begin(), distribWts.end(), 0);
+	double totalWt = std::accumulate(distribWts.begin(), distribWts.end(), 0.0);
 	if (!FloatCompare(totalWt, 1.0))
 	{
 		//If they aren't we convert them:
@@ -245,7 +245,7 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
 	}
 	
 	//Distribute the litter mass to the provided distribution. Multiply the mass by the weights:
-	std::vector <double> w_o_initial(distribSizes.size(), 0);
+	std::vector <double> w_o_initial(distribSizes.size(), 0.0);
 	for (int j = 0; j < w_o_initial.size(); j++)
 	{
 		w_o_initial[j] = totalLoading * distribWts[j];
