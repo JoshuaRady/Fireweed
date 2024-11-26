@@ -30,7 +30,7 @@ FwMsg::FwMsg()
 /** Set the stream used to post log messages.
  *
  */
-void SetLogStream(std::ostream* streamPtr)
+void FwMsg::SetLogStream(std::ostream* streamPtr)
 {
 	logStream = streamPtr;
 }
@@ -38,7 +38,7 @@ void SetLogStream(std::ostream* streamPtr)
 /** Set the stream used to post warning messages.
  *
  */
-void SetWarnStream(std::ostream* streamPtr)
+void FwMsg::SetWarnStream(std::ostream* streamPtr)
 {
 	warnStream = streamPtr;
 }
@@ -46,7 +46,7 @@ void SetWarnStream(std::ostream* streamPtr)
 /** Set the stream used to post fatal error messages.
  *
  */
-void SetErrorStream(std::ostream* streamPtr)
+void FwMsg::SetErrorStream(std::ostream* streamPtr)
 {
 	errorStream = streamPtr;
 }
@@ -67,7 +67,7 @@ void FwMsg::LogMsg(const char* message)
  */
 void FwMsg::LogMsg(const char* message, double value)
 {
-	logStream << message << " " << value << "\n";
+	*logStream << message << " " << value << "\n";
 }
 
 /** Log a neutral message with a numeric vector.
@@ -77,14 +77,14 @@ void FwMsg::LogMsg(const char* message, double value)
  */
 void FwMsg::LogMsg(const char* message, std::vector<double> value)
 {
-	logStream << message << " ";
+	*logStream << message << " ";
 
 	for (int i = 0; i < (value.size() - 1); i++)
 	{
-		logStream << value[i] << ", ";
+		*logStream << value[i] << ", ";
 	}
 
-	logStream << value[value.size() - 1] << "\n";
+	*logStream << value[value.size() - 1] << "\n";
 }
 
 /** Log a neutral message with a numeric vector.
@@ -94,14 +94,14 @@ void FwMsg::LogMsg(const char* message, std::vector<double> value)
  */
 void FwMsg::LogMsg(const char* message, std::vector<int> value)
 {
-	logStream << message << " ";
+	*logStream << message << " ";
 
 	for (int i = 0; i < (value.size() - 1); i++)
 	{
-		logStream << value[i] << ", ";
+		*logStream << value[i] << ", ";
 	}
 
-	logStream << value[value.size() - 1] << "\n";
+	*logStream << value[value.size() - 1] << "\n";
 }
 
 /** Post a non-fatal warning.
@@ -110,7 +110,7 @@ void FwMsg::LogMsg(const char* message, std::vector<int> value)
  */
 void FwMsg::Warning(const char* message)
 {
-	warnStream << message << "\n";
+	*warnStream << message << "\n";
 }
 
 /** Post a non-fatal warning.
@@ -119,7 +119,7 @@ void FwMsg::Warning(const char* message)
  */
 void FwMsg::Warning(const std::string& message)
 {
-	warnStream << message << "\n";
+	*warnStream << message << "\n";
 }
 
 /** Post the passed message and shutdown (not yet implemented!!!!!).
@@ -128,7 +128,7 @@ void FwMsg::Warning(const std::string& message)
  */
 void FwMsg::Stop(const char* message)
 {
-	errorStream << message << "\n";
+	*errorStream << message << "\n";
 	//Without a termination handler this will just result in abort() being called, which is probably
 	//acceptable since we only expect Stop() to be called when we can;t recover.
 	//Perhaps there is a more robust error throwing approach.
@@ -141,7 +141,7 @@ void FwMsg::Stop(const char* message)
  */
 void FwMsg::Stop(const std::string& message)
 {
-	errorStream << message << "\n";
+	*errorStream << message << "\n";
 	//Without a termination handler this will just result in abort() being called, which is probably
 	//acceptable since we only expect Stop() to be called when we can;t recover.
 	//Perhaps there is a more robust error throwing approach.
