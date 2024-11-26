@@ -29,6 +29,10 @@ class FwMsg {//Name?????
 	public:
 		FwMsg();
 
+		void SetLogStream(std::ostream* streamPtr);
+		void SetWarnStream(std::ostream* streamPtr);
+		void SetErrorStream(std::ostream* streamPtr);
+
 		void LogMsg(const char* message);
 		void LogMsg(const char* message, double value);
 		void LogMsg(const char* message, std::vector<double> value);
@@ -40,6 +44,8 @@ class FwMsg {//Name?????
 
 	private:
 		std::ostream* logStream;
+		std::ostream* warnStream;
+		std::ostream* errorStream;
 
 };
 

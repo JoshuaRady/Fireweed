@@ -16,13 +16,39 @@ simple error messaging and logging.
 
 FwMsg Msg;// = FwMsg();
 
-/** Default constructor
+/** Constructor
  *
- * ...
+ * Default all streams to cout.  These can be customized later.
  */
 FwMsg::FwMsg()
 {
 	logStream = &std::cout;
+	warnStream = &std::cout;
+	errorStream = &std::cout;
+}
+
+/** Set the stream used to post log messages.
+ *
+ */
+void SetLogStream(std::ostream* streamPtr)
+{
+	logStream = streamPtr;
+}
+
+/** Set the stream used to post warning messages.
+ *
+ */
+void SetWarnStream(std::ostream* streamPtr)
+{
+	warnStream = streamPtr;
+}
+
+/** Set the stream used to post fatal error messages.
+ *
+ */
+void SetErrorStream(std::ostream* streamPtr)
+{
+	errorStream = streamPtr;
 }
 
 /** Log a neutral message.
@@ -39,9 +65,9 @@ void FwMsg::LogMsg(const char* message)
  * @param message A message to log.
  * @param value A numeric value to appended after the message.  A space is added between them.
  */
-void LogMsg(const char* message, double value)
+void FwMsg::LogMsg(const char* message, double value)
 {
-	std::cout << message << " " << value << "\n";
+	logStream << message << " " << value << "\n";
 }
 
 /** Log a neutral message with a numeric vector.
@@ -49,16 +75,16 @@ void LogMsg(const char* message, double value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void LogMsg(const char* message, std::vector<double> value)
+void FwMsg::LogMsg(const char* message, std::vector<double> value)
 {
-	std::cout << message << " ";
+	logStream << message << " ";
 
 	for (int i = 0; i < (value.size() - 1); i++)
 	{
-		std::cout << value[i] << ", ";
+		logStream << value[i] << ", ";
 	}
 
-	std::cout << value[value.size() - 1] << "\n";
+	logStream << value[value.size() - 1] << "\n";
 }
 
 /** Log a neutral message with a numeric vector.
@@ -66,43 +92,43 @@ void LogMsg(const char* message, std::vector<double> value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void LogMsg(const char* message, std::vector<int> value)
+void FwMsg::LogMsg(const char* message, std::vector<int> value)
 {
-	std::cout << message << " ";
+	logStream << message << " ";
 
 	for (int i = 0; i < (value.size() - 1); i++)
 	{
-		std::cout << value[i] << ", ";
+		logStream << value[i] << ", ";
 	}
 
-	std::cout << value[value.size() - 1] << "\n";
+	logStream << value[value.size() - 1] << "\n";
 }
 
 /** Post a non-fatal warning.
  *
  * @param message A warning message.
  */
-void Warning(const char* message)
+void FwMsg::Warning(const char* message)
 {
-	std::cout << message << "\n";
+	warnStream << message << "\n";
 }
 
 /** Post a non-fatal warning.
  *
  * @param message A warning message.
  */
-void Warning(const std::string& message)
+void FwMsg::Warning(const std::string& message)
 {
-	std::cout << message << "\n";
+	warnStream << message << "\n";
 }
 
 /** Post the passed message and shutdown (not yet implemented!!!!!).
  *
  * @param message An error message.
  */
-void Stop(const char* message)
+void FwMsg::Stop(const char* message)
 {
-	std::cout << message << "\n";
+	errorStream << message << "\n";
 	//Without a termination handler this will just result in abort() being called, which is probably
 	//acceptable since we only expect Stop() to be called when we can;t recover.
 	//Perhaps there is a more robust error throwing approach.
@@ -113,9 +139,9 @@ void Stop(const char* message)
  *
  * @param message An error message.
  */
-void Stop(const std::string& message)
+void FwMsg::Stop(const std::string& message)
 {
-	std::cout << message << "\n";
+	errorStream << message << "\n";
 	//Without a termination handler this will just result in abort() being called, which is probably
 	//acceptable since we only expect Stop() to be called when we can;t recover.
 	//Perhaps there is a more robust error throwing approach.
