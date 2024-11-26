@@ -5,7 +5,7 @@ Woodwell Climate Research Center
 Started: 7/9/2024
 Reference: Proj. 11 Exp. 14 and 11 Exp. 19
 
-	This file is part of the Fireweed wildfire code library.  This header file declares a set of
+	This file is part of the Fireweed wildfire code library.  This header file declares a class with
 functions for error messaging and logging.
 
 	The Fireweed code may be deployed in multiple ways so the available infrastructure for logging
@@ -17,16 +17,32 @@ is to send messages to standard out by default with means to alter that behavior
 #ifndef FIREWEEDMESSAGING_H
 #define FIREWEEDMESSAGING_H
 
+#include <iostream>//Or just <ostream>?
 #include <string>
 #include <vector>
 
-void LogMsg(const char* message);
-void LogMsg(const char* message, double value);
-void LogMsg(const char* message, std::vector<double> value);
-void LogMsg(const char* message, std::vector<int> value);
-void Warning(const char* message);
-void Warning(const std::string& message);
-void Stop(const char* message);
-void Stop(const std::string& message);
+/** @class FwMsg
+ * @brief A class for messaging (log, warning, error) in Fireweed.
+ *
+ */
+class FwMsg {//Name?????
+	public:
+		FwMsg();
+
+		void LogMsg(const char* message);
+		void LogMsg(const char* message, double value);
+		void LogMsg(const char* message, std::vector<double> value);
+		void LogMsg(const char* message, std::vector<int> value);
+		void Warning(const char* message);
+		void Warning(const std::string& message);
+		void Stop(const char* message);
+		void Stop(const std::string& message);
+
+	private:
+		std::ostream* logStream;
+
+};
+
+extern FwMsg Msg;
 
 #endif //FIREWEEDMESSAGING_H

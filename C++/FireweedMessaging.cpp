@@ -5,22 +5,33 @@ Woodwell Climate Research Center
 Started: 7/9/2024
 Reference: Proj. 11 Exp. 14 and 11 Exp. 19
 
-	This file is part of the Fireweed wildfire code library.  It included a set of functions for
+	This file is part of the Fireweed wildfire code library.  It includes a set of functions for
 simple error messaging and logging.
 
 ***************************************************************************************************/
 
 #include <exception>
-#include <iostream>
+//#include <iostream>
 #include "FireweedMessaging.h"
+
+FwMsg Msg;// = FwMsg();
+
+/** Default constructor
+ *
+ * ...
+ */
+FwMsg::FwMsg()
+{
+	logStream = &std::cout;
+}
 
 /** Log a neutral message.
  *
  * @param message A message to log.
  */
-void LogMsg(const char* message)
+void FwMsg::LogMsg(const char* message)
 {
-	std::cout << message << "\n";
+	*logStream << message << "\n";
 }
 
 /** Log a neutral message with a numeric value.
