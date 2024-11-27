@@ -5,16 +5,31 @@ Woodwell Climate Research Center
 Started: 7/9/2024
 Reference: Proj. 11 Exp. 14 and 11 Exp. 19
 
-	This file is part of the Fireweed wildfire code library.  It includes a set of functions for
-simple error messaging and logging.
+	This file is part of the Fireweed wildfire code library.  It defined a class for error
+messaging and logging.
+
+	The Fireweed library is modular and may be deployed as part of standalone applications or may be
+integrated with existing programs that have there own messaging routines.  This class provides
+functions for sending messages to the user or a log.  The default behavior is to send all messages
+to standard output.  This behavior can be altered by setting the output streams for each message
+type.  In this way messages can be routed into a host program's messaging API.
+
+	Access to the functions is through a global instantiation of the class called Msg or through the
+provided convenience functions
 
 ***************************************************************************************************/
 
 #include <exception>
-//#include <iostream>
 #include "FireweedMessaging.h"
 
+//Globals:------------------------------------------------------------------------------------------
+
+/** Use this global instantiation of the FWMessenger class for all Fireweed messaging.
+ *
+ */
 FWMessenger Msg;
+
+//Public Functions:---------------------------------------------------------------------------------
 
 /** Constructor
  *
