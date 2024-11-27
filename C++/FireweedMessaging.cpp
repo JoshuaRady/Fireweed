@@ -73,7 +73,7 @@ void FWMessenger::SetErrorStream(std::ostream* streamPtr)
  *
  * @param message A message to log.
  */
-void FWMessenger::LogMsg(const char* message)
+void FWMessenger::Log(const char* message)
 {
 	*logStream << message << std::endl;
 }
@@ -83,7 +83,7 @@ void FWMessenger::LogMsg(const char* message)
  * @param message A message to log.
  * @param value A numeric value to appended after the message.  A space is added between them.
  */
-void FWMessenger::LogMsg(const char* message, double value)
+void FWMessenger::Log(const char* message, double value)
 {
 	*logStream << message << " " << value << std::endl;
 }
@@ -93,7 +93,7 @@ void FWMessenger::LogMsg(const char* message, double value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void FWMessenger::LogMsg(const char* message, std::vector<double> value)
+void FWMessenger::Log(const char* message, std::vector<double> value)
 {
 	*logStream << message << " ";
 
@@ -110,7 +110,7 @@ void FWMessenger::LogMsg(const char* message, std::vector<double> value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void FWMessenger::LogMsg(const char* message, std::vector<int> value)
+void FWMessenger::Log(const char* message, std::vector<int> value)
 {
 	*logStream << message << " ";
 
