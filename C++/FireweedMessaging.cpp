@@ -57,7 +57,7 @@ void FWMessenger::SetErrorStream(std::ostream* streamPtr)
  */
 void FWMessenger::LogMsg(const char* message)
 {
-	*logStream << message << "\n";
+	*logStream << message << std::endl;
 }
 
 /** Log a neutral message with a numeric value.
@@ -67,7 +67,7 @@ void FWMessenger::LogMsg(const char* message)
  */
 void FWMessenger::LogMsg(const char* message, double value)
 {
-	*logStream << message << " " << value << "\n";
+	*logStream << message << " " << value << std::endl;
 }
 
 /** Log a neutral message with a numeric vector.
@@ -84,7 +84,7 @@ void FWMessenger::LogMsg(const char* message, std::vector<double> value)
 		*logStream << value[i] << ", ";
 	}
 
-	*logStream << value[value.size() - 1] << "\n";
+	*logStream << value[value.size() - 1] << std::endl;
 }
 
 /** Log a neutral message with a numeric vector.
@@ -101,7 +101,7 @@ void FWMessenger::LogMsg(const char* message, std::vector<int> value)
 		*logStream << value[i] << ", ";
 	}
 
-	*logStream << value[value.size() - 1] << "\n";
+	*logStream << value[value.size() - 1] << std::endl;
 }
 
 /** Post a non-fatal warning.
@@ -110,7 +110,7 @@ void FWMessenger::LogMsg(const char* message, std::vector<int> value)
  */
 void FWMessenger::Warning(const char* message)
 {
-	*warnStream << message << "\n";
+	*warnStream << message << std::endl;
 }
 
 /** Post a non-fatal warning.
@@ -119,7 +119,7 @@ void FWMessenger::Warning(const char* message)
  */
 void FWMessenger::Warning(const std::string& message)
 {
-	*warnStream << message << "\n";
+	*warnStream << message << std::endl;
 }
 
 /** Post the passed message and shutdown (not yet implemented!!!!!).
@@ -128,7 +128,7 @@ void FWMessenger::Warning(const std::string& message)
  */
 void FWMessenger::Stop(const char* message)
 {
-	*errorStream << message << "\n";
+	*errorStream << message << std::endl;
 	//Without a termination handler this will just result in abort() being called, which is probably
 	//acceptable since we only expect Stop() to be called when we can;t recover.
 	//Perhaps there is a more robust error throwing approach.
@@ -141,7 +141,7 @@ void FWMessenger::Stop(const char* message)
  */
 void FWMessenger::Stop(const std::string& message)
 {
-	*errorStream << message << "\n";
+	*errorStream << message << std::endl;
 	//Without a termination handler this will just result in abort() being called, which is probably
 	//acceptable since we only expect Stop() to be called when we can;t recover.
 	//Perhaps there is a more robust error throwing approach.
