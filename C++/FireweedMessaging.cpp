@@ -14,13 +14,13 @@ simple error messaging and logging.
 //#include <iostream>
 #include "FireweedMessaging.h"
 
-FwMsg Msg;// = FwMsg();
+FWMessenger Msg;
 
 /** Constructor
  *
  * Default all streams to cout.  These can be customized later.
  */
-FwMsg::FwMsg()
+FWMessenger::FWMessenger()
 {
 	logStream = &std::cout;
 	warnStream = &std::cout;
@@ -30,7 +30,7 @@ FwMsg::FwMsg()
 /** Set the stream used to post log messages.
  *
  */
-void FwMsg::SetLogStream(std::ostream* streamPtr)
+void FWMessenger::SetLogStream(std::ostream* streamPtr)
 {
 	logStream = streamPtr;
 }
@@ -38,7 +38,7 @@ void FwMsg::SetLogStream(std::ostream* streamPtr)
 /** Set the stream used to post warning messages.
  *
  */
-void FwMsg::SetWarnStream(std::ostream* streamPtr)
+void FWMessenger::SetWarnStream(std::ostream* streamPtr)
 {
 	warnStream = streamPtr;
 }
@@ -46,7 +46,7 @@ void FwMsg::SetWarnStream(std::ostream* streamPtr)
 /** Set the stream used to post fatal error messages.
  *
  */
-void FwMsg::SetErrorStream(std::ostream* streamPtr)
+void FWMessenger::SetErrorStream(std::ostream* streamPtr)
 {
 	errorStream = streamPtr;
 }
@@ -55,7 +55,7 @@ void FwMsg::SetErrorStream(std::ostream* streamPtr)
  *
  * @param message A message to log.
  */
-void FwMsg::LogMsg(const char* message)
+void FWMessenger::LogMsg(const char* message)
 {
 	*logStream << message << "\n";
 }
@@ -65,7 +65,7 @@ void FwMsg::LogMsg(const char* message)
  * @param message A message to log.
  * @param value A numeric value to appended after the message.  A space is added between them.
  */
-void FwMsg::LogMsg(const char* message, double value)
+void FWMessenger::LogMsg(const char* message, double value)
 {
 	*logStream << message << " " << value << "\n";
 }
@@ -75,7 +75,7 @@ void FwMsg::LogMsg(const char* message, double value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void FwMsg::LogMsg(const char* message, std::vector<double> value)
+void FWMessenger::LogMsg(const char* message, std::vector<double> value)
 {
 	*logStream << message << " ";
 
@@ -92,7 +92,7 @@ void FwMsg::LogMsg(const char* message, std::vector<double> value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void FwMsg::LogMsg(const char* message, std::vector<int> value)
+void FWMessenger::LogMsg(const char* message, std::vector<int> value)
 {
 	*logStream << message << " ";
 
@@ -108,7 +108,7 @@ void FwMsg::LogMsg(const char* message, std::vector<int> value)
  *
  * @param message A warning message.
  */
-void FwMsg::Warning(const char* message)
+void FWMessenger::Warning(const char* message)
 {
 	*warnStream << message << "\n";
 }
@@ -117,7 +117,7 @@ void FwMsg::Warning(const char* message)
  *
  * @param message A warning message.
  */
-void FwMsg::Warning(const std::string& message)
+void FWMessenger::Warning(const std::string& message)
 {
 	*warnStream << message << "\n";
 }
@@ -126,7 +126,7 @@ void FwMsg::Warning(const std::string& message)
  *
  * @param message An error message.
  */
-void FwMsg::Stop(const char* message)
+void FWMessenger::Stop(const char* message)
 {
 	*errorStream << message << "\n";
 	//Without a termination handler this will just result in abort() being called, which is probably
@@ -139,7 +139,7 @@ void FwMsg::Stop(const char* message)
  *
  * @param message An error message.
  */
-void FwMsg::Stop(const std::string& message)
+void FWMessenger::Stop(const std::string& message)
 {
 	*errorStream << message << "\n";
 	//Without a termination handler this will just result in abort() being called, which is probably

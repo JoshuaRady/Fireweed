@@ -21,13 +21,13 @@ is to send messages to standard out by default with means to alter that behavior
 #include <string>
 #include <vector>
 
-/** @class FwMsg
+/** @class FWMessenger
  * @brief A class for messaging (log, warning, error) in Fireweed.
  *
  */
-class FwMsg {//Name?????
+class FWMessenger {
 	public:
-		FwMsg();
+		FWMessenger();
 
 		void SetLogStream(std::ostream* streamPtr);
 		void SetWarnStream(std::ostream* streamPtr);
@@ -49,6 +49,6 @@ class FwMsg {//Name?????
 
 };
 
-extern FwMsg Msg;
+extern FWMessenger Msg;
 
 #endif //FIREWEEDMESSAGING_H
