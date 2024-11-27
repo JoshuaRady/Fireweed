@@ -15,7 +15,10 @@ to standard output.  This behavior can be altered by setting the output streams 
 type.  In this way messages can be routed into a host program's messaging API.
 
 	Access to the functions is through a global instantiation of the class called Msg or through the
-provided convenience functions
+provided convenience functions.
+
+	The R version of the library uses base R messaging functions.  We parallel the function naming
+used in R.
 
 ***************************************************************************************************/
 
@@ -137,7 +140,7 @@ void FWMessenger::Warning(const std::string& message)
 	*warnStream << message << std::endl;
 }
 
-/** Post the passed message and shutdown (not yet implemented!!!!!).
+/** Post the passed message and shutdown.
  *
  * @param message An error message.
  */
@@ -150,7 +153,7 @@ void FWMessenger::Stop(const char* message)
 	std::terminate();
 }
 
-/** Post the passed message and shutdown (not yet implemented!!!!!).
+/** Post the passed message and shutdown.
  *
  * @param message An error message.
  */
@@ -161,4 +164,42 @@ void FWMessenger::Stop(const std::string& message)
 	//acceptable since we only expect Stop() to be called when we can;t recover.
 	//Perhaps there is a more robust error throwing approach.
 	std::terminate();
+}
+
+//External Convenience Functions:-------------------------------------------------------------------
+
+/** Convenience wrapper for FWMessenger::Warning(). Post a non-fatal warning.
+ *
+ * @param message A warning message.
+ */
+void Warning(const char* message)
+{
+	Msg.Warning(message);
+}
+
+/** Convenience wrapper for FWMessenger::Warning(). Post a non-fatal warning.
+ *
+ * @param message A warning message.
+ */
+void Warning(const std::string& message)
+{
+	Msg.Warning(message);
+}
+
+/** Convenience wrapper for FWMessenger::Stop(). Post the passed message and shutdown.
+ *
+ * @param message An error message.
+ */
+void Stop(const char* message)
+{
+	Msg.Stop(message);
+}
+
+/** Convenience wrapper for FWMessenger::Stop(). Post the passed message and shutdown.
+ *
+ * @param message An error message.
+ */
+void Stop(const std::string& message)
+{
+	Msg.Stop(message);
 }

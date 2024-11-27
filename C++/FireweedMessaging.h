@@ -45,4 +45,11 @@ class FWMessenger {
 
 extern FWMessenger Msg;//Global interface.
 
+//External functions:
+
+void Warning(const char* message);
+void Warning(const std::string& message);
+void Stop(const char* message);
+void Stop(const std::string& message);
+
 #endif //FIREWEEDMESSAGING_H
