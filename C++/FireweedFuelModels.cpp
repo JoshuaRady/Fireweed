@@ -109,11 +109,11 @@ void FuelModel::ConvertUnits(UnitsType newUnits)
 			//Leave liveDead unchanged.
 			//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
 	
-			h = h / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
+			//h = h / kJPerBtu * kgPerLb;//kJ/kg -> Btu/lb
 	
 			//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
 	
-			rho_p = rho_p / lbPerFtCuToKgPerMCu;
+			//rho_p = rho_p / lbPerFtCuToKgPerMCu;
 	
 			for (int i = 0; i < numClasses; i++)
 			{
@@ -145,11 +145,11 @@ void FuelModel::ConvertUnits(UnitsType newUnits)
 			//Leave liveDead unchanged.
 			//M_x and M_x_1 are either unitless fractions or percentages and can be left unchanged.
 	
-			h = h * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
+			//h = h * kJPerBtu / kgPerLb;//Btu/lb -> kJ/kg
 	
 			//S_T, S_T_ij, S_e, and S_e_ij are unitless fractions and can be left unchanged.
 	
-			rho_p = rho_p * lbPerFtCuToKgPerMCu;
+			//rho_p = rho_p * lbPerFtCuToKgPerMCu;
 	
 			for (int i = 0; i < numClasses; i++)
 			{
