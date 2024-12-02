@@ -847,12 +847,11 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
                                     std::vector <int> liveDead, UnitsType units)
 {
 	int numFuelTypes;
-	double liveSum = 0;
 	double deadSum = 0;
-	double W;//Live / dead ratio.
+	double liveSum = 0;
+	double W;//Dead / live ratio.
 	double common;
 	double top = 0;//The numerator sum.
-	double bottom = 0;//The denominator sum.
 	double M_f_dead;
 	double M_x_2;//Return value.
 
@@ -886,13 +885,13 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	//W = Σj(wo)1jexp(-138/σ1j) / Σj(wo)2jexp(-500/σ2j)
 	for (int k = 0; k < numFuelTypes; k++)
 	{
-		if (liveDead[k] == Live)
+		if (liveDead[k] == Dead)
 		{
-			liveSum += w_o_ij[k] * exp(-138 / SAV_ij[k]);
+			deadSum += w_o_ij[k] * exp(-138 / SAV_ij[k]);
 		}
-		else//(liveDead[k] == Dead)
+		else//(liveDead[k] == Live)
 		{
-			deadSum += w_o_ij[k] * exp(-500 / SAV_ij[k]);
+			liveSum += w_o_ij[k] * exp(-500 / SAV_ij[k]);
 		}
 	}
 
@@ -901,22 +900,21 @@ double LiveFuelMoistureOfExtinction(std::vector <double> M_f_ij, double M_x_1,
 	//While not conceptual meaningful this has no has no mathematical consequence downstream.  Forcing
 	//the value to NA or 0 would cause mathematical problems downstream.
 
-	W = liveSum / deadSum;//Unitless ratio.
+	W = deadSum / liveSum;//Unitless ratio.
 
 	//Calculate fine dead fuel moisture as:
 	//Albini 1976 pg. 16:
 	//Mf,dead = Σj(Mf)1j(wo)1jexp(–138/σ1j) / Σj(wo)1jexp(–138/σ1j)
+	//The denominator sum is the same as deadSum above.
 	for (int k = 0; k < numFuelTypes; k++)
 	{
 		if (liveDead[k] == Dead)
 		{
-			common = w_o_ij[k] * exp(-138 / SAV_ij[k]);
-			top += M_f_ij[k] * common;
-			bottom += common;
+			top += M_f_ij[k] * w_o_ij[k] * exp(-138 / SAV_ij[k]);
 		}
 	}
 
-	M_f_dead = top / bottom;//Moisture fraction / unitless.
+	M_f_dead = top / deadSum;//Moisture fraction / unitless.
 
 	//Calculate the live fuel moisture of extinction ((Mx)2):
 	//Rothermel 1972 equation 88 with Albini 1976 pg. 16 modifications:
