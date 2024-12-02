@@ -194,11 +194,13 @@ double GSI_LiveFuelMoisture(double gsi, double lfmMin, double lfmMax, double gu)
  * @param gsi The Growing Season Index value for the location.
  * 
  * @returns Percent live fuel moisture (water weight/dry fuel weight * 100%).
+ *
+ * @note This returns percent fuel moisture while other Fireweed functions take moisture fraction.
  */
 double HerbaceousLiveFuelMoisture(double gsi)
 {
-	const double Min_H = 30;//Minimum live fuel moisture parameter.
-	const double Max_H = 250;//Maximum live fuel moisture parameter.
+	const double Min_H = 30;//Minimum live fuel moisture parameter (percent).
+	const double Max_H = 250;//Maximum live fuel moisture parameter (percent).
 	const double gu_H = 0.5;//Default GSI greenup threshold.
 
 	return GSI_LiveFuelMoisture(gsi, Min_H, Max_H, gu_H);
@@ -209,11 +211,13 @@ double HerbaceousLiveFuelMoisture(double gsi)
  * @param gsi The Growing Season Index value for the location.
  * 
  * @returns Percent live fuel moisture (water weight/dry fuel weight * 100%).
+ *
+ * @note This returns percent fuel moisture while other Fireweed functions take moisture fraction.
  */
 double WoodyLiveFuelMoisture(double gsi)
 {
-	const double Min_W = 60;//Minimum live fuel moisture parameter.
-	const double Max_W = 200;//Maximum live fuel moisture parameter.
+	const double Min_W = 60;//Minimum live fuel moisture parameter (percent).
+	const double Max_W = 200;//Maximum live fuel moisture parameter (percent).
 	const double gu_W = 0.5;//Default GSI greenup threshold.
 
 	return GSI_LiveFuelMoisture(gsi, Min_W, Max_W, gu_W);

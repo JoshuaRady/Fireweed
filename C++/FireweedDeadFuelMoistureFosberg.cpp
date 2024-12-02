@@ -66,7 +66,9 @@ Wildfire Coordinating Group (NWCG) and are included in the NWCG Incident Respons
  *  This is for field use only and may be omitted for other applications.
  * @param units: The units to use.  Only relevant to temp.
  *
- * @returns 1-hour fuel moisture (fraction: water weight/dry fuel weight).
+ * @returns 1-hour dead fuel percent moisture content (water weight/dry fuel weight * 100%).
+ *
+ * @note This returns percent fuel moisture while other Fireweed functions take moisture fraction.
  */
 double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::string tableC_Path,
                          std::string tableD_Path, double temp, double rh, int monthOfYear,
@@ -166,7 +168,9 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
  *  This is for field use only and may be omitted for other applications.
  * @param units: The units to use.  Only relevant to temp.
  *
- * @returns 1-hour fuel moisture (fraction: water weight/dry fuel weight).
+ * @returns 1-hour dead fuel percent moisture content (water weight/dry fuel weight * 100%).
+ *
+ * @note This returns percent fuel moisture while other Fireweed functions take moisture fraction.
  */
 double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::string tableC_Path,
                          std::string tableD_Path, double temp, double rh, int monthOfYear,
@@ -216,7 +220,9 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
  *             The result is undefined below 10 degrees Fahrenheit!!!!!
  * @param rh Relative humidity (percent).
  *
- * @returns Reference fuel moisture (fraction: water weight/dry fuel weight).
+ * @returns Reference fuel moisture (percent: water weight/dry fuel weight * 100%).
+ *
+ * @note: This function is called by FosbergNWCG_1HrFM().  Do not call it directly.
  */
 double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 {
@@ -356,7 +362,9 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
  *  A: The fire is 1000 - 2000 feet above the location where weather was recorded,
  *  This is for field use only and may be omitted for other applications.
  *
- * @returns Fuel moisture correction (fraction: water weight/dry fuel weight).
+ * @returns Fuel moisture correction (percent: water weight/dry fuel weight * 100%).
+ *
+ * @note: This function is called by FosbergNWCG_1HrFM().  Do not call it directly.
  */
 double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, double slopePct,
                                  char aspectCardinal, bool shaded, char elevation)
@@ -538,7 +546,9 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
  *
  * @param oneHrFM Fosberg NWCG prediction of 1-hr fuel moisture (fraction: water weight/dry fuel weight).
  *
- * @returns: 10-hour fuel moisture (fraction: water weight/dry fuel weight).
+ * @returns: 10-hour dead fuel percent moisture content (water weight/dry fuel weight * 100%).
+ *
+ * @note This returns percent fuel moisture while other Fireweed functions take moisture fraction.
  */
 double NWCG_10hrFM(double oneHrFM)
 {
@@ -552,7 +562,9 @@ double NWCG_10hrFM(double oneHrFM)
  *
  * @param oneHrFM Fosberg NWCG prediction of 1-hr fuel moisture (fraction: water weight/dry fuel weight).
  *
- * @eturns: 100-hour fuel moisture (fraction: water weight/dry fuel weight).
+ * @returns: 100-hour dead fuel percent moisture content (water weight/dry fuel weight * 100%).
+ *
+ * @note This returns percent fuel moisture while other Fireweed functions take moisture fraction.
  */
 double NWCG_100hrFM( double oneHrFM)
 {
