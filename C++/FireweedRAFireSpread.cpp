@@ -2071,7 +2071,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 	double R;//Spread rate.
 	SpreadCalcs calcs;//Return value.
 
-	ModelUnits = fuelModel.units;//Temporary!!!!! We need to decide if ModelUnits should be retained or not.
+	ModelUnits = units;//Temporary!!!!! We need to decide if ModelUnits should be retained or not.
 
 	//Parameter checking and processing:
 	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij, liveDead))
