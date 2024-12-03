@@ -129,7 +129,7 @@ functions used to manage units in the code.
  * 
  * Note*: This global is not integrated in the same way it is in the R code.  It establishes default
  * units for functions but the code does not curently change.  The R code provides SetModelUnits()
- * to set the units for a session.  It is unclear how useful this would be for the C++ uses cases.
+ * to set the units for a session.  It is unclear how useful this would be for the C++ use cases.
  */
 UnitsType ModelUnits = US;
 
@@ -2071,6 +2071,8 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 	double R;//Spread rate.
 	SpreadCalcs calcs;//Return value.
 
+	ModelUnits = fuelModel.units;//Temporary!!!!! We need to decide if ModelUnits should be retained or not.
+
 	//Parameter checking and processing:
 	if (!SameLengths(SAV_ij, w_o_ij, M_f_ij, h_ij, S_T_ij, S_e_ij, rho_p_ij, liveDead))
 	{
@@ -2373,7 +2375,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(FuelModel fuelModel,
 		
 		if (fuelModel.M_x_Units == Percent)
 		{
-			Stop("M_x units are in perceent and need to be a fraction.");
+			Stop("M_x units are in percent and need to be a fraction.");
 		}
 	}
 
