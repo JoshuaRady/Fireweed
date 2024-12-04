@@ -656,7 +656,7 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
 		//Msg.Log("FuelBedSAV() output is invalid:", fuelBedSAV);
 		Warning("FuelBedSAV() output is invalid.");
 		Msg.Log("fuelBedSAV =", fuelBedSAV);
-		Msg.Log("FuelBedSAV() inputs:")
+		Msg.Log("FuelBedSAV() inputs:");
 		Msg.Log("SAV_ij =", SAV_ij);
 		Msg.Log("f_ij =", f_ij);
 		Msg.Log("f_i =", f_i);
@@ -2662,10 +2662,10 @@ std::ostream& SpreadCalcs::Print(std::ostream& output) const
 	{
 		output << "Weights:" << std::endl;
 		//output << "f_ij: ";
-		//PrintVector(output, FuelWeights.f_ij);
-		output << "f_ij: " << VectorToStr(FuelWeights.f_ij) << std::endl;
-		output << "f_i: " << VectorToStr(FuelWeights.f_i) << std::endl;
-		output << "g_ij: " << VectorToStr(FuelWeights.g_ij) << std::endl;
+		//PrintVector(output, weights.f_ij);
+		output << "f_ij: " << VectorToStr(weights.f_ij) << std::endl;
+		output << "f_i: " << VectorToStr(weights.f_i) << std::endl;
+		output << "g_ij: " << VectorToStr(weights.g_ij) << std::endl;
 	}
 
 	//Heat source components:
@@ -2673,17 +2673,17 @@ std::ostream& SpreadCalcs::Print(std::ostream& output) const
 	
 	if (homogeneous)
 	{
-		output << "w_n: " << w_n_x << std::endl;
-		output << "h: " << h_x << std::endl;
-		output << "eta_M: " << eta_M_x << std::endl;
-		output << "eta_s: " << eta_s_x << std::endl;
+		output << "w_n: " << VectorToStr(w_n_x) << std::endl;
+		output << "h: " << VectorToStr(h_x) << std::endl;
+		output << "eta_M: " << VectorToStr(eta_M_x) << std::endl;
+		output << "eta_s: " << VectorToStr(eta_s_x) << std::endl;
 	}
 	else
 	{
-		output << "w_n_i: " << w_n_x << std::endl;
-		output << "h_i: " << h_x << std::endl;
-		output << "eta_M_i: " << eta_M_x << std::endl;
-		output << "eta_s_i: " << eta_s_x << std::endl;
+		output << "w_n_i: " << VectorToStr(w_n_x) << std::endl;
+		output << "h_i: " << VectorToStr(h_x) << std::endl;
+		output << "eta_M_i: " << VectorToStr(eta_M_x) << std::endl;
+		output << "eta_s_i: " << VectorToStr(eta_s_x) << std::endl;
 	}
 
 	output << "I_R: " << I_R << std::endl;
@@ -2712,7 +2712,7 @@ std::ostream& SpreadCalcs::Print(std::ostream& output) const
 	{
 		output << "Q_ig_ij: ";
 	}
-	PrintVector(output, FuelWeights.Q_ig_x);
+	PrintVector(output, Q_ig_x);
 
 	output << "heatSink: " << heatSink << std::endl;
 
