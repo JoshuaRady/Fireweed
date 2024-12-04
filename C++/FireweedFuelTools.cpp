@@ -236,7 +236,7 @@ std::vector <double> DistributeFuel(std::vector <double> distribSizes,
 	if (!FloatCompare(totalWt, 1.0))
 	{
 		//If they aren't we convert them:
-		//Warning("Adjusting weights to sum to zero.");
+		Warning("Adjusting weights to sum to zero.");
 
 		for (int i = 0; i < distribWts.size(); i++)
 		{
