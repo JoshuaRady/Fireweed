@@ -186,6 +186,8 @@ void FuelModel::ConvertUnits(UnitsType newUnits)
  *
  * Note: The homogenous aliases are pointing to bad addresses or something because the heterogeneous
  * members start as empty.  This needs to be fixed.
+ *
+ * @returns The ostream so it can be conatinated to.
  */
 std::ostream& FuelModel::Print(std::ostream& output) const
 {
