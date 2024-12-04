@@ -120,6 +120,7 @@ functions used to manage units in the code.
 
 #include "FireweedRAFireSpread.h"
 #include "FireweedMessaging.h"
+#include "FireweedStringUtils.h"
 #include "FireweedUtils.h"
 
 //Globals:------------------------------------------------------------------------------------------
@@ -2628,4 +2629,106 @@ double ByramsFlameLength(double I_B, UnitsType units)
 	}
 
 	return F_B;//L_f in Wilson 1980.
+}
+
+/*--------------------------------------------------------------------------------------------------
+SpreadCalcs Functions:
+	Should these be moved to new file
+--------------------------------------------------------------------------------------------------*/
+
+/** Print the contents of a SpreadCalcs object to an output stream.
+ *
+ * @param output The output stream to print to.
+ *
+ * @returns The ostream so it can be conatinated to.
+ */
+std::ostream& SpreadCalcs::Print(std::ostream& output) const
+{
+	output << "Spread rate calculations:" << std::endl;
+	output << "Units: " << units << std::endl;//Need to translate to string?
+	//output << "Homogeneous fuel model: " << homogeneous << std::endl;
+	if (homogeneous)
+	{
+		output << "Homogeneous fuel model." << std::endl;
+	}
+	else
+	{
+		output << "Heterogeneous fuel model." << std::endl;
+	}
+
+	output << "R: " << R << std::endl;
+
+	if (!homogeneous)//Weights: Only calculated for heterogeneous fuels.
+	{
+		output << "Weights:" << std::endl;
+		//output << "f_ij: ";
+		//PrintVector(output, FuelWeights.f_ij);
+		output << "f_ij: " << VectorToStr(FuelWeights.f_ij) << std::endl;
+		output << "f_i: " << VectorToStr(FuelWeights.f_i) << std::endl;
+		output << "g_ij: " << VectorToStr(FuelWeights.g_ij) << std::endl;
+	}
+
+	//Heat source components:
+	output << "GammaPrime: " << GammaPrime << std::endl;
+	
+	if (homogeneous)
+	{
+		output << "w_n: " << w_n_x << std::endl;
+		output << "h: " << h_x << std::endl;
+		output << "eta_M: " << eta_M_x << std::endl;
+		output << "eta_s: " << eta_s_x << std::endl;
+	}
+	else
+	{
+		output << "w_n_i: " << w_n_x << std::endl;
+		output << "h_i: " << h_x << std::endl;
+		output << "eta_M_i: " << eta_M_x << std::endl;
+		output << "eta_s_i: " << eta_s_x << std::endl;
+	}
+
+	output << "I_R: " << I_R << std::endl;
+	output << "xi: " << xi << std::endl;
+	output << "phi_s: " << phi_s << std::endl;
+	output << "phi_w: " << phi_w << std::endl;
+	output << "heatSource: " << heatSource << std::endl;
+
+	//Heat sink components:
+	if (homogeneous)
+	{
+		output << "rho_b: " << rho_b_x << std::endl;
+	}
+	else
+	{
+		output << "rho_b_bar: " << rho_b_x << std::endl;
+	}
+	
+	output << "epsilon: " << epsilon << std::endl;
+
+	if (homogeneous)
+	{
+		output << "Q_ig: ";
+	}
+	else
+	{
+		output << "Q_ig_ij: ";
+	}
+	PrintVector(output, FuelWeights.Q_ig_x);
+
+	output << "heatSink: " << heatSink << std::endl;
+
+	//Other components that can be informative:
+	output << "cSAV: " << cSAV << std::endl;
+	output << "packingRatio: " << packingRatio << std::endl;
+	output << "optimumPR: " << optimumPR << std::endl;
+
+	return output;
+}
+
+/* Overloaded stream print operator for SpreadCalcs.
+ *
+ */
+std::ostream& operator<<(std::ostream& output, const SpreadCalcs& spreadCalcs)
+{
+	spreadCalcs.Print(output);
+	return output;
 }

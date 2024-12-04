@@ -69,7 +69,7 @@ struct SpreadCalcs {//Name????? SpreadComponents
 	//Heat content for live/dead fuel (Btu/lb | kJ/kg):
 	std::vector <double> h_x;//homogeneous: h, heterogeneous: h_i
 	//Moisture damping coefficient for live/dead fuel categories (unitless):
-	std::vector <double> eta_M_x;//homogeneous: eta_M_i, heterogeneous: eta_M_i
+	std::vector <double> eta_M_x;//homogeneous: eta_M, heterogeneous: eta_M_i
 	//Mineral damping coefficient for live/dead fuel categories (unitless):
 	std::vector <double> eta_s_x;//homogeneous: eta_s, heterogeneous: eta_s_i
 	double I_R;//Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
@@ -88,7 +88,11 @@ struct SpreadCalcs {//Name????? SpreadComponents
 	double cSAV;//Fuel bed characteristic SAV (= SAV for homogeneous)
 	double packingRatio;//(Mean) packing ratio		xPackingRatio?????
 	double optimumPR;//Optimum packing ratio
+	
+	std::ostream& Print(std::ostream& output) const;//Print the struct contents.
 };
+
+std::ostream& operator<<(std::ostream& output, const SpreadCalcs& fm);//Overloaded stream print operator.
 
 //Functions:----------------------------------------------------------------------------------------
 
