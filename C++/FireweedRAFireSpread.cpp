@@ -1722,7 +1722,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
 	R = heatSource / heatSink;
 
 	calcs.units = units;
-	calcs.homogeneous = false;
+	calcs.homogeneous = true;
 	calcs.R = R;
 	//calcs.weights can remain empty.  We could make a single element set of weights but that seems unnecessary.
 	calcs.GammaPrime = GammaPrime;
@@ -2172,7 +2172,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//Pack the calculations into the struct:
 	calcs.units = units;
-	calcs.homogeneous = true;
+	calcs.homogeneous = false;
 	calcs.R = R;
 	calcs.weights = weights;
 	calcs.GammaPrime = GammaPrime;
