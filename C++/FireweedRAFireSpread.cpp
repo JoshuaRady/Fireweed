@@ -641,15 +641,27 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
 
 	for (int k = 0; k < numFuelTypes; k++)
 	{
-		//SAV_i[liveDead[k]] = SAV_i[liveDead[k]] + (f_ij[k] * SAV_ij[k]);
 		SAV_i[liveDead[k]] += f_ij[k] * SAV_ij[k];
 	}
 
 	//Sum the live and dead components to get the final value:
 	//Rothermel 1972 equation 71:
 	//σ = Σi fiσi (~ over sigma and sigma sub i in original)
-	fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);//Or:
-	//fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);
+	fuelBedSAV = (f_i[Dead] * SAV_i[Dead]) + (f_i[Live] * SAV_i[Live]);
+
+	//Value checking:
+	if (fuelBedSAV <= 0.0)
+	{
+		//Msg.Log("FuelBedSAV() output is invalid:", fuelBedSAV);
+		Warning("FuelBedSAV() output is invalid.");
+		Msg.Log("fuelBedSAV =", fuelBedSAV);
+		Msg.Log("FuelBedSAV() inputs:")
+		Msg.Log("SAV_ij =", SAV_ij);
+		Msg.Log("f_ij =", f_ij);
+		Msg.Log("f_i =", f_i);
+		Msg.Log("liveDead =", liveDead);
+	}
+	//Checking the positve value wouold require knowing the units.
 
 	return fuelBedSAV;
 }
