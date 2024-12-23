@@ -9,6 +9,8 @@
 #model representation for use with the Rothermel Albini (Rothermel 1972, Albini 1976) fire spread
 #model and related models.
 #
+#  The fule model object is a implemented as a R list with an fixed set of elements.  See
+#GetFuelModelFromDF() for the list structure.
 #___________________________________________________________________________________________________
 
 source("FireweedUnits.r")
