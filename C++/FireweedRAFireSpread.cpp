@@ -1625,7 +1625,7 @@ extern "C" void SpreadRateRothermelAlbini_HomoR(const double* SAV, const double*
 
 /** Albini 1976 modified Rothermel spread model for homogeneous fuels, fuel model version:
  *
- * 	Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+ * Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
  *
  * @par Input variables / parameters:
  * This version greatly reduces the number of parameters by taking a fuel model object that contains
@@ -1820,6 +1820,12 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
 		{
 			Stop("M_x units are in percent and need to be a fraction.");
 		}
+	}
+
+	//Check that the fuel model is in fact homogeneous:
+	if (fuelModel.numClasses != 1)
+	{
+		Warning("The fuel model is not homogeneous as expected. Ignoring all but the first fuel class.");
 	}
 
 	calcs = SpreadCalcsRothermelAlbini_Homo(fuelModel.SAV_ij[0],
