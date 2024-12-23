@@ -1583,6 +1583,12 @@ SpreadRateRothermelAlbini_HomoFM <- function(fuelModel,
     }
   }
   
+  #Check that the fuel model is in fact homogeneous:
+  if (length(fuelModel$SAV_ij) != 1)#Assumes the fuel model is structured validly.
+  {
+    warning("The fuel model is not homogeneous as expected. Ignoring all but the first fuel class.")
+  }
+  
   output = SpreadRateRothermelAlbini_Homo(fuelModel$SAV_ij[1],
                                           fuelModel$w_o_ij[1],
                                           fuelModel$delta,#fuelBedDepth
