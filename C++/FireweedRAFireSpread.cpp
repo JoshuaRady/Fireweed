@@ -442,7 +442,7 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	for (int i = 0; i < 2; i++)//i reused.
 	{
 		//Calculate the total weight for each size subclass (bin them) for this live/dead category:
-		double subclassTotal[6] = {0};//Explicitly initialized to reset for each iteration of the loop.
+		double subclassTotal[6] = {};//Explicitly initialize to zero for each iteration of the loop.
 		
 		//The weight of the sixth and largest subclass (index 5) is always 0 so we skip it.
 		for (int o = 0; o < 5; o++)
@@ -625,7 +625,7 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
                   std::vector<int> liveDead)
 {
 	int numFuelTypes;
-	double SAV_i[2];//SAV by live / dead category.
+	double SAV_i[2] = {0, 0};;//SAV by live / dead category.
 	double fuelBedSAV;//Return value.
 
 	//Argument checking:
@@ -653,7 +653,6 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
 	//Value checking:
 	if (fuelBedSAV <= 0.0)
 	{
-		//Msg.Log("FuelBedSAV() output is invalid:", fuelBedSAV);
 		Warning("FuelBedSAV() output is invalid.");
 		Msg.Log("fuelBedSAV =", fuelBedSAV);
 		Msg.Log("FuelBedSAV() inputs:");
@@ -662,7 +661,7 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
 		Msg.Log("f_i =", f_i);
 		Msg.Log("liveDead =", liveDead);
 	}
-	//Checking the positve value wouold require knowing the units.
+	//Checking positve values wouold require knowing the units and a reasonable value ranges.
 
 	return fuelBedSAV;
 }
@@ -1781,7 +1780,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
 
 /** Albini 1976 modified Rothermel spread model for homogeneous fuels, fuel model version:
  *
- * 	Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
+ * Calculate the steady state spread rate for surface fuels and environmental conditions passed in.
  * This variant returns many of the component calculated values in the spread rate calculation.
  * The function parameters are the same as fuel model version of SpreadRateRothermelAlbini_Homo().
  *
@@ -1819,7 +1818,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
 		
 		if (fuelModel.M_x_Units == Percent)
 		{
-			Stop("M_x units are in perceent and need to be a fraction.");
+			Stop("M_x units are in percent and need to be a fraction.");
 		}
 	}
 
