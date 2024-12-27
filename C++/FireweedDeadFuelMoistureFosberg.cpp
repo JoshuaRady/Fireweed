@@ -568,7 +568,7 @@ double NWCG_10hrFM(double oneHrFM)
  */
 double NWCG_100hrFM( double oneHrFM)
 {
-  return(oneHrFM * 1.03);//Add 3%.
+  return oneHrFM * 1.03;//Add 3%.
 }
 
 //Unit Tests:---------------------------------------------------------------------------------------
