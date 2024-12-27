@@ -190,14 +190,14 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
         break
       }
     }
-    else
+    else#Last bin:
     {
       #The last bin only has a lower temperature bound:
       if (tempF >= tempRangeBottoms[i])
       {
         tempIndex = i
       }
-      else#Should not possible with a valid values.
+      else#This could happen if the temperature is below the lowest bin.  Add check!!!!!
       {
         stop("Match not found.")
       }
@@ -216,7 +216,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
         break
       }
     }
-    else
+    else#Last bin:
     {
       #The value must match the final bin but we check anyway:
       if (rh == rhRangeBottoms[j])

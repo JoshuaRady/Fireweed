@@ -287,7 +287,7 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 
 		tempIndex += 1;
 	}
-	tempIndex = -1;//Reset to use as the search index.
+	tempIndex = -1;//Reset to use as the search index.  Value will be overwritten if a match is found.
 
 	//Search for the matching value:
 	for (int i = 0; i < numTempBins; i++)
@@ -301,23 +301,23 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 				break;
 			}
 		}
-		else
+		else//Last bin:
 		{
 			//The last bin only has a lower temperature bound:
 			if (tempF >= tempRangeBottoms[i])
 			{
 				tempIndex = i;
 			}
-			else//This could happen if the temperature is below the lowest bin.  Add check!!!!
+			else//This could happen if the temperature is below the lowest bin.  Add check!!!!!
 			{
 				Stop("Match not found.");
 			}
 		}
 	}
 
-	for (int j; j < j < numRHBins; j++)
+	for (int j = 0; j < j < numRHBins; j++)
 	{
-		if (j < numRHBins)
+		if (j < (numRHBins - 1))
 		{
 			//The top bound for each bin is the bottom of the next:
 			if (rh >= rhRangeBottoms[j] && rh < rhRangeBottoms[j + 1])
@@ -326,7 +326,7 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 				break;
 			}
 		}
-		else
+		else//Last bin:
 		{
 			//The value must match the final bin but we check anyway:
 			if (rh == rhRangeBottoms[j])
