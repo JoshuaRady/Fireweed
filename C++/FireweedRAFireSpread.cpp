@@ -2650,7 +2650,16 @@ SpreadCalcs Functions:
 std::ostream& SpreadCalcs::Print(std::ostream& output) const
 {
 	output << "Spread rate calculations:" << std::endl;
-	output << "Units: " << units << std::endl;//Need to translate to string?
+
+	if (units == US)
+	{
+		output << "Units: US" << std::endl;
+	}
+	else
+	{
+		output << "Units: Metric" << std::endl;
+	}
+
 	//output << "Homogeneous fuel model: " << homogeneous << std::endl;
 	if (homogeneous)
 	{
@@ -2701,13 +2710,13 @@ std::ostream& SpreadCalcs::Print(std::ostream& output) const
 	if (homogeneous)
 	{
 		output << "rho_b: " << rho_b_x << std::endl;
+		output << "epsilon: " << epsilon << std::endl;
 	}
 	else
 	{
 		output << "rho_b_bar: " << rho_b_x << std::endl;
+		output << "epsilon: " << epsilon << " (Not used in heterogeneous fuel models)" << std::endl;
 	}
-	
-	output << "epsilon: " << epsilon << std::endl;
 
 	if (homogeneous)
 	{
