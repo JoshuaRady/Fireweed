@@ -264,16 +264,16 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 // 		}
 // 	}
 	//Don't print a hanging comma:
-	bool firstElment = true;
+	bool firstClass = true;
 	for (int ld : liveDead)
 	{
-		if (!firstElment)
+		if (!firstClass)
 		{
 			output << ", ";
 		}
 		else
 		{
-			firstElment = false;
+			firstClass = false;
 		}
 
 		if (ld == Dead)
