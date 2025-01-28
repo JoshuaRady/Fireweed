@@ -52,8 +52,6 @@ struct FuelWeights {
  * The homogeneous and heterogenous forms of the spread calculations have some differences in their
  * intermediate calculations.  Members that have different interpretations based on the fuel model
  * type are indicated by trailing x subscripts (i.e. _x).  See the comments below.
- *
- * @note Adding a print() function could be useful.
  */
 struct SpreadCalcs {//Name????? SpreadComponents
 	UnitsType units;//The unit type for the values.

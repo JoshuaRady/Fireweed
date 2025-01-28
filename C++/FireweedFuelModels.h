@@ -109,7 +109,6 @@ class FuelModel {
 	//Model model properties:
 	FuelModelType type;//Static vs. Dynamic
 	UnitsType units;//The model units type.
-	//Should add member to indicate units of fuel loading.
 	bool cured;//For dynamic models, has curing been applied to the herbaceous fuels?
 	int numClasses;//The number of fuel classes.  Can be inferred but...
 	UnitCode w_o_Units;//Units used for w_o_ij.
