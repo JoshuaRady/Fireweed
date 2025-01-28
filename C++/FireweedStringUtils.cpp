@@ -122,7 +122,7 @@ std::vector<std::string> SplitDelim(const std::string& str, char delimiter, bool
  *
  * Turn into a template?
  */
-std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec, std::string separator)
+std::ostream& PrintVector(std::ostream& output, const std::vector<double>& vec, std::string separator)
 {
 	for (int i = 0; i < vec.size() - 1; i++)
 	{
@@ -140,7 +140,7 @@ std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec,
  *
  * Turn into a template?
  */
-std::string VectorToStr(const std::vector <double> vec, std::string separator)
+std::string VectorToStr(const std::vector<double> vec, std::string separator)
 {
 	std::string str;
 
