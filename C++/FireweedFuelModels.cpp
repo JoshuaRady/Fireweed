@@ -317,9 +317,12 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	output << "rho_p_ij: ";
 	PrintVector(output, rho_p_ij);
 
-	output << "cSAV: " << cSAV << std::endl;
-	output << "bulkDensity: " << bulkDensity << std::endl;
-	output << "relativePackingRatio: " << relativePackingRatio << std::endl;
+	//These are precalcualted values populated when we load from a file.  These are not recalculated
+	//when the fuel model is updated so could be out of date.  They could be removed in the future.
+	//For now we label them to be clear.
+	output << "cSAV: " << cSAV << " (precalculated)" << std::endl;
+	output << "bulkDensity: " << bulkDensity << " (precalculated)" << std::endl;
+	output << "relativePackingRatio: " << relativePackingRatio << " (precalculated)" << std::endl;
 	
 	if (M_f_ij.empty())
 	{
