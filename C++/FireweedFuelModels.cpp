@@ -252,21 +252,10 @@ std::ostream& FuelModel::Print(std::ostream& output) const
 	output << "Delta: " << delta << std::endl;
 
 	output << "LiveDead: ";
-// 	for (int ld : liveDead)
-// 	{
-// 		if (ld == Dead)
-// 		{
-// 			output << "Dead" << ", ";
-// 		}
-// 		else//(ld == Live)
-// 		{
-// 			output << "Live" << ", ";
-// 		}
-// 	}
-	//Don't print a hanging comma:
 	bool firstClass = true;
 	for (int ld : liveDead)
 	{
+		//Don't print a hanging comma:
 		if (!firstClass)
 		{
 			output << ", ";
