@@ -74,7 +74,7 @@ struct SpreadCalcs {//Name????? SpreadComponents
 	double xi;//Propagating flux ratio (dimensionless ratio).
 	double phi_s;//Slope factor (dimensionless).
 	double phi_w;//Wind factor (dimensionless).
-	double heatSource;
+	double heatSource;//Heat transfereed ahead of the fire (Btu/ft^2/min | kJ/m^2/min).
 	
 	//Heat sink components:
 	double rho_b_x;//(Mean) bulk density: homogeneous: rho_b, heterogeneous: rho_b_bar
