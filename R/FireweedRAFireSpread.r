@@ -2007,7 +2007,7 @@ ResidenceTime <- function(cSAV, units = ModelUnits)#ResidenceTimeAnderson
   }
   else
   {
-    t_r = 12.59843 / ScAV#384 / cmPerFt = 12.59843
+    t_r = 12.59843 / cSAV#384 / cmPerFt = 12.59843
     #Wilson 1980 & Andrews 2018 use 12.6 in the alternative formulation of Byram's fireline 
     #intensity.  See ByramsFirelineIntensity().
   }
