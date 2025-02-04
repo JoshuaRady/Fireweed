@@ -1831,7 +1831,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(FuelModel fuelModel,
 	calcs = SpreadCalcsRothermelAlbini_Homo(fuelModel.SAV_ij[0],
 	                                        fuelModel.w_o_ij[0],
 	                                        fuelModel.delta,//fuelBedDepth
-	                                        fuelModel.M_x,
+	                                        fuelModel.M_x_1,//M_x FW_NOTE: Restore!!!!!
 	                                        M_f, U, slopeSteepness,
 	                                        fuelModel.h_ij[0],
 	                                        fuelModel.S_T_ij[0],
