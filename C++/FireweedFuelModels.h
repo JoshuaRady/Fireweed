@@ -96,6 +96,9 @@ const int Live = 1;
  * @par Fuel Model Properties:
  * For more information on fuel model data members see the documentation in FireweedRAFireSpread.cpp.
  * Add more here!!!!! ...
+ *
+ * @note The homogeneous aliases M_x, h, S_T, S_e, and rho_p are in the process of being removed and
+ * may be replaced by convenience functions.
  */
 class FuelModel {
 	public:
@@ -125,7 +128,7 @@ class FuelModel {
 
 	//Dead fuel moisture of extinction (fraction: water weight/dry fuel weight).
 	double M_x_1;
-	double& M_x = M_x_1;
+	//double& M_x = M_x_1;
 
 	//The fuel moisture content (M_f, M_f_ij) is an environmental fuel property which is supplied
 	//separately from the fuel model but could be added to the object.
@@ -135,19 +138,19 @@ class FuelModel {
 	
 	//Heat content of the fuel types (Btu/lb | kJ/kg):
 	std::vector <double> h_ij;
-	double& h = h_ij[0];
+	//double& h = h_ij[0];
 
 	//S_T_ij = Total mineral content for each fuel type (unitless fraction):
 	std::vector <double> S_T_ij;
-	double& S_T = S_T_ij[0];
+	//double& S_T = S_T_ij[0];
 	
 	//Effective mineral content (unitless fraction (mineral mass – mass silica) / total dry mass):
 	std::vector <double> S_e_ij;
-	double& S_e = S_e_ij[0];
+	//double& S_e = S_e_ij[0];
 
 	//Fuel particle density (lb/ft^3 | kg/m^3):
 	std::vector <double> rho_p_ij;
-	double& rho_p = rho_p_ij[0];
+	//double& rho_p = rho_p_ij[0];
 
 	//Precalculated columns (could be removed):
 	double cSAV;//Characteristic SAV of the fuel bed. [characteristicSAV in R!!!!!]
