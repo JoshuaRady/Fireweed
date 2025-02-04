@@ -527,12 +527,12 @@ void FuelModel::CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool war
 		//This is exact at 30 and 120%:
 		double cureFrac = 1.0 - ((M_f_21 - 0.3) / 0.9);//1.2 - 0.3 = 0.9
 		
-		if (cureFrac < 0)
+		if (cureFrac < 0.0)
 		{
 			cureFrac = 0.0;
 			//Could break out here as no curing needs to be applied.
 		}
-		else if (cureFrac > 1)
+		else if (cureFrac > 1.0)
 		{
 			cureFrac = 1.0;
 		}
