@@ -501,50 +501,53 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 	We currently always put the dead herbaceous class at the second position (1,2).  If we compare
 	the SAVs where we expect the herbaceous classes to be that is a pretty good check.
 	It might be safer to pass in the curing status.*/
-	if (SAV_ij[FuelClassIndex(liveDead, Dead, 2)] == SAV_ij[FuelClassIndex(liveDead, Live, 1)])//Implied cured:
+	//int oneHrPos = 0;//Might be good to abstract these assumed indexes!!!!!
+	//int herbPos = 0;
+	if (SAV_ij[FuelClassIndex(liveDead, Dead, 1)] == SAV_ij[FuelClassIndex(liveDead, Live, 0)])//Implied cured:
 	{
-		//if (!isTRUE(all.equal(sum(g_ij[liveDead == Dead]), 1)))
-		if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1))
+		if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1.0))
 		{
-			//The 1hr fuel (1,1) and dead herbaceous(1,2) classes should have the same weights,
-			//unless the curing is 0.  In that case w_o_12 is 0 and the total will be 1:
-			if (wts.g_ij[FuelClassIndex(liveDead, Dead, 1)] !=
-			    wts.g_ij[FuelClassIndex(liveDead, Dead, 2)])
+			//The 1hr fuel (0,0) and dead herbaceous (0,1) classes should have the same weights,
+			//unless the curing is 0.  In that case w_o_01 is 0 and the total will be 1:
+			if (wts.g_ij[FuelClassIndex(liveDead, Dead, 0)] !=
+			    wts.g_ij[FuelClassIndex(liveDead, Dead, 1)])
 			{
-				Stop("g_ij 1hr and dead herbaceous fuels do not have the same weights.");
-				//g_ij
-				
+				//Stop("g_ij 1hr and dead herbaceous fuels do not have the same weights.");
+				Stop("g_ij 1hr and dead herbaceous fuels do not have the same weights." +
+				     VectorToStr(wts.g_ij));
 			}
 
 			//Excluding the dead herbaceous the dead fuels should sum to 1:
 			if (FloatCompare((SumByFuelCat(wts.g_ij, liveDead, Dead) -
-			                  wts.g_ij[FuelClassIndex(liveDead, Dead, 2)]), 1))
+			                  wts.g_ij[FuelClassIndex(liveDead, Dead, 1)]), 1.0))
 			{
 				Stop("g_ij dead fuels do not have values expected for implied cured status.");
-				//g_ij
+				Stop("g_ij dead fuels do not have values expected for implied cured status." +
+				     VectorToStr(wts.g_ij));
 			}
 		}
 	}
 	else//Uncured:
 	{
-		if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1))
+		if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1.0))
 		{
 			Stop("g_ij dead fuels do not sum to 1.");
 		}
 	}
 
 	//The dead fuel components of g_ij should always sum to 1:
-	if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1))
-	{
-		Stop("g_ij dead fuels do not sum to 1.");
-	}
+	//Actually see above?????
+	//if (!FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Dead), 1))
+	//{
+	//	Stop("g_ij dead fuels do not sum to 1.");
+	//}
 
 	//For static models the live fuel components of f_ij will sum to 1 if present or 0 if not present.
 	//However, for dynamic fuel models both live classes may be have values of 0 or 1, so sums of 0, 1,
 	//and 2 are possible:
-	if (!(FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 0) ||
-			  FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 1) ||
-			  FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 2)))
+	if (!(FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 0.0) ||
+		  FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 1.0) ||
+		  FloatCompare(SumByFuelCat(wts.g_ij, liveDead, Live), 2.0)))
 	{
 		Stop("Invalid g_ij weights for live fuels.");
 	}
