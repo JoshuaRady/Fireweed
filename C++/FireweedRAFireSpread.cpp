@@ -513,16 +513,16 @@ FuelWeights CalcWeightings(std::vector<double> SAV_ij, std::vector<double> w_o_i
 			    wts.g_ij[FuelClassIndex(liveDead, Dead, 1)])
 			{
 				//Stop("g_ij 1hr and dead herbaceous fuels do not have the same weights.");
-				Stop("g_ij 1hr and dead herbaceous fuels do not have the same weights." +
+				Stop("g_ij 1hr and dead herbaceous fuels do not have the same weights: " +
 				     VectorToStr(wts.g_ij));
 			}
 
 			//Excluding the dead herbaceous the dead fuels should sum to 1:
-			if (FloatCompare((SumByFuelCat(wts.g_ij, liveDead, Dead) -
-			                  wts.g_ij[FuelClassIndex(liveDead, Dead, 1)]), 1.0))
+			if (!FloatCompare((SumByFuelCat(wts.g_ij, liveDead, Dead) -
+			                   wts.g_ij[FuelClassIndex(liveDead, Dead, 1)]), 1.0))
 			{
-				Stop("g_ij dead fuels do not have values expected for implied cured status.");
-				Stop("g_ij dead fuels do not have values expected for implied cured status." +
+				//Stop("g_ij dead fuels do not have values expected for implied cured status.");
+				Stop("g_ij dead fuels do not have values expected for implied cured status: " +
 				     VectorToStr(wts.g_ij));
 			}
 		}
