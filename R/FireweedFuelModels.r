@@ -305,7 +305,7 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
       #cureFrac = -1.11 * M_f_21 + 1.33
       #Note: We can't use T, since T = TRUE in R.
       #This is exact at 30 and 120%:
-      cureFrac = (M_f_21 - 0.3) / 0.9#1.2 - 0.3 = 0.9
+      cureFrac = 1.0 - ((M_f_21 - 0.3) / 0.9)#1.2 - 0.3 = 0.9
       
       if (cureFrac < 0)
       {
