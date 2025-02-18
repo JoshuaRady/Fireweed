@@ -299,7 +299,7 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
   if (fm$Type == "Dynamic")
   {
     #The live herbaceous is the first dead fuel.  The index should be 4 for standard fuel models:
-    liveHerbIndex = match(2, fm$liveDead)#Should change to Live!!!!!
+    liveHerbIndex = match(Live, fm$liveDead)
     
     #Either M_f_ij or curing must be provided but not both:
     if (!is.null(M_f_ij))
@@ -349,7 +349,7 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
     }
     
     #Expand the number of fuel classes, inserting the cured herbaceous at the second dead position,
-    #(Live, 2) in 1 based space:
+    #(Dead, 2) in 1 based space:
     fm$w_o_ij = c(fm$w_o_ij[1], 0, fm$w_o_ij[2:fm$NumClasses])#Initial loading = 0.
     #Curing doesn't change SAV.  Inherit from the live herbaceous:
     fm$SAV_ij = c(fm$SAV_ij[1], fm$SAV_ij[liveHerbIndex], fm$SAV_ij[2:fm$NumClasses])
@@ -362,7 +362,7 @@ CalculateDynamicFuelCuring <- function(fm, M_f_ij = NULL, curing = NULL, warn = 
     fm$rho_p_ij = c(fm$rho_p_ij[1], fm$rho_p_ij[liveHerbIndex], fm$rho_p_ij[2:fm$NumClasses])
     
     #Expand liveDead:
-    fm$liveDead = c(fm$liveDead[1], 1, fm$liveDead[2:fm$NumClasses])#Change to Dead!!!!!
+    fm$liveDead = c(fm$liveDead[1], Dead, fm$liveDead[2:fm$NumClasses])
     
     #Update the moisture content vector if provided:
     if (!is.null(M_f_ij))
