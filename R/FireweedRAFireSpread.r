@@ -116,18 +116,14 @@
 #and below for functions used to manage units in the code.
 #___________________________________________________________________________________________________
 
-source("FireweedUnits.r")
-source("FireweedUtils.r")
+#source("FireweedUnits.r")
+#source("FireweedUtils.r")
+source("FireweedFuelModels.r")#For Dead and Live, will source FireweedUnits.r and FireweedUtils.r.
 
 #Globals:-------------------------------------------------------------------------------------------
 #Specify the units to use.  The default is United States customary units.
 #This should not be set directly.  Use SetModelUnits().  If R allowed it this would be kept private.
 ModelUnits = "US"
-
-#The values of the live dead categories are forced to match the matching array indexes so they may
-#be used to access arrays of the form X_i (values are language specific):
-Dead = 1
-Live = 2
 
 #Code:----------------------------------------------------------------------------------------------
 

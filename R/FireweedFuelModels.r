@@ -16,6 +16,16 @@
 source("FireweedUnits.r")
 source("FireweedUtils.r")
 
+#Constants:-----------------------------------------------------------------------------------------
+
+#Fuel Category Constants:
+#The values of the live dead categories are forced to match the matching array indexes so they may
+#be used to access arrays of the form X_i (values are language specific):
+Dead = 1
+Live = 2
+
+#Code:----------------------------------------------------------------------------------------------
+
 #Find a fuel model in the specified file and return it as a fuel model object (list).
 #
 #Parameters:
