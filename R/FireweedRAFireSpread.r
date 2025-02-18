@@ -555,7 +555,7 @@ CalcWeightings <- function(SAV_ij, w_o_ij, rho_p_ij, liveDead, units = ModelUnit
   {
     if (!isTRUE(all.equal(sum(g_ij[liveDead == Dead]), 1)))
     {
-      #The 1hr fuel (1,1) and dead herbaceous(1,2) classes should have the same weights, unless the
+      #The 1hr fuel (1,1) and dead herbaceous (1,2) classes should have the same weights, unless the
       #curing is 0.  In that case w_o_12 is 0 and the total will be 1:
       if ((g_ij[liveDead == Dead][1] != g_ij[liveDead == Dead][2]))
       {
