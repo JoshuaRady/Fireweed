@@ -48,7 +48,7 @@ The Rothermel and Albini spread model use the concept of **fuel models** to char
 
 ### Fuel Moisture
 
-Equations for calculating dead fuel moisture are provided using the Rothermel 1981 / NWCG variant of the Fosberg model.  This method has the advantage of only requiring current day weather conditions but its estimates are made through simple lookup table based calculation.  These predictions will not be a reliable and calculations that consider past weather.  We plan to add a more robust method in the near future.
+Equations for calculating dead fuel moisture are provided using the Rothermel 1983 / NWCG variant of the Fosberg model.  This method has the advantage of only requiring current day weather conditions but its estimates are made through simple lookup table based calculation.  These predictions will not be a reliable and calculations that consider past weather.  We plan to add a more robust method in the near future.
 
 Dead fuel moisture can be calculated using an implementation of the GSI based system used in NFDRS 2016.
 
@@ -61,7 +61,7 @@ Utilities have been provided for some basic tasks.  These utilities are provided
 The Fireweed Wildfire Code Library is provided in two largely parallel versions, one in R, and one in C++.  R is particularly useful for experimentation since it can be used interactively.  We use it for one-off experiments, working out ideas, and prototyping.  C++ is significantly faster.  We use the C++ modules for integration with other scientific software.
 
 ### R Code
-The R code is an informal library.  It is source-able but it not structured as a R package and there is no plan make it into one at this time.  Rather the priority was to keep the R code in a form that is easy to read and follow.  The code is written with minimal R dependancies (is is base R).  For maintainability efforts have been made to keep the code structure as parrallel to the C++ code as possible.
+The R code is an informal library.  It is source-able but it not structured as a R package and there is no plan make it into one at this time.  Rather the priority was to keep the R code in a form that is easy to read and follow.  The code is written with minimal R dependancies (it is base R).  For maintainability efforts have been made to keep the code structure as parrallel to the C++ code as possible.
 
 ### C++ Code
 The C++ code is structured so it can be compiled as a shared library or linked into an application.  The code includes R interface functions that allow some of the main code entry points in the shared library to be called from R code via the .C() function.

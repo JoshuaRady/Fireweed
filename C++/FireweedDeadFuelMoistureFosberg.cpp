@@ -27,7 +27,7 @@ Forest and Range Experiment Station. 161 p., 1983.
   This presents a modified version of the tables presented in Fosberg and Deeming 1971 for use in
 field estimation of 1-hour fuel moisture.  These tables remain in use today by the National
 Wildfire Coordinating Group (NWCG) and are included in the NWCG Incident Response Pocket Guide
-(IPTG, as of 2022) carried by wildland firefighters.
+(IRPG, as of 2022) carried by wildland firefighters.
 
 ***************************************************************************************************/
 
