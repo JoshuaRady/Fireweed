@@ -22,7 +22,7 @@ Reference: Proj. 11 Exp. 19
  *
  * @param vec1, vec2, ... A series of vector vecument to compare.
  *
- * @returns Do the vectors have the same number of elements.
+ * @returns Do the vectors have the same number of elements?
  */
 template <typename T1, typename T2>
 bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2)
