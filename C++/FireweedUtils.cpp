@@ -51,22 +51,22 @@ Reference: Proj. 11 Exp. 19
 // 	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3));
 // }
 
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<int> arg3)
-{
-	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3));
-}
+// bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<int> arg3)
+// {
+// 	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3));
+// }
 
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
-                 std::vector<double> arg4)
-{
-	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3) && SameLengths(arg1, arg4));
-}
-
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
-                 std::vector<int> arg4)
-{
-	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3) && SameLengths(arg1, arg4));
-}
+// bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
+//                  std::vector<double> arg4)
+// {
+// 	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3) && SameLengths(arg1, arg4));
+// }
+// 
+// bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
+//                  std::vector<int> arg4)
+// {
+// 	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3) && SameLengths(arg1, arg4));
+// }
 
 //7 doubles:
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,

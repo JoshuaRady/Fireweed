@@ -30,11 +30,19 @@ bool SameLengths(const std::vector<T1>& arg1, const std::vector<T2>& arg2, const
 	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3));
 }
 
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<int> arg3);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
-                 std::vector<double> arg4);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
-                 std::vector<int> arg4);
+//bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<int> arg3);
+
+// bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
+//                  std::vector<double> arg4);
+// bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
+//                  std::vector<int> arg4);
+template <typename T1, typename T2, typename T3, typename T4>
+bool SameLengths(const std::vector<T1>& arg1, const std::vector<T2>& arg2,
+                 const std::vector<T3>& arg3, const std::vector<T4>& arg4)
+{
+	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3) && SameLengths(arg1, arg4));
+}
+
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
                  std::vector<double> arg4, std::vector<double> arg5, std::vector<double> arg6,
                  std::vector<double> arg7);
