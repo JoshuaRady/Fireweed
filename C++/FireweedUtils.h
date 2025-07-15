@@ -14,18 +14,22 @@ Reference: Proj. 11 Exp. 19
 
 #include <vector>
 
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2);
+//bool SameLengths(std::vector<double> arg1, std::vector<double> arg2);
 
-// template <typename T1, typename T2>
-// bool SameLengthsT(const std::vector<T1>& arg1, const std::vector<T2>& arg2);
 template <typename T1, typename T2>
-bool SameLengthsT(const std::vector<T1>& arg1, const std::vector<T2>& arg2)
+bool SameLengths(const std::vector<T1>& arg1, const std::vector<T2>& arg2)
 {
 	return (arg1.size() == arg2.size());
 }
 
-bool SameLengths(std::vector<double> arg1, std::vector<int> arg2);
-bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3);
+//bool SameLengths(std::vector<double> arg1, std::vector<int> arg2);
+//bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3);
+template <typename T1, typename T2, typename T3>
+bool SameLengths(const std::vector<T1>& arg1, const std::vector<T2>& arg2, const std::vector<T3>& arg3)
+{
+	return (SameLengths(arg1, arg2) && SameLengths(arg1, arg3));
+}
+
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<int> arg3);
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3,
                  std::vector<double> arg4);
