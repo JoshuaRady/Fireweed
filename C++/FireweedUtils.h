@@ -14,8 +14,8 @@ Reference: Proj. 11 Exp. 19
 
 #include <vector>
 
-/** The SameLengths() utility checks that the vectors passed have the same length. 2-4 and 7
- * vecuments are accepted.
+/** The SameLengths() utility checks that the vectors passed have the same length. 2-8 vectors
+ * are accepted.
  *
  * Overloading and templates have been used to handle vector vecuments of different types in any
  * order reproducing the behavior of the R function.
@@ -43,6 +43,24 @@ bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
 	return (SameLengths(vec1, vec2) && SameLengths(vec1, vec3) && SameLengths(vec1, vec4));
 }
 
+template <typename T1, typename T2, typename T3, typename T4, typename T5>
+bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
+                 const std::vector<T3>& vec3, const std::vector<T4>& vec4,
+                 const std::vector<T5>& vec5)
+{
+	return (SameLengths(vec1, vec2) && SameLengths(vec1, vec3) && SameLengths(vec1, vec4) &&
+			SameLengths(vec1, vec5));
+}
+
+template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
+bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
+                 const std::vector<T3>& vec3, const std::vector<T4>& vec4,
+                 const std::vector<T5>& vec5, const std::vector<T6>& vec6)
+{
+	return (SameLengths(vec1, vec2) && SameLengths(vec1, vec3) && SameLengths(vec1, vec4) &&
+			SameLengths(vec1, vec5) && SameLengths(vec1, vec6));
+}
+
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
                  const std::vector<T3>& vec3, const std::vector<T4>& vec4,
@@ -53,7 +71,7 @@ bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
 			SameLengths(vec1, vec5) && SameLengths(vec1, vec6) && SameLengths(vec1, vec7));
 }
 
-/template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
+template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
           typename T8>
 bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
                  const std::vector<T3>& vec3, const std::vector<T4>& vec4,
