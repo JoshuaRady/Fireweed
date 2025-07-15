@@ -16,7 +16,14 @@ Reference: Proj. 11 Exp. 19
 
 //See the header for SameLengths().
 
-//This utility checks that a value falls in a valid range.
+/** This utility checks that a value falls in a valid range.
+ *
+ * @param value A number to check.
+ * @param low The lowest acceptable value.
+ * @param value The highest acceptable value.
+ *
+ * @return Is the number in the range (including the end)?
+ */
 bool InRange(double value, double low, double high)
 {
 	return (value >= low && value <= high);
