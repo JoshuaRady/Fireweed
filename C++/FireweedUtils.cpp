@@ -35,9 +35,15 @@ bool SameLengths(std::vector<double> arg1, std::vector<double> arg2)
 	return (arg1.size() == arg2.size());
 }
 
+// template <typename T1, typename T2>
+// bool SameLengthsT(const std::vector<T1>& arg1, const std::vector<T2>& arg2)
+// {
+// 	return (arg1.size() == arg2.size());
+// }
+
 bool SameLengths(std::vector<double> arg1, std::vector<int> arg2)
 {
-	return (arg1.size() == arg2.size());
+ 	return (arg1.size() == arg2.size());
 }
 
 bool SameLengths(std::vector<double> arg1, std::vector<double> arg2, std::vector<double> arg3)
