@@ -2648,7 +2648,7 @@ SpreadCalcs Functions:
  *
  * @param output The output stream to print to.
  *
- * @returns The ostream so it can be conatinated to.
+ * @returns The ostream so it can be concatenated to.
  */
 std::ostream& SpreadCalcs::Print(std::ostream& output) const
 {
