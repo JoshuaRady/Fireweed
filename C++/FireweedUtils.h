@@ -14,7 +14,7 @@ Reference: Proj. 11 Exp. 19
 
 #include <vector>
 
-/** The SameLengths() utility checks that the vectors passed have the same length. 2-10 vectors
+/** The SameLengths() utility checks that the vectors passed have the same length. 2-12 vectors
  * are accepted.
  *
  * Overloading and templates have been used to handle vector vecuments of different types in any
@@ -107,6 +107,36 @@ bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
 	return (SameLengths(vec1, vec2) && SameLengths(vec1, vec3) && SameLengths(vec1, vec4) &&
 			SameLengths(vec1, vec5) && SameLengths(vec1, vec6) && SameLengths(vec1, vec7) &&
 			SameLengths(vec1, vec8) && SameLengths(vec1, vec9) && SameLengths(vec1, vec10));
+}
+
+template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
+          typename T8, typename T9, typename T10, typename T11>
+bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
+                 const std::vector<T3>& vec3, const std::vector<T4>& vec4,
+                 const std::vector<T5>& vec5, const std::vector<T6>& vec6,
+                 const std::vector<T7>& vec7, const std::vector<T8>& vec8,
+                 const std::vector<T9>& vec9, const std::vector<T10>& vec10,
+                 const std::vector<T11>& vec11)
+{
+	return (SameLengths(vec1, vec2) && SameLengths(vec1, vec3) && SameLengths(vec1, vec4) &&
+			SameLengths(vec1, vec5) && SameLengths(vec1, vec6) && SameLengths(vec1, vec7) &&
+			SameLengths(vec1, vec8) && SameLengths(vec1, vec9) && SameLengths(vec1, vec10) &&
+			SameLengths(vec1, vec11));
+}
+
+template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7,
+          typename T8, typename T9, typename T10, typename T11, typename T12>
+bool SameLengths(const std::vector<T1>& vec1, const std::vector<T2>& vec2,
+                 const std::vector<T3>& vec3, const std::vector<T4>& vec4,
+                 const std::vector<T5>& vec5, const std::vector<T6>& vec6,
+                 const std::vector<T7>& vec7, const std::vector<T8>& vec8,
+                 const std::vector<T9>& vec9, const std::vector<T10>& vec10,
+                 const std::vector<T11>& vec11, const std::vector<T12>& vec12)
+{
+	return (SameLengths(vec1, vec2) && SameLengths(vec1, vec3) && SameLengths(vec1, vec4) &&
+			SameLengths(vec1, vec5) && SameLengths(vec1, vec6) && SameLengths(vec1, vec7) &&
+			SameLengths(vec1, vec8) && SameLengths(vec1, vec9) && SameLengths(vec1, vec10) &&
+			SameLengths(vec1, vec11) && SameLengths(vec1, vec12));
 }
 
 bool InRange(double value, double low, double high);
