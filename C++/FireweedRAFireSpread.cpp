@@ -816,11 +816,17 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 	{
 		Stop("Invalid dead fuel moisture of extinction.");
 	}
-	//Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
-	//is not physiologic:
-	if (!InRange(M_x_i[Live], 0, 8))
+	//Calculated live fuel moisture of extinction can reach well over 700% (7), even though that
+	//moisture level is not physiologic.  The moisture of extinction should be considered a limit
+	//not a physical state.  We report rather high values for now until we have a better idea of the
+	//possible range:
+	if (M_x_i[Live] < 0)
 	{
-		Stop("Suspect live fuel moisture of extinction.");
+		Stop("Invalid live fuel moisture of extinction:" + std::to_string(M_x_i[Live]));
+	}
+	else if (M_x_i[Live] > 8)
+	{
+		Warning("High live fuel moisture of extinction:" + std::to_string(M_x_i[Live]));
 	}
 
 	numFuelTypes = M_f_ij.size();

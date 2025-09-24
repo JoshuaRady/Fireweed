@@ -755,21 +755,27 @@ MoistureDampingCoefficient_Het <- function(M_f_ij, M_x_i, f_ij, liveDead)
   {
     stop("MoistureDampingCoefficient_Het() expects arguments of the same length.")
   }
-  if (!InRange(M_f_ij, 0, 3.5))
+  if (!InRange(M_f_ij, 0.0, 3.5))
   {
     stop("Suspect moisture content (M_f_ij).")
   }
   #Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
   #though higher might be possible so we add a little wiggle room:
-  if (!InRange(M_x_i[Dead], 0, 0.5))
+  if (!InRange(M_x_i[Dead], 0.0, 0.5))
   {
     stop("Invalid dead fuel moisture of extinction.")
   }
-  #Calculated live fuel moisture of extinction can reach over 700%, even though that moisture level
-  #is not physiologic:
-  if (!InRange(M_x_i[Live], 0, 8))
+  #Calculated live fuel moisture of extinction can reach well over 700% (7), even though that
+  #moisture level is not physiologic.  The moisture of extinction should be considered a limit
+  #not a physical state.  We report rather high values for now until we have a better idea of the
+  #possible range:
+  if (M_x_i[Live] < 0.0)
   {
-    stop("Suspect live fuel moisture of extinction.")
+    stop(paste("Invalid live fuel moisture of extinction:", M_x_i[Live]))
+  }
+  else if (M_x_i[Live] > 8.0)
+  {
+    warning(paste("High live fuel moisture of extinction:", M_x_i[Live]))
   }
   
   numFuelTypes = length(M_f_ij)
