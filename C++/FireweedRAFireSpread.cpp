@@ -806,13 +806,13 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 	{
 		Stop("MoistureDampingCoefficient_Het() expects arguments of the same length.");
 	}
-	if (!InRange(M_f_ij, 0, 3.5))
+	if (!InRange(M_f_ij, 0.0, 3.5))
 	{
 		Stop("Suspect moisture content (M_f_ij).");
 	}
 	//Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
 	//though higher might be possible so we add a little wiggle room:
-	if (!InRange(M_x_i[Dead], 0, 0.5))
+	if (!InRange(M_x_i[Dead], 0.0, 0.5))
 	{
 		Stop("Invalid dead fuel moisture of extinction.");
 	}
@@ -820,13 +820,13 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 	//moisture level is not physiologic.  The moisture of extinction should be considered a limit
 	//not a physical state.  We report rather high values for now until we have a better idea of the
 	//possible range:
-	if (M_x_i[Live] < 0)
+	if (M_x_i[Live] < 0.0)
 	{
-		Stop("Invalid live fuel moisture of extinction:" + std::to_string(M_x_i[Live]));
+		Stop("Invalid live fuel moisture of extinction: " + std::to_string(M_x_i[Live]));
 	}
-	else if (M_x_i[Live] > 8)
+	else if (M_x_i[Live] > 8.0)
 	{
-		Warning("High live fuel moisture of extinction:" + std::to_string(M_x_i[Live]));
+		Warning("High live fuel moisture of extinction: " + std::to_string(M_x_i[Live]));
 	}
 
 	numFuelTypes = M_f_ij.size();
