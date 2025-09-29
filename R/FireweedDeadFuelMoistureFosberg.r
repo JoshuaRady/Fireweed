@@ -129,7 +129,11 @@ FosbergNWCG_1HrFM <- function(tableA_Path, tableB_Path, tableC_Path, tableD_Path
       stop(aspectErrStr)
     }
   }
-  else if (class(aspect) != "character")
+  else if (is.character(aspect))
+  {
+    aspectCardinal = aspect
+  }
+  else
   {
     stop(aspectErrStr)
   }
