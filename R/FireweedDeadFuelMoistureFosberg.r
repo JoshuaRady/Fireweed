@@ -181,33 +181,45 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
   #Extract the lookup table values:
   luDF = df[-1, -1]#A dataframe we will treat as a matrix.
   
-  #Search for the matching value:
-  numTempBins = length(tempRangeBottoms)
-  for (i in 1:numTempBins)
+  #Search for the matching temperature bin:
+  if (tempF < tempRangeBottoms[1])
   {
-    if (i < numTempBins)
+    #The table has a lower temperature limit and the fuel moisture is not defined.  We return
+    #the values for the lowest bin to prevent crashing the calling code.  However, the it would
+    #be #better to check the temperature before calling this code.
+    warning("The temperature is below the range of the Fosberg NWCG tables.  This fuel moisture returned may not be valid.")
+    tempIndex = 1
+  }
+  else
+  {
+    numTempBins = length(tempRangeBottoms)
+    for (i in 1:numTempBins)
     {
-      #The top bound for each bin is the bottom of the next:
-      if (tempF >= tempRangeBottoms[i] && tempF < tempRangeBottoms[i + 1])
+      if (i < numTempBins)
       {
-        tempIndex = i
-        break
+        #The top bound for each bin is the bottom of the next:
+        if (tempF >= tempRangeBottoms[i] && tempF < tempRangeBottoms[i + 1])
+        {
+          tempIndex = i
+          break
+        }
       }
-    }
-    else#Last bin:
-    {
-      #The last bin only has a lower temperature bound:
-      if (tempF >= tempRangeBottoms[i])
+      else#Last bin:
       {
-        tempIndex = i
-      }
-      else#This could happen if the temperature is below the lowest bin.  Add check!!!!!
-      {
-        stop("Match not found.")
+        #The last bin only has a lower temperature bound:
+        if (tempF >= tempRangeBottoms[i])
+        {
+          tempIndex = i
+        }
+        else#Should not possible with a valid values.  Leave until testing is complete:
+        {
+          stop("Match not found.")
+        }
       }
     }
   }
   
+  #Search for the matching humidity bin:
   numRHBins = length(rhRangeBottoms)
   for (j in 1:numRHBins)
   {

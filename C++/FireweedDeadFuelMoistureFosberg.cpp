@@ -48,7 +48,7 @@ Wildfire Coordinating Group (NWCG) and are included in the NWCG Incident Respons
  * @param tableA_Path - tableD_Path = Paths to tab delimited files holding the lookup table data.
  *   These tables are used in Rothermel 1981 and are also the NWCG website and the 2022 IPTG.
  *   These paths add to an already large number of parameters.  Their file location can not be safely
- *   assumed but there values could be consolidated in a list of placed in globals.
+ *   assumed but their values could be consolidated in a list of placed in globals.
  * 
  * @param temp The air temperature at 4.5 feet / 1.37 meters above ground level (degrees F / C).
  * @param rh Relative humidity (percent).
@@ -289,32 +289,44 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 	}
 	tempIndex = -1;//Reset to use as the search index.  Value will be overwritten if a match is found.
 
-	//Search for the matching value:
-	for (int i = 0; i < numTempBins; i++)
+	//Search for the matching temperature bin:
+	if (tempF < tempRangeBottoms[0])
 	{
-		if (i < (numTempBins - 1))
+		//The table has a lower temperature limit and the fuel moisture is not defined.  We return
+		//the values for the lowest bin to prevent crashing the calling code.  However, the it would
+		//be better to check the temperature before calling this code.
+		Warning("The temperature is below the range of the Fosberg NWCG tables.  This fuel moisture returned may not be valid.");
+		tempIndex = 0;
+	}
+	else
+	{
+		for (int i = 0; i < numTempBins; i++)
 		{
-			//The top bound for each bin is the bottom of the next:
-			if (tempF >= tempRangeBottoms[i] && tempF < tempRangeBottoms[i + 1])
+			if (i < (numTempBins - 1))
 			{
-				tempIndex = i;
-				break;
+				//The top bound for each bin is the bottom of the next:
+				if (tempF >= tempRangeBottoms[i] && tempF < tempRangeBottoms[i + 1])
+				{
+					tempIndex = i;
+					break;
+				}
 			}
-		}
-		else//Last bin:
-		{
-			//The last bin only has a lower temperature bound:
-			if (tempF >= tempRangeBottoms[i])
+			else//Last bin:
 			{
-				tempIndex = i;
-			}
-			else//This could happen if the temperature is below the lowest bin.  Add check!!!!!
-			{
-				Stop("Match not found.");
+				//The last bin only has a lower temperature bound:
+				if (tempF >= tempRangeBottoms[i])
+				{
+					tempIndex = i;
+				}
+				else//Should not possible with a valid values.  Leave until testing is complete:
+				{
+					Stop("Match not found.");
+				}
 			}
 		}
 	}
 
+	//Search for the matching humidity bin:
 	for (int j = 0; j < j < numRHBins; j++)
 	{
 		if (j < (numRHBins - 1))
@@ -333,7 +345,7 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 			{
 				rhIndex = j;
 			}
-			//else//Should not possible with a valid values.
+			//else//Should not possible with a valid value.
 			//{
 			//	Stop("Match not found.");
 			//}
