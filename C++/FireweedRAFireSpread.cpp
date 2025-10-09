@@ -753,12 +753,18 @@ double MoistureDampingCoefficient_Homo(double M_f, double M_x)
 	//Moisture content can well exceed 1 for live fuels (at least to 300%):
 	if (!InRange(M_f, 0, 3.5))
 	{
-		Stop("Suspect moisture content (M_f).");
+		Stop("Suspect fuel moisture content (M_f).");
 	}
 	//See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
-	if (!InRange(M_x, 0, 8))
+	if (M_x < 0.0)
 	{
-		Stop("Suspect moisture of extinction.");
+		Stop("Invalid fuel moisture of extinction: " + std::to_string(M_x));
+	}
+	else if (M_x > 8.0)
+	{
+		//Note: When this function is called via MoistureDampingCoefficient_Het() this warning will
+		//will be a (near) duplicate.  We could elminate this useind a core function.
+		Warning("High fuel moisture of extinction: " + std::to_string(M_x));
 	}
 
 	//Calculate the ratio of fuel moisture content to moisture of extinction:
@@ -808,7 +814,7 @@ std::vector <double> MoistureDampingCoefficient_Het(std::vector <double> M_f_ij,
 	}
 	if (!InRange(M_f_ij, 0.0, 3.5))
 	{
-		Stop("Suspect moisture content (M_f_ij).");
+		Stop("Suspect fuel moisture content (M_f_ij).");
 	}
 	//Dead fuels have moisture of extinction values with a range of 12-40% for the standard models,
 	//though higher might be possible so we add a little wiggle room:

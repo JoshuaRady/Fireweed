@@ -709,12 +709,18 @@ MoistureDampingCoefficient_Homo <- function(M_f, M_x)
   #Moisture content can well exceed 1 for live fuels (at least to 300%):
   if (!InRange(M_f, 0, 3.5))
   {
-    stop("Suspect moisture content (M_f).")
+    stop("Suspect fuel moisture content (M_f).")
   }
   #See MoistureDampingCoefficient_Het() for notes on valid moistures of extinction:
-  if (!InRange(M_x, 0, 8))
+  if (M_x < 0.0)
   {
-    stop("Suspect moisture of extinction.")
+    stop(paste("Invalid fuel moisture of extinction:", M_x))
+  }
+  else if (M_x > 8.0)
+  {
+    #Note: When this function is called via MoistureDampingCoefficient_Het() this warning will
+    #will be a (near) duplicate.  We could elminate this useind a core function.
+    warning(paste("High fuel moisture of extinction:", M_x))
   }
   
   #Calculate the ratio of fuel moisture content to moisture of extinction:
