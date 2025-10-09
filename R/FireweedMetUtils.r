@@ -166,7 +166,7 @@ RHfromVP <- function(P, P_s)
   #Negative pressures are not physically possible:
   if (P < 0)
   {
-    stop("The partial pressure of water can't be negative.")
+    stop(paste("The partial pressure of water can't be negative. P = ", P))
   }
   if (P_s < 0)
   {

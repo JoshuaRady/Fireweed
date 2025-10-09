@@ -70,7 +70,7 @@ GrowingSeasonIndex<- function(tempCMin, vpdPa, dayLength)
   #(e.g. using kPa or hPa):
   if (vpdPa < 0)
   {
-    stop("VPD must be positive.")
+    stop(paste("VPD must be positive. vpdPa =", vpdPa))
   }
   else if (vpdPa > 10000)
   {

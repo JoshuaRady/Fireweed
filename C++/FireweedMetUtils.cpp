@@ -173,7 +173,7 @@ double RHfromVP(double P, double P_s)
 	//Negative pressures are not physically possible:
 	if (P < 0)
 	{
-		Stop("The partial pressure of water can't be negative.");
+		Stop("The partial pressure of water can't be negative. P = " + std::to_string(P));
 	}
 	if (P_s < 0)
 	{

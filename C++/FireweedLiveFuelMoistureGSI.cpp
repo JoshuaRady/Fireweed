@@ -80,7 +80,7 @@ double GrowingSeasonIndex(double tempCMin, double vpdPa, double dayLength)
 	//(e.g. using kPa or hPa):
 	if (vpdPa < 0)
 	{
-		Stop("VPD must be positive.");
+		Stop("VPD must be positive. vpdPa = " + std::to_string(vpdPa));
 	}
 	else if (vpdPa > 10000)
 	{
