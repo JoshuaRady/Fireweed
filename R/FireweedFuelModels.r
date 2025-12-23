@@ -216,7 +216,7 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
 #' 
 #' @param fm A fuel model object.
 #' 
-#' @returns The index (k) of the live herbaceous fuel type.
+#' @returns The index (k) of the live herbaceous fuel type for the model.
 LiveHerbaceousIndex <-function(fm)
 {
   return(FuelClassIndex(liveDead, Live, 1))#In the future the 1 index may not be guaranteed.
@@ -226,8 +226,8 @@ LiveHerbaceousIndex <-function(fm)
 #' 
 #' @param fm A fuel model object.
 #' 
-#' @returns The index (k) of the live woody fuel type.
-LiveHerbaceousIndex <-function(fm)
+#' @returns The index (k) of the live woody fuel type for the model.
+LiveWoodyIndex <-function(fm)
 {
   return(FuelClassIndex(liveDead, Live, 2))#In the future the 2 index may not be guaranteed.
 }
