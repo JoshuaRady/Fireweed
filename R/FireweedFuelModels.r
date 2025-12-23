@@ -355,15 +355,15 @@ SetFuelMoisture <- function(fm, M_f_ij)
       
       if (fm$liveDead[i] == Dead && M_f_ij[i] > maxDeadFM)
       {
-        warning("Dead fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
+        warning(paste("Dead fuel moisture value seems high: ", paste(M_f_ij, collapse = ", ")))
       }
       else if (i == LiveHerbaceousIndex(fm) && M_f_ij[i] > maxHerbFM)
       {
-        warning("Herbaceous fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
+        warning(paste("Herbaceous fuel moisture value seems high: ", paste(M_f_ij, collapse = ", ")))
       }
       else if (i == LiveWoodyIndex(fm) && M_f_ij[i] > maxWoodyFM)
       {
-        warning("Woody fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
+        warning(paste("Woody fuel moisture value seems high: ", paste(M_f_ij, collapse = ", ")))
       }
     }
   }
