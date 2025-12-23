@@ -268,14 +268,14 @@ LiveWoodyIndex <- function(fm)
 }
 
 #' Return the index (k) of the dead herbaceous fuel type, if present.  If not present returns -1.
-#' Check cured first to see if it is present.
+#' Check Cured first to see if it is present.
 #'
 #' @param fm A fuel model object.
 #'
 #' @returns The index (k) of the dead herbaceous fuel type, if present, -1 if not.
 DeadHerbaceousIndex <- function(fm)
 {
-  if (fm$cured)
+  if (fm$Cured)
   {
     #We put the dead herbaceous fuel in the second dead position.  See CalculateDynamicFuelCuring().
     #This could change in the future.
@@ -295,7 +295,7 @@ DeadHerbaceousIndex <- function(fm)
 LiveHerbaceousPresent <- function(fm)
 {
   #We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
-  return(fm$SAV_ij[LiveHerbaceousIndex()] != 0)
+  return(fm$SAV_ij[LiveHerbaceousIndex(fm)] != 0)
 }
 
 #' Is the live woody fuel type active in this fuel model?
@@ -306,7 +306,7 @@ LiveHerbaceousPresent <- function(fm)
 LiveWoodyPresent <- function(fm)
 {
   #We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
-  return(fm$SAV_ij[LiveWoodyIndex()] != 0)
+  return(fm$SAV_ij[LiveWoodyIndex(fm)] != 0)
 }
 
 #Fuel Moisture Functions:---------------------------------------------------------------------------
@@ -357,11 +357,11 @@ SetFuelMoisture <- function(fm, M_f_ij)
       {
         warning("Dead fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
       }
-      else if (i == LiveHerbaceousIndex() && M_f_ij[i] > maxHerbFM)
+      else if (i == LiveHerbaceousIndex(fm) && M_f_ij[i] > maxHerbFM)
       {
         warning("Herbaceous fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
       }
-      else if (i == LiveWoodyIndex() && M_f_ij[i] > maxWoodyFM)
+      else if (i == LiveWoodyIndex(fm) && M_f_ij[i] > maxWoodyFM)
       {
         warning("Woody fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
       }
@@ -369,12 +369,12 @@ SetFuelMoisture <- function(fm, M_f_ij)
   }
   
   #Checking if curing has already been run for this fuel model:
-  if (cured == TRUE)
+  if (fm$Cured == TRUE)
   {
     stop("Fuel model has already had curing applied.")
   }
   
-  if (!this->M_f_ij.empty)
+  if (!is.null(fm$M_f_ij))
   {
     warning("M_f_ij is being overwritten.")
   }
@@ -619,7 +619,7 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
 #' @param sizeIndex The index (1 based) of the size class to get.
 #'
 #' @returns The index (k) of the requested fuel.
-FuelClassIndex <- function(fm, liveDead, liveDeadCat, sizeIndex)
+FuelClassIndex <- function(liveDead, liveDeadCat, sizeIndex)
 {
   numDead = sum(liveDead == Dead)
   numLive = length(liveDead) - numDead
