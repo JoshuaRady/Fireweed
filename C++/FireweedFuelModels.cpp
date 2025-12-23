@@ -435,7 +435,7 @@ bool FuelModel::LiveWoodyPresent() const
 // 	return cured;
 // }
 
-//Fuel Moisture functions:--------------------------------------------------------------------------
+//Fuel Moisture Functions:--------------------------------------------------------------------------
 
 /** Record the fuel moisture content values.
  *
