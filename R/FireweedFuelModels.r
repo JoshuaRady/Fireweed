@@ -506,3 +506,51 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
   
   return(fm)
 }
+
+#' Return the index (k) in a variable array of the form X_ij given the (live/dead, size) index pair.
+#'
+#' Representing fuel model X_ij varaibles as vectors has the disadvantage of making mapping to
+#' individual classes awkward.  This function makes this simple but remains somewhat inelegant.
+#'
+#' @param liveDead An array indicating if each index in the input variables represents a dead or
+#'                 live fuel category.
+#' @param liveDeadCat The Live / Dead catagory value to get.
+#' @param sizeIndex The index (1 based) of the size class to get.
+#'
+#' @returns The index (k) of the requested fuel.
+FuelClassIndex(fm, liveDead, liveDeadCat, sizeIndex)
+{
+  numDead = sum(liveDead == Dead)
+  numLive = length(liveDead) - numDead
+  #Could add a check for invalid values here.
+  
+  if (liveDeadCat == Dead)
+  {
+    if (sizeIndex < 1 || sizeIndex > numDead)
+    {
+      stop("Invalid dead size index.")
+    }
+    else
+    {
+      return(sizeIndex)
+    }
+  }
+  else if (liveDeadCat == Live)
+  {
+    if (sizeIndex < 1 || sizeIndex > numLive)
+    {
+      stop("Invalid live size index.")
+    }
+    else
+    {
+      return(numDead + sizeIndex)
+    }
+  }
+  else
+  {
+    stop("Invalid live / dead category.")
+  }
+  
+  return(-1)#We could make the size index errors above warnings and return.
+}
+
