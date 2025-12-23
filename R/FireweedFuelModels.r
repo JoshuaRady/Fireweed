@@ -287,6 +287,28 @@ DeadHerbaceousIndex <- function(fm)
   }
 }
 
+#' Is the live herbaceous fuel type active in this fuel model?
+#'
+#' @param fm A fuel model object.
+#' 
+#' @returns Is the live herbaceous fuel real of just a placeholder in the model?
+LiveHerbaceousPresent <- function(fm)
+{
+  #We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
+  return(fm$SAV_ij[LiveHerbaceousIndex()] != 0)
+}
+
+#' Is the live woody fuel type active in this fuel model?
+#'
+#' @param fm A fuel model object.
+#' 
+#' @returns Is the live woody fuel type real of just a placeholder in the model?
+LiveWoodyPresent <- function(fm)
+{
+  #We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
+  return(fm$SAV_ij[LiveWoodyIndex()] != 0)
+}
+
 #Fuel Moisture Functions:---------------------------------------------------------------------------
 
 #Record the fuel moisture content values.
