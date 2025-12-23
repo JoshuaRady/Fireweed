@@ -476,11 +476,11 @@ void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 			{
 				Warning("Dead fuel moisture value seems high: " + VectorToStr(M_f_ij));
 			}
-			else (i == LiveHerbaceousIndex() && M_f_ij[i] > maxHerbFM)
+			else if (i == LiveHerbaceousIndex() && M_f_ij[i] > maxHerbFM)
 			{
 				Warning("Herbaceous fuel moisture value seems high: " + VectorToStr(M_f_ij));
 			}
-			else (i == LiveWoodyIndex() && M_f_ij[i] > maxWoodyFM)
+			else if (i == LiveWoodyIndex() && M_f_ij[i] > maxWoodyFM)
 			{
 				Warning("Woody fuel moisture value seems high: " + VectorToStr(M_f_ij));
 			}

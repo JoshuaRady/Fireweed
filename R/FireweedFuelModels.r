@@ -256,11 +256,11 @@ SetFuelMoisture <- function(fm, M_f_ij)
       {
         warning("Dead fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
       }
-      else (i == LiveHerbaceousIndex() && M_f_ij[i] > maxHerbFM)
+      else if (i == LiveHerbaceousIndex() && M_f_ij[i] > maxHerbFM)
       {
         warning("Herbaceous fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
       }
-      else (i == LiveWoodyIndex() && M_f_ij[i] > maxWoodyFM)
+      else if (i == LiveWoodyIndex() && M_f_ij[i] > maxWoodyFM)
       {
         warning("Woody fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
       }
