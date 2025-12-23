@@ -267,6 +267,26 @@ LiveWoodyIndex <- function(fm)
   return(FuelClassIndex(fm$liveDead, Live, 2))#In the future the 2 index may not be guaranteed.
 }
 
+#' Return the index (k) of the dead herbaceous fuel type, if present.  If not present returns -1.
+#' Check cured first to see if it is present.
+#'
+#' @param fm A fuel model object.
+#'
+#' @returns The index (k) of the dead herbaceous fuel type, if present, -1 if not.
+DeadHerbaceousIndex <- function(fm)
+{
+  if (fm$cured)
+  {
+    #We put the dead herbaceous fuel in the second dead position.  See CalculateDynamicFuelCuring().
+    #This could change in the future.
+    return(FuelClassIndex(fm$liveDead, Dead, 2))
+  }
+  else
+  {
+    return(-1)
+  }
+}
+
 #Fuel Moisture Functions:---------------------------------------------------------------------------
 
 #Record the fuel moisture content values.
