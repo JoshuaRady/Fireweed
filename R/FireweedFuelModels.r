@@ -210,7 +210,31 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
   return(fuelModel)
 }
 
-#Record the fuel moisture content values..
+#---------------------------------------------------------------------------------------------------
+
+#' Return the index (k) of the live herbaceous fuel type.
+#' 
+#' @param fm A fuel model object.
+#' 
+#' @returns The index (k) of the live herbaceous fuel type.
+LiveHerbaceousIndex <-function(fm)
+{
+  return(FuelClassIndex(liveDead, Live, 1))#In the future the 1 index may not be guaranteed.
+}
+
+#' Return the index (k) of the live woody fuel type.
+#' 
+#' @param fm A fuel model object.
+#' 
+#' @returns The index (k) of the live woody fuel type.
+LiveHerbaceousIndex <-function(fm)
+{
+  return(FuelClassIndex(liveDead, Live, 2))#In the future the 2 index may not be guaranteed.
+}
+
+#Fuel Moisture Functions:---------------------------------------------------------------------------
+
+#Record the fuel moisture content values.
 #
 #Parameters:
 #fm = The fuel model to apply curing to.
