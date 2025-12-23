@@ -231,6 +231,22 @@ GetFuelModelFromDF <- function(fuelModelDF, modelID, spreadModelUnits = TRUE)
 #' 
 #' @note These functions have not been fully integrated into the existing code.  A review is needed.
 
+#' How many size classes are there in the dead fuel category?
+#' 
+#' @returns The number of dead fuel types for the model.
+NumDeadClasses <- function(fm)
+{
+  return(sum(fm$liveDead == Dead))
+}
+
+#' How many size classes are there in the live fuel category?
+#' 
+#' @returns The number of live fuel types for the model.
+NumLiveClasses <- function(fm)
+{
+  return(sum(fm$liveDead == Live))
+}
+
 #' Return the index (k) of the live herbaceous fuel type.
 #' 
 #' @param fm A fuel model object.
@@ -561,7 +577,7 @@ FuelModelConvertUnits <- function(fm, newUnits)#ConvertFuelModelUnits
 #' @param sizeIndex The index (1 based) of the size class to get.
 #'
 #' @returns The index (k) of the requested fuel.
-FuelClassIndex(fm, liveDead, liveDeadCat, sizeIndex)
+FuelClassIndex <- function(fm, liveDead, liveDeadCat, sizeIndex)
 {
   numDead = sum(liveDead == Dead)
   numLive = length(liveDead) - numDead
