@@ -460,9 +460,30 @@ void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
 	//Confirm values are valid:
 	for (int i = 0; i < M_f_ij.size(); i++)
 	{
-		if (!ValidProportion(M_f_ij[i]))
+		if (M_f_ij[i] < 0.0)//Clearly invalid:
 		{
-			Stop("M_f_ij contains invalid values: " + VectorToStr(M_f_ij));
+			Stop("M_f_ij contains negative value(s): " + VectorToStr(M_f_ij));
+		}
+		else
+		{
+			//The maximum fuel moisture varies by fuel type but also by moisture model:
+			//These limits could be researched further but making this a warning lowers the stakes.
+			const double maxDeadFM = 1.5;//100% may be fine but go higher.
+			const double maxHerbFM = 2.5;//GSI maxes out at 250%.
+			const double maxWoodyFM = 2.0;//GSI maxes out at 200%.
+
+			if (liveDead[i] == Dead && M_f_ij[i] > maxDeadFM)
+			{
+				Warning("Dead fuel moisture value seems high: " + VectorToStr(M_f_ij));
+			}
+			else (i == LiveHerbaceousIndex() && M_f_ij[i] > maxHerbFM)
+			{
+				Warning("Herbaceous fuel moisture value seems high: " + VectorToStr(M_f_ij));
+			}
+			else (i == LiveWoodyIndex() && M_f_ij[i] > maxWoodyFM)
+			{
+				Warning("Woody fuel moisture value seems high: " + VectorToStr(M_f_ij));
+			}
 		}
 	}
 

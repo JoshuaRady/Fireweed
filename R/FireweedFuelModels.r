@@ -240,10 +240,30 @@ SetFuelMoisture <- function(fm, M_f_ij)
   #Check values:
   for (i in 1:length(M_f_ij))
   {
-    #if (!ValidProportion(M_f_ij[i]))#Need to add ValidProportion() to sources.
-    if (M_f_ij[i] < 0 || M_f_ij[i] > 1)
+    if (M_f_ij[i] < 0)#Clearly invalid:
     {
       stop(paste("M_f_ij contains invalid values:", paste(M_f_ij, collapse = ", ")))
+    }
+    else
+    {
+      #The maximum fuel moisture varies by fuel type but also by moisture model:
+      #These limits could be researched further but making this a warning lowers the stakes.
+      maxDeadFM = 1.5#100% may be fine but go higher.
+      maxHerbFM = 2.5#GSI maxes out at 250%.
+      maxWoodyFM = 2.0#GSI maxes out at 200%.
+      
+      if (liveDead[i] == Dead && M_f_ij[i] > maxDeadFM)
+      {
+        warning("Dead fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
+      }
+      else (i == LiveHerbaceousIndex() && M_f_ij[i] > maxHerbFM)
+      {
+        warning("Herbaceous fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
+      }
+      else (i == LiveWoodyIndex() && M_f_ij[i] > maxWoodyFM)
+      {
+        warning("Woody fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
+      }
     }
   }
   
