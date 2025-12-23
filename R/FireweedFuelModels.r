@@ -231,7 +231,7 @@ SetFuelMoisture <- function(fm, M_f_ij)
   }
   
   #Check length is appropriate:
-  if (length(M_f_ij != fm$NumClasses))
+  if (length(M_f_ij) != fm$NumClasses)
   {
     stop(paste(functionName, "(): M_f_ij has length ", length(M_f_ij), " while numClasses = ",
                fm$NumClasses, sep = ''))
@@ -252,7 +252,7 @@ SetFuelMoisture <- function(fm, M_f_ij)
       maxHerbFM = 2.5#GSI maxes out at 250%.
       maxWoodyFM = 2.0#GSI maxes out at 200%.
       
-      if (liveDead[i] == Dead && M_f_ij[i] > maxDeadFM)
+      if (fm$liveDead[i] == Dead && M_f_ij[i] > maxDeadFM)
       {
         warning("Dead fuel moisture value seems high: " + paste(M_f_ij, collapse = ", "))
       }
