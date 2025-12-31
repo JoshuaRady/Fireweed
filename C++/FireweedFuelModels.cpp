@@ -399,7 +399,7 @@ int FuelModel::DeadHerbaceousIndex() const
 {
 	if (cured)
 	{
-		//We put the dead herbaceous fuel in the second dead postion.  See DynamicFuelCuringCore().
+		//We put the dead herbaceous fuel in the second dead position.  See DynamicFuelCuringCore().
 		//This could change in the future.
 		return FuelClassIndex(liveDead, Dead, 1);
 	}
