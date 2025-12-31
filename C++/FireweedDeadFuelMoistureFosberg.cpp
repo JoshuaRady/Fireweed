@@ -182,7 +182,11 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 	//Check and convert the aspect before passing it on:
 	//This is imperfect as NE = 45 degrees must be lumped into either N or E, and so on.  We lump
 	//counterclockwise.
-	if (aspect <= 45)
+	if (aspect < 0 || aspect > 360)
+	{
+		Stop("Invalid aspect: " + std::to_string(aspect) + ". Bearing must be in degrees (0 - 360).");
+	}
+	else if (aspect <= 45)
 	{
 		aspectCardinal = 'N';
 	}
@@ -198,13 +202,9 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 	{
 		aspectCardinal = 'W';
 	}
-	else if (aspect <= 360)
+	else//if (aspect <= 360)
 	{
 		aspectCardinal = 'N';
-	}
-	else
-	{
-		Stop("Invalid aspect: " + std::to_string(aspect) + ". Bearing must be in degrees (0 - 360).");
 	}
 
 	return FosbergNWCG_1HrFM(tableA_Path, tableB_Path, tableC_Path, tableD_Path, temp, rh,
