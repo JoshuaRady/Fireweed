@@ -204,7 +204,7 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 	}
 	else
 	{
-		Stop("Invalid aspect. Bearing must be in degrees (0 - 360).");
+		Stop("Invalid aspect: " + std::to_string(aspect) + ". Bearing must be in degrees (0 - 360).");
 	}
 
 	return FosbergNWCG_1HrFM(tableA_Path, tableB_Path, tableC_Path, tableD_Path, temp, rh,
