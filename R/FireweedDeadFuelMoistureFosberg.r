@@ -259,7 +259,7 @@ FosbergNWCG_GetRFM <- function(tableA_Path, tempF, rh)
 #hourOfDay = The numeric hour of day in 24 hour format (1 - 24).
 #slopePct = Percent slope of the location (rise / run x 100%).
 #aspectCardinal = The slope aspect as a cardinal direction (N, E, S, W).
-#  Note: The ability to take the aspect as degrees is enabled in the calling code..
+#  Note: The ability to take the aspect as degrees is enabled in the calling code.
 #shaded = Does the location have 50% or greater canopy cover or is there full cloud cover.
 #  Note: We could also accept a percentage.
 #elevation = A code indicating the slope position for the prediction relative to where the weather

@@ -364,7 +364,7 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
  * @param hourOfDay The numeric hour of day in 24 hour format (1 - 24).
  * @param slopePct Percent slope of the location (rise / run x 100%).
  * @param aspectCardinal The slope aspect as a cardinal direction (N, E, S, W).
- *   Note: We could add the ability to take the aspect as degrees.
+ *   Note: The ability to take the aspect as degrees is enabled in the calling code
  * @param shaded Does the location have 50% or greater canopy cover or is there full cloud cover.
  *   Note: We could also accept a percentage.
  * @param elevation A code indicating the slope position for the prediction relative to where the
