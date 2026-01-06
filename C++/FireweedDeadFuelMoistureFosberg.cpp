@@ -56,6 +56,7 @@ Wildfire Coordinating Group (NWCG) and are included in the NWCG Incident Respons
  * @param hourOfDay The numeric hour of day in 24 hour format (1 - 24).
  * @param slopePct Percent slope of the location (rise / run x 100%).
  * @param aspectCardinal The aspect of the local slope as a cardinal direction (N, E, S, W).
+ *                       If the slope is 0 the aspect is treated as undefined and 'U' may be used.
  * @param shaded Does the location have 50% or greater canopy cover or is there full cloud cover.
  *               This could be converted to a percentage.
  * @param elevation A code indicating the slope position for the prediction relative to where the
@@ -138,8 +139,20 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 // 	}
 
 	//Look up the correction factor for the conditions specified:
-	correction = FosbergNWCG_GetCorrection(correctionTablePath, hourOfDay, slopePct, aspectCardinal,
-	                                       shaded, elevation);
+	if (slope == 0.0 || aspectCardinal == 'U')
+	{
+		if (aspectCardinal == 'U' && slope != 0.0)
+		{
+			Warning("Aspect is undefined but slope is not 0: " + std::to_string(slope));
+		}
+
+		correction = FosbergNWCG_GetCorrection(correctionTablePath, hourOfDay, shaded, elevation);
+	}
+	else
+	{
+		correction = FosbergNWCG_GetCorrection(correctionTablePath, hourOfDay, slopePct,
+		                                       aspectCardinal, shaded, elevation);
+	}
 
 	return rfm + correction;//Combine and return.
 }
@@ -182,7 +195,13 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 	//Check and convert the aspect before passing it on:
 	//This is imperfect as NE = 45 degrees must be lumped into either N or E, and so on.  We lump
 	//counterclockwise.
-	if (aspect < 0 || aspect > 360)
+	if (slopePct == 0.0)
+	{
+		//If the slope is 0 ignore the aspect, which is undefined in this case.  This allows
+		//invalid values indicating it is undefined or NANs to pass through.
+		aspectCardinal = 'U';
+	}
+	else if (aspect < 0 || aspect > 360)
 	{
 		Stop("Invalid aspect: " + std::to_string(aspect) + ". Bearing must be in degrees (0 - 360).");
 	}
