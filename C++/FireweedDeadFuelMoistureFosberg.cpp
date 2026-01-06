@@ -139,14 +139,14 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 // 	}
 
 	//Look up the correction factor for the conditions specified:
-	if (slope == 0.0 || aspectCardinal == 'U')
+	if (slopePct == 0.0 || aspectCardinal == 'U')
 	{
-		if (aspectCardinal == 'U' && slope != 0.0)
+		if (aspectCardinal == 'U' && slopePct != 0.0)
 		{
-			Warning("Aspect is undefined but slope is not 0: " + std::to_string(slope));
+			Warning("Aspect is undefined but percent slope is not 0: " + std::to_string(slopePct));
 		}
 
-		correction = FosbergNWCG_GetCorrection(correctionTablePath, hourOfDay, shaded, elevation);
+		correction = FosbergNWCG_GetCorrectionFlat(correctionTablePath, hourOfDay, shaded, elevation);
 	}
 	else
 	{
@@ -599,10 +599,10 @@ double FosbergNWCG_GetCorrectionFlat(std::string tableFilePath, int hourOfDay, b
                                      char elevation)
 {
 	//This is not the most efficient because the file will be opened and closed four times:
-	double north = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "N", shaded, elevation);
-	double south = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "S", shaded, elevation);
-	double east = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "E", shaded, elevation);
-	double west = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "w", shaded, elevation);
+	double north = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, 'N', shaded, elevation);
+	double south = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, 'S', shaded, elevation);
+	double east = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, 'E', shaded, elevation);
+	double west = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, 'W', shaded, elevation);
 	return (north + south + east + west) / 4;
 }
 
