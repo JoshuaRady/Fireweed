@@ -551,6 +551,42 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 	return luMatrix[theRow][theCol];//The value is actually integer but will be cast to double.
 }
 
+/** Look up the Fosberg fuel moisture correction (NWCG variant) for a flat location.
+ *
+ * This function handles a condition not explicitly addressed by the NWCG table variant.  When the
+ * slope is 0 the aspect is undefined and shouldn't matter.  However, in some cases you will get
+ * different values for the correction with different aspects even though for a slope of 0 it
+ * should always be the same.  Our solution it to average the value for all aspects in this case. 
+ *
+ * @param tableFilePath A path to a tab delimited file holding a correction lookup table (B - D)
+ *                      from Rothermel 1981 & the NWCG.
+ *
+ * @param hourOfDay The numeric hour of day in 24 hour format (1 - 24).
+ * @param shaded Does the location have 50% or greater canopy cover or is there full cloud cover.
+ *   Note: We could also accept a percentage.
+ * @param elevation A code indicating the slope position for the prediction relative to where the
+ *                  weather conditions were taken.  Values are:
+ *  B: The fire is 1000 - 2000 feet below the location where weather was recorded,
+ *  L: The fire is within 1000 feet of elevation from the the location where weather was recorded,
+ *  A: The fire is 1000 - 2000 feet above the location where weather was recorded,
+ *  This is for field use only and may be omitted for other applications.
+ *
+ * @returns Fuel moisture correction (percent: water weight/dry fuel weight * 100%).
+ *
+ * @note This function is called by FosbergNWCG_1HrFM().  Do not call it directly.
+ * @note This doesn't handle the nighttime values from table C or D.
+ */
+double FosbergNWCG_GetCorrectionFlat(std::string tableFilePath, int hourOfDay, bool shaded,
+                                     char elevation)
+{
+	//This is not the most efficient because the file will be opened and closed four times:
+	double north = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "N", shaded, elevation);
+	double south = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "S", shaded, elevation);
+	double east = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "E", shaded, elevation);
+	double west = FosbergNWCG_GetCorrection(tableFilePath, hourOfDay, 0, "w", shaded, elevation);
+	return (north + south + east + west) / 4;
+}
+
 /* Make an estimate of the 100-hour dead fuel moisture:
  *
  * The estimation is based on the 1-hour Fosberg fuel moisture.  Rothermel 1981 suggests adding 1%.

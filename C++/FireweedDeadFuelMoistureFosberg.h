@@ -29,6 +29,8 @@ double FosbergNWCG_1HrFM(std::string tableA_Path, std::string tableB_Path, std::
 double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh);
 double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, double slopePct,
                                  char aspectCardinal, bool shaded, char elevation = 'L');
+double FosbergNWCG_GetCorrectionFlat(std::string tableFilePath, int hourOfDay, bool shaded,
+                                     char elevation = 'L');
 double NWCG_10hrFM(double oneHrFM);
 double NWCG_100hrFM(double oneHrFM);
 
