@@ -371,6 +371,7 @@ double FosbergNWCG_GetRFM(std::string tableA_Path, double tempF, double rh)
 		}
 	}
 
+	tableAFile.close();
 	return luMatrix[tempIndex][rhIndex];//The value is actually integer but will be cast to double.
 }
 
@@ -567,6 +568,7 @@ double FosbergNWCG_GetCorrection(std::string tableFilePath, int hourOfDay, doubl
 		Stop("Failed to find a matching column.");
 	}
 
+	tableFile.close();
 	return luMatrix[theRow][theCol];//The value is actually integer but will be cast to double.
 }
 
