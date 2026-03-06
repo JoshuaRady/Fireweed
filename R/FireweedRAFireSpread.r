@@ -1513,7 +1513,8 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
   #For debugging:
   if (debug)
   {
-    print("Homogeneous Spread Calc components:")
+    print("Homogeneous spread rate calculations:")
+    print(paste("Units:", units))
     print(paste("GammaPrime =", GammaPrime))
     print(paste("w_n =", w_n))
     print(paste("h =", heatContent))
@@ -1532,16 +1533,17 @@ SpreadRateRothermelAlbini_Homo <- function(SAV, w_o, fuelBedDepth, M_x,
   
   if (components)
   {
-    values = list(R = R,
-                  #Heat source components:
-                  GammaPrime = GammaPrime, w_n = w_n, h = heatContent, eta_M = eta_M,
-                  I_R = I_R, xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
-                  #Heat sink components:
-                  rho_b = rho_b, epsilon = epsilon, Q_ig = Q_ig, HeatSink = heatSink,
-                  #Other components that can be informative:
-                  cSAV = SAV,#With one fuel type cSAV = SAV.  Included for consistency with the heterogeneous output.
-                  PackingRatio = packingRatio, OptimumPR = optPackingRatio)
-    return(values)
+    spreadCalcs = list(Units = units,
+                       R = R,
+                       #Heat source components:
+                       GammaPrime = GammaPrime, w_n = w_n, h = heatContent, eta_M = eta_M,
+                       I_R = I_R, xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
+                       #Heat sink components:
+                       rho_b = rho_b, epsilon = epsilon, Q_ig = Q_ig, HeatSink = heatSink,
+                       #Other components that can be informative:
+                       cSAV = SAV,#With one fuel type cSAV = SAV.  Included for consistency with the heterogeneous output.
+                       PackingRatio = packingRatio, OptimumPR = optPackingRatio)
+    return(spreadCalcs)
   }
   else
   {
@@ -1779,7 +1781,8 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
   #For debugging:
   if (debug)
   {
-    print("Heterogeneous Spread Calc components:")
+    print("Heterogeneous spread rate calculations:")
+    print(paste("Units:", units))
     print(paste("Weights f_ij =", paste(weights$f_ij, collapse = ", ")))
     print(paste("Weights f_i =", paste(weights$f_i, collapse = ", ")))
     print(paste("Weights g_ij =", paste(weights$g_ij, collapse = ", ")))
@@ -1797,19 +1800,20 @@ SpreadRateRothermelAlbini_Het <- function(SAV_ij,
   
   if (components)
   {
-    values = list(R = R,
-                  Weights = weights,#Weights.
-                  #Heat source components:
-                  GammaPrime = GammaPrime, w_n_i = w_n_i, h_i = h_i, eta_M_i = eta_M_i, eta_s_i = eta_s_i,
-                  I_R = I_R, xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
-                  #Heat sink components:
-                  rho_b_bar = rho_b_bar, #epsilon = epsilon,
-                              Q_ig_ij = Q_ig_ij, HeatSink = heatSink,
-                  #Other components that can be informative:
-                  cSAV = fuelBedSAV,#Characteristic SAV
-                  MeanPackingRatio = meanPackingRatio, OptimumPR = optPackingRatio)
-                  #RelativePR = (meanPackingRatio / optPackingRatio),#Overkill?
-    return(values)
+    spreadCalcs = list(Units = units,
+                       R = R,
+                       Weights = weights,#Weights.
+                       #Heat source components:
+                       GammaPrime = GammaPrime, w_n_i = w_n_i, h_i = h_i, eta_M_i = eta_M_i, eta_s_i = eta_s_i,
+                       I_R = I_R, xi = xi, phi_s = phi_s, phi_w = phi_w, HeatSource = heatSource,
+                       #Heat sink components:
+                       rho_b_bar = rho_b_bar, #epsilon = epsilon,
+                       Q_ig_ij = Q_ig_ij, HeatSink = heatSink,
+                       #Other components that can be informative:
+                       cSAV = fuelBedSAV,#Characteristic SAV
+                       MeanPackingRatio = meanPackingRatio, OptimumPR = optPackingRatio)
+    #RelativePR = (meanPackingRatio / optPackingRatio),#Overkill?
+    return(spreadCalcs)
   }
   else
   {
