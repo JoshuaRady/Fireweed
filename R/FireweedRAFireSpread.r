@@ -1853,12 +1853,12 @@ SpreadRateRothermelAlbini_HetFM <- function(fuelModel,
   {
     theM_f_ij = M_f_ij
     
-    if ("M_f_ij" %in% fuelModel)
+    if ("M_f_ij" %in% names(fuelModel))
     {
       warning("M_f_ij argument provided but fuel model also has fuel moisture.")
     }
   }
-  else if ("M_f_ij" %in% fuelModel)
+  else if ("M_f_ij" %in% names(fuelModel))
   {
     theM_f_ij = fuelModel$M_f_ij
   }
