@@ -241,13 +241,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #'
 #' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the fuel
 #' model.  I the fuel model it not fuel model 10 its physical properties will be converted to those
-#' of fuel model 10. 
-#' 
-#' Expect FM 10 and change it if not?  We shoud have an option to not change it.  No, we still need
-#' the data from fuel model 10 so it needs to be passed in.
-#' 
-#' We need to decide on how to deal with the wind.  We only need U or O and WRF.  Decide on units too.
-#' #I guess O = U when WRF = 1????
+#' of fuel model 10.
 #' @param O Open wind speed at 6.1 m (km/hr)
 #' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
 #'            Needed even in U is supplied.
