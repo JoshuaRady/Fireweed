@@ -71,18 +71,18 @@ CrownSpreadRateRothermel <- function()
 
 #Crown Fire Initiation:-----------------------------------------------------------------------------
 
-#' Return the critical surface intensity needed to initiate crowning using Van Wagner 1977.
+#' Return the critical surface fire intensity needed to initiate crowning per Van Wagner 1977.
 #'
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
-#' @param FMC Foliar moisture content of (conifer) canopy (% water weight/dry fuel weight x 100).
+#' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100).
 #'
 #' @returns The critical surface (fireline) intensity for crowning (kW/m, I_0 in Van Wagner notation,
 #'          I'_initiation in Scott & Reinhardt notation).
-CrownFireInitiationVanWagner <- function(CBH, FMC)#CriticalCrowningIntensityVanWagner
+CriticalCrowningIntensityVanWagner <- function(CBH, FMC)
 {
   #Scott & Reinhardt 2001 equation 11, pg. 13:
-  #This is a combination of Van Wagner's equations 3, 4, and value of C = 0.0010 from the text.
-  IPrime_initiation = ((CBH * (460 + 25.9 * FMC)) / 100)^(3/2)#(2/3)
+  #This is a combination of Van Wagner's equations 3, 4, and a value of C = 0.0010 from the text.
+  IPrime_initiation = ((CBH * (460 + 25.9 * FMC)) / 100)^(3/2)
   return(IPrime_initiation)
 }
 
@@ -154,7 +154,7 @@ TorchingIndex <- function(spreadCalcs, WRF, CBH, FMC)
   #I_R = Reaction intensity
   #phi_s = slope factor
   
-  IPrime_initiation = CrownFireInitiationVanWagner(CBH, FMC)
+  IPrime_initiation = CriticalCrowningIntensityVanWagner(CBH, FMC)
   HPA = HeatPerUnitArea(spreadCalcs$I_R, ResidenceTime(spreadCalcs$cSAV, tempUnits))
   
   phiPrime_w_initiation = ((60 * IPrime_initiation * spreadCalcs$HeatSink) /
@@ -252,7 +252,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #'                       distance).
 #' 
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
-#' @param FMC Foliar moisture content of (conifer) canopy (% water weight/dry fuel weight x 100)
+#' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
 #' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
 #'
 #' @returns CFB, the crown fraction burned (fraction).
