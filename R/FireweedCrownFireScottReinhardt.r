@@ -12,13 +12,19 @@
 #
 #References:----------------------------------------------------------------------------------------
 #
-#Van Wagner 1977...
-#Rothermel 1991 ...
+#Van Wagner, C. E.
+#Conditions for the start and spread of crown fire.
+#Canadian Journal of Forest Research 7(1): 23-34, 1977. https://doi.org/10.1139/x77-004
 #
-#Assessing crown fire potential by linking models of surface and crown fire behavior.
+#Rothermel, R. C.
+#Predicting behavior and size of crown fires in the Northern Rocky Mountains.
+#Research Paper INT-RP-438. Ogden, UT: U.S. Department of Agriculture, Forest Service, Intermountain
+#Research Station. 46 pages, 1991. https://doi.org/10.2737/INT-RP-438
+#
 #Scott, Joe H. and Reinhardt, Elizabeth D.
-#Res. Pap. RMRS-RP-29. Fort Collins, CO: U.S. Department of Agriculture, Forest Service, Rocky
-#Mountain Research Station. 59 p. 2001.  https://doi.org/10.2737/RMRS-RP-29
+#Assessing crown fire potential by linking models of surface and crown fire behavior.
+#Research Paper RMRS-RP-29. Fort Collins, CO: U.S. Department of Agriculture, Forest Service, Rocky
+#Mountain Research Station. 59 pages, 2001.  https://doi.org/10.2737/RMRS-RP-29
 #
 #___________________________________________________________________________________________________
 
