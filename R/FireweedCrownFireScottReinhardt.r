@@ -49,6 +49,7 @@ WindConversionFactor = 54.683
 #'
 #' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
 #' fuel model.
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
 #' @return The converted fuel model.
 ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
 {
@@ -82,6 +83,8 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
     return(fuelModel10)
   }
 }
+
+#Crown Fire Spread Rate:----------------------------------------------------------------------------
 
 #' Calculate an estimate of the active crown fire spread rate based the method of Rothermel 1991.
 #' 
