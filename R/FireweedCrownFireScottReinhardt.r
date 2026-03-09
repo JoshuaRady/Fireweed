@@ -42,6 +42,47 @@ WindConversionFactor = 54.683
 
 #Code:----------------------------------------------------------------------------------------------
 
+#' Convert a fuel model to the physical properties of fuel model 10.
+#' 
+#' This is a helper function to deal with the fact that Rothermel 1991 performs calculations with
+#' fuel model 10 regardless of the actual fuel model of the system being simulated.
+#'
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+#' fuel model.
+#' @return The converted fuel model.
+ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
+{
+  if (fuelModel$Number == 10)
+  {
+    return(fuelModel)
+  }
+  else
+  {
+    #Make sure the units are consistent:
+    #We may want to force this to always be metric.
+    if (fuelModel$Units != fuelModel10$Units)
+    {
+      FuelModelConvertUnits(fuelModel10, fuelModel$Units)
+    }
+    
+    if (fuelModel$cured || fuelModel$NumClasses != 5)
+    {
+      Stop("Can't convert a fuel model with curing applied or more than the standard 5 classes.")
+    }
+    
+    #Copy loadings:
+    fuelModel10$w_o_ij = fuelModel$w_o_ij
+    
+    if (!"M_f_ij" %in% names(fuelModel))
+    {
+      Stop("M_f_ij must be provided in fuel model.")
+    }
+    fuelModel10$m_f_ij = fuelModel$m_f_ij
+    
+    return(fuelModel10)
+  }
+}
+
 #' Calculate an estimate of the active crown fire spread rate based the method of Rothermel 1991.
 #' 
 #' Rothermel 1991 calculates the crown fire spread rate as simple multiple of the surface fire
@@ -346,42 +387,4 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
   }
   
   return(CFB)
-}
-
-#' Convert a fuel model to the physical properties of fuel model 10.
-#'
-#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
-#' fuel model.
-#' @return The converted fuel model.
-ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
-{
-  if (fuelModel$Number == 10)
-  {
-    return(fuelModel)
-  }
-  else
-  {
-    #Make sure the units are consistent:
-    #We may want to force this to always be metric.
-    if (fuelModel$Units != fuelModel10$Units)
-    {
-      FuelModelConvertUnits(fuelModel10, fuelModel$Units)
-    }
-    
-    if (fuelModel$cured || fuelModel$NumClasses != 5)
-    {
-      Stop("Can't convert a fuel model with curing applied or more than the standard 5 classes.")
-    }
-    
-    #Copy loadings:
-    fuelModel10$w_o_ij = fuelModel$w_o_ij
-    
-    if (!"M_f_ij" %in% names(fuelModel))
-    {
-      Stop("M_f_ij must be provided in fuel model.")
-    }
-    fuelModel10$m_f_ij = fuelModel$m_f_ij
-    
-    return(fuelModel10)
-  }
 }
