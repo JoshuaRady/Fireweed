@@ -227,34 +227,82 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' The representation in Scott & Reinhardt 2001 does not purport to actually predict the crown
 #' fraction burned for its own sake.  Instead it is used as a transition function between surface
 #' and active crown fire spread rate calculations.  However, this has not stopped people from using
-#' the output as an approximation of actual CFB..
+#' the output as an approximation of actual CFB.
 #'
-#' @param fm10 The fuel model representing the surface fuelbed.  M_f_ij must be included in the fuel
-#' model.  The fuel model should be converted to the properties of fuel model 10 if it is not. 
+#' The underlying Rothermel 1991 crown fire equations expect fuel model 10, timber litter and
+#' understory.  We accept any fuel model, which will be converted internally if needed.  This
+#' currently requires  fuel model 10 to be passed in, which is inelegant.  If the path to the
+#' library's input files could be resolved this argument could be eliminated.
+#'
+#' The original model uses open wind speed at 6.1 m.  We add the option to use the midflame wind
+#' speed as is in the Rothermel & Albini spread model.  In this case the open wind speed will be
+#' calculated based on the wind reduction factor.  Only O or U should be provided and note that the
+#' units differ for the two.
+#'
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the fuel
+#' model.  I the fuel model it not fuel model 10 its physical properties will be converted to those
+#' of fuel model 10. 
 #' 
 #' Expect FM 10 and change it if not?  We shoud have an option to not change it.  No, we still need
 #' the data from fuel model 10 so it needs to be passed in.
 #' 
 #' We need to decide on how to deal with the wind.  We only need U or O and WRF.  Decide on units too.
 #' #I guess O = U when WRF = 1????
-#' @param U Wind speed at midflame height (m/min).
 #' @param O Open wind speed at 6.1 m (km/hr)
 #' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
-#' 
+#'            Needed even in U is supplied.
+#' @param U Wind speed at midflame height (m/min).  Not needed if O is supplied.
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
 #'                       distance).
-#' 
+#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
-#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
+#' @param fm10 Fuel model 10 with default values.  Only needed id fm is not fuel model 10.
 #'
 #' @returns CFB, the crown fraction burned (fraction).
-CrownFractionBurned <- function(fm10, #U,
-                                O, WRF,
-                                slopeSteepness,
-                                CBH, FMC, CBD)
+CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
+                                fm10 = NULL)
 {
   #Check for M_f_ij in the incoming fuel model.
+  if (!"M_f_ij" %in% names(fuelModel))
+  {
+    Stop("M_f_ij must be provided in fuel model.")
+  }
+  
+  #Check units:
+  if (fuelModel$Units = "US")
+  {
+    fuelModel = FuelModelConvertUnits(fuelModel, "Metric")
+  }
+  
+  #Check model type:
+  if (fuelModel$Number != 10)
+  {
+    if (!is.null(fm10))
+    {
+      Stop("fm10 needed.")
+    }
+    
+    fuelModel = ConvertToFuelModel10(fuelModel, fm10)
+  }
+  
+  #Check the wind inputs:
+  if (is.null(O) && is.null(U))
+  {
+    stop("Must provide wind speed as O or U.")
+  }
+  else if (!is.null(O))
+  {
+    #If O is passed in calculate U:
+    U = O * WRF
+    #Note: We don't actually need and accurate value for U as the spread calculations we use in
+    #function are independent of the wind speed.  CI only depends on O.
+  }
+  else
+  {
+    #If U is passed in we need to calculate O:
+    O = U / WRF
+  }
   
   #Check the wind speed:
   if (O < 0)#or U
@@ -263,11 +311,8 @@ CrownFractionBurned <- function(fm10, #U,
   }
   #Add check for unexpectedly high wind speeds?
   
-  #If O is passed in we need to calculate U:
-  U = O * WRF * WindConversionFactor
-  
-  #The paper never mentions the wind limit and we assume it is not used:
-  spreadCalcs = SpreadRateRothermelAlbini_HetFM(fm10, U, slopeSteepness, components = TRUE)
+  #Scott & Reinhardt 2001 never mentions the wind limit and we assume it is not used:
+  spreadCalcs = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness, components = TRUE)
   
   TI = TorchingIndex(spreadCalcs, WRF, CBH, FMC)
   CI = CrowningIndex(spreadCalcs, CBD)
