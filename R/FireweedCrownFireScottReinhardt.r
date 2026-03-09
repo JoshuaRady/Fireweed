@@ -270,6 +270,7 @@ CrownFractionBurned <- function(fm10, #U,
   #U = O * WRF
   U = O * WRF * kmPerHrToMPerMin
   #U = O * 0.4#See pg. 11...
+  #kmPerHrToMPerMin here is probalby wrong, though it doesn't matter since U is irrelevant here!
   
   spreadCalcs = SpreadRateRothermelAlbini_HetFM(fm10, U, slopeSteepness, components = TRUE)
   
