@@ -37,35 +37,56 @@ source("FireweedRAFireSpread.r")
 #they use a constant of 54.683 to convert wind speeds from km/hr to ft/min.  Fireweed can perform
 #the spread calculations in United States customary units or metric units.  We choose to do
 #everything in metric units so we replace the original constant with a conversion from km/hr to m/min:
-#kmPerHrToMPerMin = 1000 / 60#1000 m/km / 60 min/hr
+kmPerHrToMPerMin = 1000 / 60#1000 m/km / 60 min/hr = m/min
 WindConversionFactor = 54.683
 
 #Code:----------------------------------------------------------------------------------------------
 
-#' Return an estimate of the active fire spread rate based on surface spread rate using the method
-#' of Rothermel 1991.
-#'
-#' @param R_surface Surface fire rate of spread (m/min, for FM10).
+#' Calculate an estimate of the active crown fire spread rate based the method of Rothermel 1991.
+#' 
+#' Rothermel 1991 calculates the crown fire spread rate as simple multiple of the surface fire
+#' spread rate but the surface fire spread rate must be calculated with the physical properties of
+#' fuel model 10 and a fixed 40% wind reduction factor.  This function handle the needed
+#' conversions and returns the resulting rate.
+#' 
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+#' fuel model.  If the fuel model it not fuel model 10 its physical properties will be converted to
+#' those of fuel model 10.
+#' @param O Open wind speed at 6.1 m (km/hr)
+#' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
+#' @param fm10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
 #'
 #' @returns The crown fire rate of spread (m/min).
-#' 
-#' @note The correlation between surface and crown fire ROS in Rothermel 1991 used fuel model 10
-#' specifically.  ...
-SpreadRateCrownRothermel <- function(R_surface)
+SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fm10 = NULL)
 {
-  R_active = 3.34 * R_surface
-}
-
-#' Return an estimate of the active fire spread rate based on surface spread rate using the method
-#' of Rothermel 1991.
-#' 
-#' The calculations per Rothermel 1991 used fuel model 10 for surface fire calculation specifically.
-#' Is it useful to have a function devoted to doing the rate of spread calculations all in one step?
-#' Since we have to pass in fuel model 10 and the other inputs.  I'm not sure it helps anything.
-#' We could have a function to check it? 
-CrownSpreadRateRothermel <- function()
-{
+  #Checks repeated from CrownFractionBurned():
   
+  #Check for M_f_ij in the incoming fuel model.
+  if (!"M_f_ij" %in% names(fuelModel))
+  {
+    Stop("M_f_ij must be provided in fuel model.")
+  }
+  
+  #Check units:
+  if (fuelModel$Units == "US")
+  {
+    fuelModel = FuelModelConvertUnits(fuelModel, "Metric")
+  }
+  
+  #Check model type:
+  if (fuelModel$Number != 10)
+  {
+    if (!is.null(fm10))
+    {
+      Stop("fm10 needed.")
+    }
+    fuelModel = ConvertToFuelModel10(fuelModel, fm10)
+  }
+  
+  U = O * kmPerHrToMPerMin * 0.4#Use fixed 40% WRF from Rothermel 1991.
+  R_surface = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness)
+  R_active = 3.34 * R_surface
+  return(R_active)
 }
 
 #Crown Fire Initiation:-----------------------------------------------------------------------------
@@ -240,7 +261,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' units differ for the two.
 #'
 #' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
-#' fuel model.  I the fuel model it not fuel model 10 its physical properties will be converted to
+#' fuel model.  If the fuel model it not fuel model 10 its physical properties will be converted to
 #' those of fuel model 10.
 #' @param O Open wind speed at 6.1 m (km/hr)
 #' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
@@ -251,7 +272,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
-#' @param fm10 Fuel model 10 with default values.  Only needed id fm is not fuel model 10.
+#' @param fm10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
 #'
 #' @returns CFB, the crown fraction burned (fraction).
 CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
@@ -264,7 +285,7 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
   }
   
   #Check units:
-  if (fuelModel$Units = "US")
+  if (fuelModel$Units == "US")
   {
     fuelModel = FuelModelConvertUnits(fuelModel, "Metric")
   }
@@ -276,7 +297,6 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
     {
       Stop("fm10 needed.")
     }
-    
     fuelModel = ConvertToFuelModel10(fuelModel, fm10)
   }
   
