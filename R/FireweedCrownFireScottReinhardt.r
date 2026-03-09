@@ -98,10 +98,10 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
 #' those of fuel model 10.
 #' @param O Open wind speed at 6.1 m (km/hr)
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
-#' @param fm10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
 #'
 #' @returns The crown fire rate of spread (m/min).
-SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fm10 = NULL)
+SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 = NULL)
 {
   #Checks repeated from CrownFractionBurned():
   
@@ -120,11 +120,11 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fm10 = NULL)
   #Check model type:
   if (fuelModel$Number != 10)
   {
-    if (!is.null(fm10))
+    if (!is.null(fuelModel10))
     {
-      Stop("fm10 needed.")
+      Stop("Fuel model 10 needed.")
     }
-    fuelModel = ConvertToFuelModel10(fuelModel, fm10)
+    fuelModel = ConvertToFuelModel10(fuelModel, fuelModel10)
   }
   
   U = O * kmPerHrToMPerMin * 0.4#Use fixed 40% WRF from Rothermel 1991.
@@ -316,11 +316,11 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
-#' @param fm10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
 #'
 #' @returns CFB, the crown fraction burned (fraction).
 CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
-                                fm10 = NULL)
+                                fuelModel10 = NULL)
 {
   #Check for M_f_ij in the incoming fuel model.
   if (!"M_f_ij" %in% names(fuelModel))
@@ -337,11 +337,11 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
   #Check model type:
   if (fuelModel$Number != 10)
   {
-    if (!is.null(fm10))
+    if (!is.null(fuelModel10))
     {
-      Stop("fm10 needed.")
+      Stop("Fuel model 10 needed.")
     }
-    fuelModel = ConvertToFuelModel10(fuelModel, fm10)
+    fuelModel = ConvertToFuelModel10(fuelModel, fuelModel10)
   }
   
   #Check the wind inputs:
