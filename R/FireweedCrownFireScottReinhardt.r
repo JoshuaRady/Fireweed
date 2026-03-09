@@ -239,9 +239,9 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' calculated based on the wind reduction factor.  Only O or U should be provided and note that the
 #' units differ for the two.
 #'
-#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the fuel
-#' model.  I the fuel model it not fuel model 10 its physical properties will be converted to those
-#' of fuel model 10.
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+#' fuel model.  I the fuel model it not fuel model 10 its physical properties will be converted to
+#' those of fuel model 10.
 #' @param O Open wind speed at 6.1 m (km/hr)
 #' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
 #'            Needed even in U is supplied.
@@ -326,4 +326,42 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
   }
   
   return(CFB)
+}
+
+#' Convert a fuel model to the physical properties of fuel model 10.
+#'
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+#' fuel model.
+#' @return The converted fuel model.
+ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
+{
+  if (fuelModel$Number == 10)
+  {
+    return(fuelModel)
+  }
+  else
+  {
+    #Make sure the units are consistent:
+    #We may want to force this to always be metric.
+    if (fuelModel$Units != fuelModel10$Units)
+    {
+      FuelModelConvertUnits(fuelModel10, fuelModel$Units)
+    }
+    
+    if (fuelModel$cured || fuelModel$NumClasses != 5)
+    {
+      Stop("Can't convert a fuel model with curing applied or more than the standard 5 classes.")
+    }
+    
+    #Copy loadings:
+    fuelModel10$w_o_ij = fuelModel$w_o_ij
+    
+    if (!"M_f_ij" %in% names(fuelModel))
+    {
+      Stop("M_f_ij must be provided in fuel model.")
+    }
+    fuelModel10$m_f_ij = fuelModel$m_f_ij
+    
+    return(fuelModel10)
+  }
 }
