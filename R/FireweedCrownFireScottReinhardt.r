@@ -167,11 +167,12 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 =
 #' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
-#' @param fm10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
+#' fuel model 10.
 #'
 #' @returns The fire spread rate (m/min).
 SpreadRateCrownSR <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
-                              fm10 = NULL)
+                              fuelModel10 = NULL)
 {
   fuelModel = CheckFuelModel(fuelModel)#Check the fuel model but don't convert the model number yet.
   
@@ -206,7 +207,7 @@ SpreadRateCrownSR <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness
   R_active = SpreadRateCrownRothermel(fuelModel, O, slopeSteepness, fuelModel10)
   
   #Get the crown fraction burned:
-  CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fm10)
+  CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10)
   
   #Compute the final rate using Scott & Reinhardt 2001 equation 21, pg. 19:
   R_final = R_surface + CFB * (R_active - R_surface)
@@ -244,8 +245,6 @@ CriticalCrowningROSVanWagner <- function(IPrime_initiation, HPA)
   return(R_initiation)
 }
 
-#Active Crown Fire:
-
 #' Calculate the (minimum) critical crown fire rate of spread for active crowning.
 #'
 #' @param CBD Crown bulk density (kg/m^3).  This is the dry mass of foliage and fine branches per
@@ -258,6 +257,8 @@ CriticalActiveROSVanWagner <- function(CBD)
   Rprime_active = 3.0 / CBD
   return(Rprime_active)
 }
+
+#Crown Fire Development:----------------------------------------------------------------------------
 
 #' Calculate the torching index, the open wind speed at which torching starts,
 #'
@@ -451,4 +452,47 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
   }
   
   return(CFB)
+}
+
+#Crown Fire Intensity:
+
+#' Compute Byram’s fireline intensity of a fire regardless of stage (surface, passive crown, or
+#' active crown).
+#'
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+#' fuel model.  If the fuel model it not fuel model 10 its physical properties will be converted to
+#' those of fuel model 10.
+#' @param O Open wind speed at 6.1 m (km/hr)
+#' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
+#'            Needed even in U is supplied.
+#' @param U Wind speed at midflame height (m/min).  Not needed if O is supplied.
+#' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
+#'                       distance).
+#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
+#' @param CBH Crown base height (m, z in original Van Wagner notation).
+#' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
+#' @param W_canopy Canopy fuel load (kg/m^2?????).
+#' @param H_canopy Heat yeild of canopy fuel, heat content - heat of drying (kJ/kg, default from 
+#'                 FARSITE).
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
+#' fuel model 10.
+#'
+#' @returns Byram's fireline intensity (kW/m).
+CrownFireIntensity <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
+                               W_canopy, H_canopy = 18000, fuelModel10 = NULL)
+{
+  fuelModel = CheckFuelModel(fuelModel, convert = true, fuelModel10)
+  
+  #Scott & Reinhardt 2001 equation 22, pg. 21:
+  #I_final = ((HPA_surface + (W_canopy * H_canopy * CFB)) * R_final) / 60
+  
+  #Surface fire heat per area (kw/m^2):
+  spreaCalcs = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness, components = TRUE)
+  HPA_surface = HeatPerUnitArea(spreadCalcs$I_R, ResidenceTime(spreadCalcs$cSAV, "Metric"))
+  
+  CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10)
+  R_final = SpreadRateCrownSR(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10)
+  
+  I_final = ((HPA_surface + (W_canopy * H_canopy * CFB)) * R_final) / 60
+  return(I_final)
 }
