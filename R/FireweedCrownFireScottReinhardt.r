@@ -153,6 +153,66 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 =
   return(R_active)
 }
 
+#' Compute the spread rate of a fire regardless of stage (surface, passive crown, or active crown).
+#'
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+#' fuel model.  If the fuel model it not fuel model 10 its physical properties will be converted to
+#' those of fuel model 10.
+#' @param O Open wind speed at 6.1 m (km/hr)
+#' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
+#'            Needed even in U is supplied.
+#' @param U Wind speed at midflame height (m/min).  Not needed if O is supplied.
+#' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
+#'                       distance).
+#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
+#' @param CBH Crown base height (m, z in original Van Wagner notation).
+#' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
+#' @param fm10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
+#'
+#' @returns The fire spread rate (m/min).
+SpreadRateCrownSR <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
+                              fm10 = NULL)
+{
+  fuelModel = CheckFuelModel(fuelModel)#Check the fuel model but don't convert the model number yet.
+  
+  #Check the wind inputs: (code repeated in CrownFractionBurned())
+  if (is.null(O) && is.null(U))
+  {
+    stop("Must provide wind speed as O or U.")
+  }
+  else if (!is.null(O))
+  {
+    #If O is passed in calculate U:
+    U = O * WRF
+    #Note: We don't actually need and accurate value for U as the spread calculations we use in
+    #function are independent of the wind speed.  CI only depends on O.
+  }
+  else
+  {
+    #If U is passed in we need to calculate O:
+    O = U / WRF
+  }
+  
+  #Check the wind speed:
+  if (O < 0)#or U
+  {
+    Stop("Invalid wind speed.")
+  }
+  
+  #Calculate the component spread rates:
+  #I think the surface spread rate should be calculated with the original fuel model but the text is
+  #not explicit.  Confirm!\
+  R_surface = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness)
+  R_active = SpreadRateCrownRothermel(fuelModel, O, slopeSteepness, fuelModel10)
+  
+  #Get the crown fraction burned:
+  CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fm10)
+  
+  #Compute the final rate using Scott & Reinhardt 2001 equation 21, pg. 19:
+  R_final = R_surface + CFB * (R_active - R_surface)
+  return(R_final)
+}
+
 #Crown Fire Initiation:-----------------------------------------------------------------------------
 
 #' Return the critical surface fire intensity needed to initiate crowning per Van Wagner 1977.
