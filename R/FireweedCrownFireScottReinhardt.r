@@ -42,6 +42,8 @@ WindConversionFactor = 54.683
 
 #Code:----------------------------------------------------------------------------------------------
 
+#Fuel Model Management:
+
 #' Convert a fuel model to the physical properties of fuel model 10.
 #' 
 #' This is a helper function to deal with the fact that Rothermel 1991 performs calculations with
@@ -49,7 +51,9 @@ WindConversionFactor = 54.683
 #'
 #' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
 #' fuel model.
-#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
+#' fuel model 10.
+#' 
 #' @return The converted fuel model.
 ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
 {
@@ -84,6 +88,43 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
   }
 }
 
+#' Check the fuel model meets the requirements for the Scott & Reinhardt 2001 crown fire equations
+#' and modify it needed.
+#'
+#' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+#' fuel model.
+#' @param convert Convert to fuel model 10 if needed?
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not fuel model
+#' 10 and convert is true.
+#' 
+#' @return The fuel model, possibly updated.
+CheckFuelModel <- function(fuelModel, convert = FALSE, fuelModel10 = NULL)
+{
+  #Check for M_f_ij in the incoming fuel model.
+  if (!"M_f_ij" %in% names(fuelModel))
+  {
+    Stop("M_f_ij must be provided in fuel model.")
+  }
+  
+  #Check units:
+  if (fuelModel$Units != "Metric")
+  {
+    fuelModel = FuelModelConvertUnits(fuelModel, "Metric")
+  }
+  
+  #Check model type:
+  if (convert && fuelModel$Number != 10)
+  {
+    if (!is.null(fuelModel10))
+    {
+      Stop("Fuel model 10 needed.")
+    }
+    fuelModel = ConvertToFuelModel10(fuelModel, fuelModel10)
+  }
+  
+  return(fuelModel)
+}
+
 #Crown Fire Spread Rate:----------------------------------------------------------------------------
 
 #' Calculate an estimate of the active crown fire spread rate based the method of Rothermel 1991.
@@ -98,34 +139,13 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
 #' those of fuel model 10.
 #' @param O Open wind speed at 6.1 m (km/hr)
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
-#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
+#' fuel model 10.
 #'
 #' @returns The crown fire rate of spread (m/min).
 SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 = NULL)
 {
-  #Checks repeated from CrownFractionBurned():
-  
-  #Check for M_f_ij in the incoming fuel model.
-  if (!"M_f_ij" %in% names(fuelModel))
-  {
-    Stop("M_f_ij must be provided in fuel model.")
-  }
-  
-  #Check units:
-  if (fuelModel$Units == "US")
-  {
-    fuelModel = FuelModelConvertUnits(fuelModel, "Metric")
-  }
-  
-  #Check model type:
-  if (fuelModel$Number != 10)
-  {
-    if (!is.null(fuelModel10))
-    {
-      Stop("Fuel model 10 needed.")
-    }
-    fuelModel = ConvertToFuelModel10(fuelModel, fuelModel10)
-  }
+  fuelModel = CheckFuelModel(fuelModel, convert = true, fuelModel10)
   
   U = O * kmPerHrToMPerMin * 0.4#Use fixed 40% WRF from Rothermel 1991.
   R_surface = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness)
@@ -316,33 +336,14 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
-#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fm is not fuel model 10.
+#' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
+#' fuel model 10.
 #'
 #' @returns CFB, the crown fraction burned (fraction).
 CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
                                 fuelModel10 = NULL)
 {
-  #Check for M_f_ij in the incoming fuel model.
-  if (!"M_f_ij" %in% names(fuelModel))
-  {
-    Stop("M_f_ij must be provided in fuel model.")
-  }
-  
-  #Check units:
-  if (fuelModel$Units == "US")
-  {
-    fuelModel = FuelModelConvertUnits(fuelModel, "Metric")
-  }
-  
-  #Check model type:
-  if (fuelModel$Number != 10)
-  {
-    if (!is.null(fuelModel10))
-    {
-      Stop("Fuel model 10 needed.")
-    }
-    fuelModel = ConvertToFuelModel10(fuelModel, fuelModel10)
-  }
+  fuelModel = CheckFuelModel(fuelModel, convert = true, fuelModel10)
   
   #Check the wind inputs:
   if (is.null(O) && is.null(U))
