@@ -145,7 +145,7 @@ CheckFuelModel <- function(fuelModel, convert = FALSE, fuelModel10 = NULL)
 #' @returns The crown fire rate of spread (m/min).
 SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 = NULL)
 {
-  fuelModel = CheckFuelModel(fuelModel, convert = true, fuelModel10)
+  fuelModel = CheckFuelModel(fuelModel, convert = TRUE, fuelModel10)
   
   U = O * kmPerHrToMPerMin * 0.4#Use fixed 40% WRF from Rothermel 1991.
   R_surface = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness)
@@ -404,7 +404,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
 CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
                                 fuelModel10 = NULL)
 {
-  fuelModel = CheckFuelModel(fuelModel, convert = true, fuelModel10)
+  fuelModel = CheckFuelModel(fuelModel, convert = TRUE, fuelModel10)
   
   #Check the wind inputs:
   if (is.null(O) && is.null(U))
