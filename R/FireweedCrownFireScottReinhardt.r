@@ -207,7 +207,7 @@ SpreadRateCrownSR <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness
   R_active = SpreadRateCrownRothermel(fuelModel, O, slopeSteepness, fuelModel10)
   
   #Get the crown fraction burned:
-  CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10)
+  CFB = CrownFractionBurned(fuelModel, O, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC, fuelModel10)
   
   #Compute the final rate using Scott & Reinhardt 2001 equation 21, pg. 19:
   R_final = R_surface + CFB * (R_active - R_surface)
