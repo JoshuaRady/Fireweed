@@ -184,9 +184,7 @@ SpreadRateCrownSR <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness
   else if (!is.null(O))
   {
     #If O is passed in calculate U:
-    U = O * WRF
-    #Note: We don't actually need and accurate value for U as the spread calculations we use in
-    #function are independent of the wind speed.  CI only depends on O.
+    U = O * WRF * kmPerHrToMPerMin
   }
   else
   {
@@ -414,9 +412,9 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
   else if (!is.null(O))
   {
     #If O is passed in calculate U:
-    U = O * WRF
-    #Note: We don't actually need and accurate value for U as the spread calculations we use in
-    #function are independent of the wind speed.  CI only depends on O.
+    U = O * WRF * kmPerHrToMPerMin
+    #Note: We don't actually need an accurate value of U for computing CFB as the spread rate
+    #sub-calculations used here are independent of the wind speed.  CI only depends on O.
   }
   else
   {
