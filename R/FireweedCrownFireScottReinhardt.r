@@ -26,19 +26,26 @@
 #Research Paper RMRS-RP-29. Fort Collins, CO: U.S. Department of Agriculture, Forest Service, Rocky
 #Mountain Research Station. 59 pages, 2001.  https://doi.org/10.2737/RMRS-RP-29
 #
+#Windspeed:-----------------------------------------------------------------------------------------
+#  The Scott & Reinhardt 2001 model is highly dependent on windspeed.  Windspeed controls the
+#transition from surface to crown fire.  The model takes open wind speeds (O) in km/hr as one of it's
+#main inputs a converts it to midflame wind speeds (U) in order to perform component calculations
+#from the Rothermel & Albini spread rate model.  The conversion factor 54.683 is used in several
+#places (WindConversionFactor below).  The value is a bit mysterious as it appears to be the
+#conversion from km/hr to the ft/min used in the original vesion of the Rothermel & Albini model
+#(1000 / 60 / mPerFt = 54.68066).  However, in my testing the calculations only give the expected
+#results when the Rothermel & Albini spread calculations are done in metric units.  Perhaps I am
+#misunderstanding this or there is a counteracting conversion in the other constants.  In any case
+#we retain the value as originally published but use kmPerHrToMPerMin for O to U windspeed
+#conversions elsewhere.
+#
 #___________________________________________________________________________________________________
 
 source("FireweedRAFireSpread.r")
 
 #Constants:
-#The Scott & Reinhardt 2001 model takes open wind speeds (O) in km/hr and converts them to midflame
-#wind speeds (U) in order to perform component calculations from the Rothermel & Albini spread
-#model.  They assume these calculations are done in the model's original English units.  Therefore
-#they use a constant of 54.683 to convert wind speeds from km/hr to ft/min.  Fireweed can perform
-#the spread calculations in United States customary units or metric units.  We choose to do
-#everything in metric units so we replace the original constant with a conversion from km/hr to m/min:
-kmPerHrToMPerMin = 1000 / 60#1000 m/km / 60 min/hr = m/min
 WindConversionFactor = 54.683
+kmPerHrToMPerMin = 1000 / 60#1000 m/km / 60 min/hr = m/min
 
 #Code:----------------------------------------------------------------------------------------------
 
