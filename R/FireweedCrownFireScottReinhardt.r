@@ -61,7 +61,7 @@ kmPerHrToMPerMin = 1000 / 60#1000 m/km / 60 min/hr = m/min
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
 #' fuel model 10.
 #' 
-#' @return The converted fuel model.
+#' @returns The converted fuel model.
 ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
 {
   if (fuelModel$Number == 10)
@@ -104,7 +104,7 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not fuel model
 #' 10 and convert is true.
 #' 
-#' @return The fuel model, possibly updated.
+#' @returns The fuel model, possibly updated.
 CheckFuelModel <- function(fuelModel, convert = FALSE, fuelModel10 = NULL)
 {
   #Check for M_f_ij in the incoming fuel model.
