@@ -26,8 +26,8 @@
 #Research Paper RMRS-RP-29. Fort Collins, CO: U.S. Department of Agriculture, Forest Service, Rocky
 #Mountain Research Station. 59 pages, 2001.  https://doi.org/10.2737/RMRS-RP-29
 #
-#Windspeed:-----------------------------------------------------------------------------------------
-#  The Scott & Reinhardt 2001 model is highly dependent on windspeed.  Windspeed controls the
+#Wind speed:----------------------------------------------------------------------------------------
+#  The Scott & Reinhardt 2001 model is highly dependent on wind speed.  Wind speed controls the
 #transition from surface to crown fire.  The model takes open wind speeds (O) in km/hr as one of it's
 #main inputs a converts it to midflame wind speeds (U) in order to perform component calculations
 #from the Rothermel & Albini spread rate model.  The conversion factor 54.683 is used in several
@@ -36,7 +36,7 @@
 #(1000 / 60 / mPerFt = 54.68066).  However, in my testing the calculations only give the expected
 #results when the Rothermel & Albini spread calculations are done in metric units.  Perhaps I am
 #misunderstanding this or there is a counteracting conversion in the other constants.  In any case
-#we retain the value as originally published but use kmPerHrToMPerMin for O to U windspeed
+#we retain the value as originally published but use kmPerHrToMPerMin for O to U wind speed
 #conversions elsewhere.
 #
 #___________________________________________________________________________________________________
