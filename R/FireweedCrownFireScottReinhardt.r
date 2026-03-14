@@ -171,7 +171,8 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 =
 #' @param U Wind speed at midflame height (m/min).  Not needed if O is supplied.
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
 #'                       distance).
-#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
+#' @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
+#'            fine branches, per volume of the canopy (kg/m^3).  AKA crown bulk density.
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
@@ -252,8 +253,8 @@ CriticalCrowningROSVanWagner <- function(IPrime_initiation, HPA)
 
 #' Calculate the (minimum) critical crown fire rate of spread for active crowning.
 #'
-#' @param CBD Crown bulk density (kg/m^3).  This is the dry mass of foliage and fine branches per
-#'            volume in the tree canopy.
+#' @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
+#'            fine branches, per volume of the canopy (kg/m^3).  AKA crown bulk density.
 #'
 #' @returns The (minimum) critical crown fire rate of spread for active crowning (m/min).
 CriticalActiveROSVanWagner <- function(CBD)
@@ -326,7 +327,8 @@ TorchingIndex <- function(spreadCalcs, WRF, CBH, FMC)
 #'
 #' @param spreadCalcs The spread calculations (list) output from the SpreadRateRothermelAlbini_*()
 #' family of functions.
-#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
+#' @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
+#'            fine branches, per volume of the canopy (kg/m^3).  AKA crown bulk density.
 #'
 #' @returns CI, the crowning index (open wind speed at 6.1 m, km/hr).
 CrowningIndex <- function(spreadCalcs, CBD)
@@ -399,9 +401,10 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' @param U Wind speed at midflame height (m/min).  Not needed if O is supplied.
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
 #'                       distance).
-#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
+#' @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
+#'            fine branches, per volume of the canopy (kg/m^3).  AKA crown bulk density.
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
-#' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
+#' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100).
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
 #' fuel model 10.
 #'
@@ -473,7 +476,8 @@ CrownFractionBurned <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepne
 #' @param U Wind speed at midflame height (m/min).  Not needed if O is supplied.
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
 #'                       distance).
-#' @param CBD Crown bulk density, the foliage (needles) and fine branches (kg/m^3).
+#' @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
+#'            fine branches, per volume of the canopy (kg/m^3).  AKA crown bulk density.
 #' @param CBH Crown base height (m, z in original Van Wagner notation).
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
 #' @param W_canopy Canopy fuel load (kg/m^2?????).
