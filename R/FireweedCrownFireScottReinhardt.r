@@ -8,8 +8,6 @@
 #  This file is part of the Fireweed wildfire code library.  It contains an implementation of the
 #crown fire equations of Scott & Reinhardt 2001.
 #
-#  This code is in development and may be incomplete for a while.
-#
 #References:----------------------------------------------------------------------------------------
 #
 #Van Wagner, C. E.
@@ -32,13 +30,15 @@
 #main inputs a converts it to midflame wind speeds (U) in order to perform component calculations
 #from the Rothermel & Albini spread rate model.  The conversion factor 54.683 is used in several
 #places (WindConversionFactor below).  The value is a bit mysterious as it appears to be the
-#conversion from km/hr to the ft/min used in the original vesion of the Rothermel & Albini model
+#conversion from km/hr to the ft/min used in the original version of the Rothermel & Albini model
 #(1000 / 60 / mPerFt = 54.68066).  However, in my testing the calculations only give the expected
 #results when the Rothermel & Albini spread calculations are done in metric units.  Perhaps I am
 #misunderstanding this or there is a counteracting conversion in the other constants.  In any case
 #we retain the value as originally published but use kmPerHrToMPerMin for O to U wind speed
 #conversions elsewhere.
 #
+#  Our functions all take O by default but since the open wind speed may not always be available we
+#have provided the ability to input U for the top level calculations.
 #___________________________________________________________________________________________________
 
 source("FireweedRAFireSpread.r")
