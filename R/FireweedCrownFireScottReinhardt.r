@@ -506,7 +506,7 @@ CrownFractionBurned <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, 
 CrownFireIntensity <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, CBH, FMC,
                                W_canopy, H_canopy = 18000, fuelModel10 = NULL, windType = "O")
 {
-  fuelModel = CheckFuelModel(fuelModel, convert = true, fuelModel10)
+  fuelModel = CheckFuelModel(fuelModel, convert = TRUE, fuelModel10)
   
   windSpeeds = CheckConvertWindSpeed(windSpeed, WRF, windType)
   O = windSpeeds$O
