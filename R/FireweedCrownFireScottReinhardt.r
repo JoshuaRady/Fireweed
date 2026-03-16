@@ -165,10 +165,10 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 =
 #' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
 #' fuel model.  If the fuel model it not fuel model 10 its physical properties will be converted to
 #' those of fuel model 10.
-#' @param O Open wind speed at 6.1 m (km/hr)
+#' @param windSpeed The wind speed, by default O the open wind speed at 6.1 m (km/hr).  Otherwise,
+#'                  U the wind speed at midflame height (m/min).  Set by windType.
 #' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
-#'            Needed even in U is supplied.
-#' @param U Wind speed at midflame height (m/min).  Not needed if O is supplied.
+#'            Needed even if U is supplied.
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
 #'                       distance).
 #' @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
@@ -178,27 +178,28 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 =
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
 #' fuel model 10.
+#' @param windType The windspeed type (see windSpeed).
 #'
 #' @returns The fire spread rate (m/min).
-SpreadRateCrownSR <- function(fuelModel, O = NULL, WRF, U = NULL, slopeSteepness, CBD, CBH, FMC,
-                              fuelModel10 = NULL)
+SpreadRateCrownSR <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, CBH, FMC,
+                              fuelModel10 = NULL, windType = "O")#windSpeedAsU = false
 {
   fuelModel = CheckFuelModel(fuelModel)#Check the fuel model but don't convert the model number yet.
   
   #Check the wind inputs: (code repeated in CrownFractionBurned())
-  if (is.null(O) && is.null(U))
+  if (windType == "O")
   {
-    stop("Must provide wind speed as O or U.")
+    O = windSpeed
+    U = O * WRF * kmPerHrToMPerMin#If O is passed in calculate U.
   }
-  else if (!is.null(O))
+  else if (windType == "U")
   {
-    #If O is passed in calculate U:
-    U = O * WRF * kmPerHrToMPerMin
+    U = windSpeed
+    O = U / WRF#If U is passed in we need to calculate O.
   }
   else
   {
-    #If U is passed in we need to calculate O:
-    O = U / WRF
+    stop("Must provide wind speed as O or U.")
   }
   
   #Check the wind speed:
