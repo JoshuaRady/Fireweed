@@ -440,7 +440,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
 #' @param windType The wind speed type (see windSpeed).
 #'
 #' @returns CFB, the crown fraction burned (fraction).
-CrownFractionBurned <- function(fuelModel, windspeed, WRF, slopeSteepness, CBD, CBH, FMC,
+CrownFractionBurned <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, CBH, FMC,
                                 fuelModel10 = NULL, windType = "O")
 {
   fuelModel = CheckFuelModel(fuelModel, convert = TRUE, fuelModel10)
