@@ -132,6 +132,49 @@ CheckFuelModel <- function(fuelModel, convert = FALSE, fuelModel10 = NULL)
   return(fuelModel)
 }
 
+#Wind Speed:----------------------------------------------------------------------------------------
+
+#' Check the wind speed passed in for validity and convert to give both the open wind speed O and
+#' the midflame wind speed U.
+#' 
+#' This is a utility to reduce code repetition in top level functions where we allow wind speed to
+#' be passed in as either O or U.
+#'
+#' @param windSpeed The wind speed, by default O the open wind speed at 6.1 m (km/hr), otherwise,
+#'                  U the wind speed at midflame height (m/min).  Type set by windType.
+#' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
+#'            Needed even if U is supplied.
+#' @param windType The wind speed type (see windSpeed).
+#'
+#' @returns The open wind speed at 6.1 m O and the midflame wind speed U as a name value pair.
+CheckConvertWindSpeed <- function(windSpeed, WRF, windType = "O")
+{
+  #Validity checking:
+  if (windSpeed < 0)
+  {
+    Stop("Invalid wind speed.")
+  }
+  #Check for reasonable max?
+  
+  #Check the wind inputs:
+  if (windType == "O")
+  {
+    O = windSpeed
+    U = O * WRF * kmPerHrToMPerMin#If O is passed in calculate U.
+  }
+  else if (windType == "U")
+  {
+    U = windSpeed
+    O = U / WRF#If U is passed in we need to calculate O.
+  }
+  else
+  {
+    stop("Must provide wind speed as O or U.")
+  }
+  
+  return(list("O" = O, "U" = U))
+}
+
 #Crown Fire Spread Rate:----------------------------------------------------------------------------
 
 #' Calculate an estimate of the active crown fire spread rate based the method of Rothermel 1991.
@@ -165,8 +208,8 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 =
 #' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
 #' fuel model.  If the fuel model it not fuel model 10 its physical properties will be converted to
 #' those of fuel model 10.
-#' @param windSpeed The wind speed, by default O the open wind speed at 6.1 m (km/hr).  Otherwise,
-#'                  U the wind speed at midflame height (m/min).  Set by windType.
+#' @param windSpeed The wind speed, by default O the open wind speed at 6.1 m (km/hr), otherwise,
+#'                  U the wind speed at midflame height (m/min).  Type set by windType.
 #' @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
 #'            Needed even if U is supplied.
 #' @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
@@ -178,7 +221,7 @@ SpreadRateCrownRothermel <- function(fuelModel, O, slopeSteepness, fuelModel10 =
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
 #' fuel model 10.
-#' @param windType The windspeed type (see windSpeed).
+#' @param windType The wind speed type (see windSpeed).
 #'
 #' @returns The fire spread rate (m/min).
 SpreadRateCrownSR <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, CBH, FMC,
@@ -186,27 +229,9 @@ SpreadRateCrownSR <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, CB
 {
   fuelModel = CheckFuelModel(fuelModel)#Check the fuel model but don't convert the model number yet.
   
-  #Check the wind inputs: (code repeated in CrownFractionBurned())
-  if (windType == "O")
-  {
-    O = windSpeed
-    U = O * WRF * kmPerHrToMPerMin#If O is passed in calculate U.
-  }
-  else if (windType == "U")
-  {
-    U = windSpeed
-    O = U / WRF#If U is passed in we need to calculate O.
-  }
-  else
-  {
-    stop("Must provide wind speed as O or U.")
-  }
-  
-  #Check the wind speed:
-  if (O < 0)#or U
-  {
-    Stop("Invalid wind speed.")
-  }
+  windSpeeds = CheckConvertWindSpeed(windSpeed, WRF, windType)
+  O = windSpeeds$O
+  U = windSpeeds$U
   
   #Calculate the component spread rates:
   #I think the surface spread rate should be calculated with the original fuel model but the text is
