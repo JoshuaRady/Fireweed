@@ -79,7 +79,7 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
     
     if (fuelModel$cured || fuelModel$NumClasses != 5)
     {
-      Stop("Can't convert a fuel model with curing applied or more than the standard 5 classes.")
+      stop("Can't convert a fuel model with curing applied or more than the standard 5 classes.")
     }
     
     #Copy loadings:
@@ -87,7 +87,7 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
     
     if (!"M_f_ij" %in% names(fuelModel))
     {
-      Stop("M_f_ij must be provided in fuel model.")
+      stop("M_f_ij must be provided in fuel model.")
     }
     fuelModel10$m_f_ij = fuelModel$m_f_ij
     
@@ -110,7 +110,7 @@ CheckFuelModel <- function(fuelModel, convert = FALSE, fuelModel10 = NULL)
   #Check for M_f_ij in the incoming fuel model.
   if (!"M_f_ij" %in% names(fuelModel))
   {
-    Stop("M_f_ij must be provided in fuel model.")
+    stop("M_f_ij must be provided in fuel model.")
   }
   
   #Check units:
@@ -124,7 +124,7 @@ CheckFuelModel <- function(fuelModel, convert = FALSE, fuelModel10 = NULL)
   {
     if (!is.null(fuelModel10))
     {
-      Stop("Fuel model 10 needed.")
+      stop("Fuel model 10 needed.")
     }
     fuelModel = ConvertToFuelModel10(fuelModel, fuelModel10)
   }
@@ -152,7 +152,7 @@ CheckConvertWindSpeed <- function(windSpeed, WRF, windType = "O")
   #Validity checking:
   if (windSpeed < 0)
   {
-    Stop("Invalid wind speed.")
+    stop("Invalid wind speed.")
   }
   #Add check for unexpectedly high wind speeds?
   
