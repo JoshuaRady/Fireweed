@@ -74,7 +74,7 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
     #We may want to force this to always be metric.
     if (fuelModel$Units != fuelModel10$Units)
     {
-      FuelModelConvertUnits(fuelModel10, fuelModel$Units)
+      fuelModel10 = FuelModelConvertUnits(fuelModel10, fuelModel$Units)
     }
     
     if (fuelModel$cured || fuelModel$NumClasses != 5)
