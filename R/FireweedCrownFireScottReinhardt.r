@@ -515,7 +515,7 @@ CrownFireIntensity <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, C
   #I_final = ((HPA_surface + (W_canopy * H_canopy * CFB)) * R_final) / 60
   
   #Surface fire heat per area (kw/m^2):
-  spreaCalcs = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness, components = TRUE)
+  spreadCalcs = SpreadRateRothermelAlbini_HetFM(fuelModel, U, slopeSteepness, components = TRUE)
   HPA_surface = HeatPerUnitArea(spreadCalcs$I_R, ResidenceTime(spreadCalcs$cSAV, "Metric"))
   
   CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10)
