@@ -323,7 +323,7 @@ TorchingIndex <- function(spreadCalcs, WRF, CBH, FMC)
   #The numerator on the right is Scott & Reinhardt 2001 equation 16 pg. 18:
   #phiPrime_w_intiation = ((60 * IPrime_initiation * rho_b * epsilon * Q_ig)/(HPA * xi * I_R))
   #                       - phi_s - 1
-  #Where;
+  #Where:
   #rho_b = bulk density
   #epsilon = the effective heating number
   #Q_ig = heat of preignition
@@ -395,8 +395,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
   
   #Note: Scott & Reinhardt 2001 uses equation 20, which is a simplified version of the above that
   #assumes parameters of fuel #model 10:
-  #CI = 0.0457 * ((((3.0 / 3.34 / spreadCalcs$xi * spreadCalcs$HeatSink) /
-  #                   (spreadCalcs$I_R * CBD))- spreadCalcs$phi_s - 1) / 0.001612)^0.7
+  #CI = 0.0457 * ((((3.0 / 3.34 / xi * HeatSink) / (I_R * CBD)) - phi_s - 1) / 0.001612)^0.7
   #We opt not to use the simplification to keep the code more parallel to the torching index
   #calculation and because rounding and small differences in conversion factors lead to slight
   #differences in the values we get with the explicit calculation.
