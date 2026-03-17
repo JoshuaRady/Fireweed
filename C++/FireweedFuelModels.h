@@ -175,7 +175,7 @@ class FuelModel {
 
 	//Fuel Moisture functions:
 	void SetFuelMoisture(std::vector <double> M_f_ij);
-	std::vector <double> GetM_f_ij();
+	std::vector <double> GetM_f_ij() const;
 	void CalculateDynamicFuelCuring(std::vector <double> M_f_ij, bool warn = true);
 	void CalculateDynamicFuelCuring(double curing, bool warn = true);
 

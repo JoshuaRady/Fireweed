@@ -509,7 +509,7 @@ void FuelModel::SetFuelMoisture(std::vector <double> M_f_ij)
  * @note This function is specific about returning M_f_ij, which is alway a vector.  Homogenous
  * moisture M_f is a scalar which could be added in the future.
  */
-std::vector <double> FuelModel::GetM_f_ij()//Or just M_f_ij()?????
+std::vector <double> FuelModel::GetM_f_ij() const//Or just M_f_ij()?????
 {
 	return M_f_ij;
 }
