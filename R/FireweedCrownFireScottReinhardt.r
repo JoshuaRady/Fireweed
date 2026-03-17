@@ -364,7 +364,7 @@ CrowningIndex <- function(spreadCalcs, CBD)
 {
   #Scott & Reinhardt 2001 equation 19, pg. 19 gives the midflame wind speed for active crowning.
   #UPrime_active = (1/54.683) * ((((3.0 / CBD) * rho_b * epsilon * Q_ig) / (3.34 * I_R * xi)
-  #                               - spreadCalcs$phi_s - 1) / (C * (beta/beta_op)^-E))^1/B
+  #                               - phi_s - 1) / (C * (beta/beta_op)^-E))^1/B
   #To get the open wind speed for active crowning (O'_active = CI) using the assumptions of
   #Rothermel 1991 we can divide by a 40% wind reduction factor.
   #We break the resulting equation up into the follow parts and compute them in steps:
