@@ -95,11 +95,11 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
   }
 }
 
-#' Check the fuel model meets the requirements for the Scott & Reinhardt 2001 crown fire equations
-#' and modify it needed.
+#' Check that a fuel model meets the requirements for the Scott & Reinhardt 2001 crown fire
+#' equations and modify it if needed.
 #'
 #' @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
-#' fuel model.
+#'                  fuel model.
 #' @param convert Convert to fuel model 10 if needed?
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not fuel model
 #' 10 and convert is true.
