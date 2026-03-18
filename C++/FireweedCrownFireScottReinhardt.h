@@ -47,5 +47,10 @@ double CrownHeatPerArea(FuelModel fuelModel, const double windSpeed, const doubl
                         const double slopeSteepness, const double CBD, const double CBH,
                         const double FMC, const double W_canopy, FuelModel fuelModel10,
                         const char windType = 'O', const double H_canopy = 18000);
+std::vector <double> CrownComponentHPA(FuelModel fuelModel, const double windSpeed,
+                                       const double WRF, const double slopeSteepness,
+                                       const double CBD, const double CBH, const double FMC,
+                                       const double W_canopy, FuelModel fuelModel10,
+                                       const char windType = 'O', const double H_canopy = 18000);
 
 #endif //FIREWEEDCROWNFIRESCOTTREINHARDT_H
