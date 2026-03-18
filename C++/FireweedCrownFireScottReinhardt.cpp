@@ -589,7 +589,7 @@ double CrownFireIntensity(FuelModel fuelModel, const double windSpeed, const dou
  * @param H_canopy Heat yield of canopy fuel, heat content - heat of drying (kJ/kg, default from 
  *                 FARSITE).
  *
- * @returns HPA, heat per unit area (kJ/m^2).
+ * @returns HPA, the total heat per unit area of the crown fire (kJ/m^2).
  * 
  * @note This equation is not provided in Scott & Reinhardt 2001.  However, the HPA calculation is
  *       easily isolated from equation 22, pg. 21:
@@ -603,7 +603,7 @@ double CrownHeatPerArea(FuelModel fuelModel, const double windSpeed, const doubl
 	                                               CBH, FMC, W_canopy, fuelModel10, windType,
 	                                               H_canopy);
 
-	return cHPAs[0];
+	return cHPAs[2];
 }
 
 /** Compute the heat per unit area of for a fire's surface and crown components.
@@ -629,8 +629,8 @@ double CrownHeatPerArea(FuelModel fuelModel, const double windSpeed, const doubl
  * @param H_canopy Heat yield of canopy fuel, heat content - heat of drying (kJ/kg, default from 
  *                 FARSITE).
  *
- * @returns A vector of the heat per unit area (HPA) for the whole fire, the surface component, and
- *          the crown component in that order (kJ/m^2).
+ * @returns A vector of the heat per unit area (HPA) of the surface fire component, the crown fire
+ *          component, and of the whole fire in that order (kJ/m^2).
  * 
  * @note This equation is not provided in Scott & Reinhardt 2001.  However, the HPA calculation is
  *       easily isolated from equation 22, pg. 21:
@@ -658,5 +658,5 @@ std::vector <double> CrownComponentHPA(FuelModel fuelModel, const double windSpe
 	double HPA_crown = (W_canopy * H_canopy * CFB)) * R_final;
 
 	double HPA_total = HPA_surface + HPA_crown;
-	return {HPA_total, HPA_surface, HPA_crown};
+	return {HPA_surface, HPA_crown, HPA_total};
 }
