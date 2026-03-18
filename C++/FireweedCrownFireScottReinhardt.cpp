@@ -529,11 +529,11 @@ double CrownFractionBurned(FuelModel fuelModel, const double windSpeed, const do
  *            original Van Wagner notation.
  * @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
  * @param W_canopy Canopy fuel load (kg/m^2), AKA CFL.
- * @param H_canopy Heat yield of canopy fuel, heat content - heat of drying (kJ/kg, default from 
- *                 FARSITE).
  * @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
  *                    fuel model 10.
  * @param windType The wind speed type (see windSpeed).
+ * @param H_canopy Heat yield of canopy fuel, heat content - heat of drying (kJ/kg, default from 
+ *                 FARSITE).
  *
  * @returns Byram's fireline intensity (kW/m).
  * 
@@ -541,8 +541,8 @@ double CrownFractionBurned(FuelModel fuelModel, const double windSpeed, const do
  */
 double CrownFireIntensity(FuelModel fuelModel, const double windSpeed, const double WRF,
                           const double slopeSteepness, const double CBD, const double CBH,
-                          const double FMC, const double W_canopy, const double H_canopy,
-                          FuelModel fuelModel10, const char windType)
+                          const double FMC, const double W_canopy, FuelModel fuelModel10,
+                          const char windType, const double H_canopy)
 {
 	CheckFuelModel(fuelModel, fuelModel10);
 
