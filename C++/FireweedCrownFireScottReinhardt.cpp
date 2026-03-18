@@ -564,3 +564,57 @@ double CrownFireIntensity(FuelModel fuelModel, const double windSpeed, const dou
 	double I_final = ((HPA_surface + (W_canopy * H_canopy * CFB)) * R_final) / 60.0;
 	return I_final;
 }
+
+/** Compute the heat per unit area produced by  a fire regardless of stage (surface, passive crown,
+ * or active crown).
+ *
+ * @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
+ * fuel model.  If the fuel model it not fuel model 10 its physical properties will be converted to
+ * those of fuel model 10.
+ * @param windSpeed The wind speed, by default O the open wind speed at 6.1 m (km/hr), otherwise,
+ *                  U the wind speed at midflame height (m/min).  Type set by windType.
+ * @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
+ *            Needed even in U is supplied.
+ * @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
+ *                       distance).
+ * @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
+ *            fine branches, per volume of the canopy (kg/m^3).  AKA crown bulk density.
+ * @param CBH Crown base height (m). AKA canopy base height, live crown base height (LCBH), z in
+ *            original Van Wagner notation.
+ * @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
+ * @param W_canopy Canopy fuel load (kg/m^2), AKA CFL.
+ * @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
+ *                    fuel model 10.
+ * @param windType The wind speed type (see windSpeed).
+ * @param H_canopy Heat yield of canopy fuel, heat content - heat of drying (kJ/kg, default from 
+ *                 FARSITE).
+ *
+ * @returns HPA, heat per unit area (kJ/m^2).
+ * 
+ * @note This equation is not provided in Scott & Reinhardt 2001.  However, the HPA calculation is
+ *       easily isolated from equation 22, pg. 21:
+ */
+double CrownHeatPerArea(FuelModel fuelModel, const double windSpeed, const double WRF,
+                          const double slopeSteepness, const double CBD, const double CBH,
+                          const double FMC, const double W_canopy, FuelModel fuelModel10,
+                          const char windType, const double H_canopy)
+{
+	CheckFuelModel(fuelModel, fuelModel10);
+
+	std::pair <double, double> windSpeeds = CheckConvertWindSpeed(windSpeed, WRF, windType);
+	double O = windSpeeds.first;
+	double U = windSpeeds.second;
+
+	//Surface fire heat per area (kw/m^2):
+	SpreadCalcs spreadCalcs = SpreadCalcsRothermelAlbini_Het(fuelModel, U, slopeSteepness);
+	double HPA_surface = HeatPerUnitArea(spreadCalcs.I_R, ResidenceTime(spreadCalcs.cSAV, Metric));
+
+	//Crown fire heat per area (kw/m^2):
+	double CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10);
+	double R_final = SpreadRateCrownSR(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC,
+	                                   fuelModel10);
+	double HPA_crown = (W_canopy * H_canopy * CFB)) * R_final;
+
+	double HPA_total = HPA_surface + HPA_crown;
+	return HPA_total;
+}
