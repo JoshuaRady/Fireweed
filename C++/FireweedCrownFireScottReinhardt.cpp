@@ -297,7 +297,7 @@ double CriticalCrowningIntensityVanWagner(const double CBH, const double FMC)
  *
  * @param IPrime_initiation (kW/m, I_0 in Van Wagner notation, I'_initiation in Scott & Reinhardt
  *                           notation).
- * @param HPA Surface fire heat per area (kw/m^2).
+ * @param HPA Surface fire heat per area (kW/m^2).
  *
  * @returns The critical surface fire rate of spread for crowning (m/min).
  */
@@ -553,7 +553,7 @@ double CrownFireIntensity(FuelModel fuelModel, const double windSpeed, const dou
 	//Scott & Reinhardt 2001 equation 22, pg. 21:
 	//I_final = ((HPA_surface + (W_canopy * H_canopy * CFB)) * R_final) / 60
 
-	//Surface fire heat per area (kw/m^2):
+	//Surface fire heat per area (kW/m^2):
 	SpreadCalcs spreadCalcs = SpreadCalcsRothermelAlbini_Het(fuelModel, U, slopeSteepness);
 	double HPA_surface = HeatPerUnitArea(spreadCalcs.I_R, ResidenceTime(spreadCalcs.cSAV, Metric));
 
@@ -647,11 +647,11 @@ std::vector <double> CrownComponentHPA(FuelModel fuelModel, const double windSpe
 	double O = windSpeeds.first;
 	double U = windSpeeds.second;
 
-	//Surface fire heat per area (kw/m^2):
+	//Surface fire heat per area (kW/m^2):
 	SpreadCalcs spreadCalcs = SpreadCalcsRothermelAlbini_Het(fuelModel, U, slopeSteepness);
 	double HPA_surface = HeatPerUnitArea(spreadCalcs.I_R, ResidenceTime(spreadCalcs.cSAV, Metric));
 
-	//Crown fire heat per area (kw/m^2):
+	//Crown fire heat per area (kW/m^2):
 	double CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10);
 	double R_final = SpreadRateCrownSR(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC,
 	                                   fuelModel10);
