@@ -638,7 +638,8 @@ double CrownHeatPerArea(FuelModel fuelModel, const double windSpeed, const doubl
  *          component, and of the whole fire in that order (kJ/m^2).
  * 
  * @note This equation is not provided in Scott & Reinhardt 2001.  However, the HPA calculation is
- *       easily isolated from equation 22, pg. 21:
+ *       easily isolated from equation 22, pg. 21.
+ * @note It looks like I made a mistake and R_final is not needed.  Code will be cleaned up after testing.
  */
 std::vector <double> CrownComponentHPA(FuelModel fuelModel, const double windSpeed,
                                        const double WRF, const double slopeSteepness,
@@ -658,9 +659,9 @@ std::vector <double> CrownComponentHPA(FuelModel fuelModel, const double windSpe
 
 	//Crown fire heat per area (kW/m^2):
 	double CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10);
-	double R_final = SpreadRateCrownSR(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC,
-	                                   fuelModel10);
-	double HPA_crown = (W_canopy * H_canopy * CFB) * R_final;
+	//double R_final = SpreadRateCrownSR(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC,
+	//                                   fuelModel10);
+	double HPA_crown = W_canopy * H_canopy * CFB;//(W_canopy * H_canopy * CFB) * R_final;
 
 	double HPA_total = HPA_surface + HPA_crown;
 	return {HPA_surface, HPA_crown, HPA_total};
