@@ -660,7 +660,7 @@ std::vector <double> CrownComponentHPA(FuelModel fuelModel, const double windSpe
 	double CFB = CrownFractionBurned(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC, fuelModel10);
 	double R_final = SpreadRateCrownSR(fuelModel, O, WRF, slopeSteepness, CBD, CBH, FMC,
 	                                   fuelModel10);
-	double HPA_crown = (W_canopy * H_canopy * CFB)) * R_final;
+	double HPA_crown = (W_canopy * H_canopy * CFB) * R_final;
 
 	double HPA_total = HPA_surface + HPA_crown;
 	return {HPA_surface, HPA_crown, HPA_total};
