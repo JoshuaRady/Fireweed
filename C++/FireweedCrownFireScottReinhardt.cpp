@@ -504,6 +504,11 @@ double CrownFractionBurned(FuelModel fuelModel, const double windSpeed, const do
 	{
 		//Calculate the transition as a linear function of wind speed:
 		CFB = (1.0 / (CI - TI)) * (O - TI);
+
+		if (CFB < 0.0 || CFB > 1.0)
+		{
+			Stop("Invalid value calculated for CFB = " + std::to_string(CFB));
+		}
 	}
 
 	return CFB;
