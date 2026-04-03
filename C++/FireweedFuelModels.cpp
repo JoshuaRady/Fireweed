@@ -415,7 +415,7 @@ int FuelModel::DeadHerbaceousIndex() const
 bool FuelModel::LiveHerbaceousPresent() const
 {
 	//We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
-	return (SAV_ij[LiveHerbaceousIndex()] != 0);
+	return (SAV_ij[LiveHerbaceousIndex()] != 0).0;
 }
 
 /** Is the live woody fuel type active in this fuel model?
@@ -424,7 +424,7 @@ bool FuelModel::LiveHerbaceousPresent() const
 bool FuelModel::LiveWoodyPresent() const
 {
 	//We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
-	return (SAV_ij[LiveWoodyIndex()] != 0);
+	return (SAV_ij[LiveWoodyIndex()] != 0.0);
 }
 
 /** Is the dead herbaceous fuel type present in this fuel model?
@@ -579,12 +579,12 @@ void FuelModel::CalculateDynamicFuelCuring(double curing, bool warn)
 	if (type == Dynamic)
 	{
 		//Curing is generally presented as a percentage and that is what we expect:
-		if (curing < 0 || curing > 100)
+		if (curing < 0.0 || curing > 100.0)
 		{
 			Stop("We expect fuel curing as a percentage.");
 		}
 		
-		DynamicFuelCuringCore(curing / 100);//Convert to a fraction.
+		DynamicFuelCuringCore(curing / 100.0);//Convert to a fraction.
 	}
 	else if (warn)
 	{
@@ -617,25 +617,25 @@ void FuelModel::Initialize()
 	w_o_Units = lbPer_ft2;//Model units.
 	M_x_Units = Fraction;//Model units.
 
-	SAV_ij.resize(5, 0);//All fuel classes are absent.
-	w_o_ij.resize(5, 0);//Important.
+	SAV_ij.resize(5, 0.0);//All fuel classes are absent.
+	w_o_ij.resize(5, 0.0);//Important.
 
-	delta = 0;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
+	delta = 0.0;//fuelBedDepth = Fuel bed depth, AKA delta (ft | m).
 	liveDead.assign({Dead, Dead, Dead, Live, Live});//Standard fuel model.
-	M_x_1 = 50;//Tough to choose a default here.  50% for now.
+	M_x_1 = 50.0;//Tough to choose a default here.  50% for now.
 
-	h_ij.resize(5, 8000);//Standard for all but one standard fuel model.
+	h_ij.resize(5, 8000.0);//Standard for all but one standard fuel model.
 	S_T_ij.resize(5, 0.0555);//Standard for all standard fuel models.
 	S_e_ij.resize(5, 0.010);//Standard for all standard fuel models.
-	rho_p_ij.resize(5, 32);//Standard for all standard fuel models.
+	rho_p_ij.resize(5, 32.0);//Standard for all standard fuel models.
 
-	cSAV = 0;
-	bulkDensity = 0;
-	relativePackingRatio = 0;
+	cSAV = 0.0;
+	bulkDensity = 0.0;
+	relativePackingRatio = 0.0;
 	
 	//M_f_ij is left as empty.
 	
-	curing = 0;//Percent curing = none.  When cured = false there should be no reason to look at this but we set a valid value.
+	curing = 0.0;//Percent curing = none.  When cured = false there should be no reason to look at this but we set a valid value.
 }
 
 /** Load a fuel model from the specified file.
