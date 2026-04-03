@@ -96,8 +96,8 @@ FuelModel ConvertToFuelModel10(const FuelModel& fuelModel, FuelModel fuelModel10
 		//This is a bit of a wierd thing to have to do and we have to be careful.
 		if (fuelModel.cured)
 		{
-			deadHerbIndex = fuelModel.DeadHerbaceousIndex();
-			liveHerbIndex = fuelModel.LiveHerbaceousIndex();
+			int deadHerbIndex = fuelModel.DeadHerbaceousIndex();
+			int liveHerbIndex = fuelModel.LiveHerbaceousIndex();
 			
 			//Transfer any cured herbeous fuel back to the live herbeous class:
 			w_o_ij_Copy[liveHerbIndex] += w_o_ij_Copy[deadHerbIndex];
@@ -108,7 +108,7 @@ FuelModel ConvertToFuelModel10(const FuelModel& fuelModel, FuelModel fuelModel10
 		}
 
 		//Make sure things are as expected:
-		if (w_o_ij_Copy.size != 5 || M_f_ij_Copy.size != 5)
+		if (w_o_ij_Copy.size() != 5 || M_f_ij_Copy.size() != 5)
 		{
 			Stop("Unexpected number of fuels in fuel model to be converted.");
 		}
