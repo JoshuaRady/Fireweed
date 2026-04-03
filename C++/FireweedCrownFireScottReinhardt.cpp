@@ -64,8 +64,7 @@ const double kmPerHrToMPerMin = 1000.0 / 60.0;//1000 m/km / 60 min/hr = m/min
  *
  * @param fuelModel The fuel model representing the surface fuelbed.  M_f_ij must be included in the
  * fuel model.
- * @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
- * fuel model 10.
+ * @param fuelModel10 Fuel model 10 with default values.
  * 
  * @returns The converted fuel model.
  */
@@ -83,22 +82,40 @@ FuelModel ConvertToFuelModel10(const FuelModel& fuelModel, FuelModel fuelModel10
 		{
 			fuelModel10.ConvertUnits(fuelModel.units);
 		}
-		
-		if (fuelModel.cured || fuelModel.numClasses != 5)
-		{
-			Stop("Can't convert a fuel model with curing applied or more than the standard 5 classes.");
-		}
 
-		//Copy loadings:
-		fuelModel10.w_o_ij = fuelModel.w_o_ij;
+		//Copy the fuel states:
+		std::vector <double> w_o_ij_Copy = fuelModel.w_o_ij;
 		
-		std::vector <double> fmM_f_ij = fuelModel.GetM_f_ij();
-		if (fmM_f_ij.empty())
+		std::vector <double> M_f_ij_Copy = fuelModel.GetM_f_ij();
+		if (M_f_ij_Copy.empty())
 		{
 			Stop("M_f_ij must be provided in fuel model.");
 		}
-		//fuelModel10.m_f_ij = fmM_f_ij;
-		fuelModel10.SetFuelMoisture(fmM_f_ij);
+
+		//Fuel model 10 is not dynamic so we have to reverse any curing:
+		//This is a bit of a wierd thing to have to do and we have to be careful.
+		if (fuelModel.cured)
+		{
+			deadHerbIndex = fuelModel.DeadHerbaceousIndex();
+			liveHerbIndex = fuelModel.LiveHerbaceousIndex();
+			
+			//Transfer any cured herbeous fuel back to the live herbeous class:
+			w_o_ij_Copy[liveHerbIndex] += w_o_ij_Copy[deadHerbIndex];
+
+			//Delete the dead herbeous class:
+			w_o_ij_Copy.erase(w_o_ij_Copy.begin() + deadHerbIndex);
+			M_f_ij_Copy.erase(M_f_ij_Copy.begin() + deadHerbIndex);
+		}
+
+		//Make sure things are as expected:
+		if (w_o_ij_Copy.size != 5 || M_f_ij_Copy.size != 5)
+		{
+			Stop("Unexpected number of fuels in fuel model to be converted.");
+		}
+
+		//Copy fuel states:
+		fuelModel10.w_o_ij = w_o_ij_Copy;
+		fuelModel10.SetFuelMoisture(M_f_ij_Copy);
 
 		return fuelModel10;
 	}
