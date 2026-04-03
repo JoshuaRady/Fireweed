@@ -415,7 +415,7 @@ int FuelModel::DeadHerbaceousIndex() const
 bool FuelModel::LiveHerbaceousPresent() const
 {
 	//We indicate that a live fuel is not present with a SAV of 0, which is unique to our implementation. 
-	return (SAV_ij[LiveHerbaceousIndex()] != 0).0;
+	return (SAV_ij[LiveHerbaceousIndex()] != 0.0);
 }
 
 /** Is the live woody fuel type active in this fuel model?
