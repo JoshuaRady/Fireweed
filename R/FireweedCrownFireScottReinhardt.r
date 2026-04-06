@@ -122,7 +122,7 @@ CheckFuelModel <- function(fuelModel, convert = FALSE, fuelModel10 = NULL)
   #Check model type:
   if (convert && fuelModel$Number != 10)
   {
-    if (!is.null(fuelModel10))
+    if (is.null(fuelModel10))
     {
       stop("Fuel model 10 needed.")
     }
