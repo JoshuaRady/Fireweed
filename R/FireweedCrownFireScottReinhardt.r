@@ -77,19 +77,40 @@ ConvertToFuelModel10 <- function(fuelModel, fuelModel10)
       fuelModel10 = FuelModelConvertUnits(fuelModel10, fuelModel$Units)
     }
     
-    if (fuelModel$cured || fuelModel$NumClasses != 5)
-    {
-      stop("Can't convert a fuel model with curing applied or more than the standard 5 classes.")
-    }
-    
-    #Copy loadings:
-    fuelModel10$w_o_ij = fuelModel$w_o_ij
+    #Copy the fuel states:
+    w_o_ij_Copy = fuelModel$w_o_ij
     
     if (!"M_f_ij" %in% names(fuelModel))
     {
       stop("M_f_ij must be provided in fuel model.")
     }
-    fuelModel10$m_f_ij = fuelModel$m_f_ij
+    M_f_ij_Copy = fuelModel$M_f_ij
+    
+    #Fuel model 10 is not dynamic so we have to reverse any curing:
+    #This is a bit of a wierd thing to have to do and we have to be careful.
+    #if (is.null(fuelModel$M_f_ij))
+    if (!is.null(fuelModel$Curing))
+    {
+      deadHerbIndex = DeadHerbaceousIndex(fuelModel)
+      liveHerbIndex = LiveHerbaceousIndex(fuelModel)
+      
+      #Transfer any cured herbaceous fuel back to the live herbaceous class:
+      w_o_ij_Copy[liveHerbIndex] = w_o_ij_Copy[liveHerbIndex] + w_o_ij_Copy[deadHerbIndex]
+      
+      #Delete the dead herbaceous class:
+      w_o_ij_Copy = w_o_ij_Copy[-deadHerbIndex]
+      M_f_ij_Copy = M_f_ij_Copy[-deadHerbIndex]
+    }
+    
+    #Make sure things are as expected:
+    if (length(w_o_ij_Copy) != 5 || length(M_f_ij_Copy) != 5)
+    {
+      stop("Unexpected number of fuels in fuel model to be converted.")
+    }
+    
+    #Copy fuel states:
+    fuelModel10$w_o_ij = w_o_ij_Copy
+    fuelModel10 = SetFuelMoisture(fuelModel10, M_f_ij_Copy)
     
     return(fuelModel10)
   }
