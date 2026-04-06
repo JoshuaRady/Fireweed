@@ -99,10 +99,10 @@ FuelModel ConvertToFuelModel10(const FuelModel& fuelModel, FuelModel fuelModel10
 			int deadHerbIndex = fuelModel.DeadHerbaceousIndex();
 			int liveHerbIndex = fuelModel.LiveHerbaceousIndex();
 			
-			//Transfer any cured herbeous fuel back to the live herbeous class:
+			//Transfer any cured herbaceous fuel back to the live herbaceous class:
 			w_o_ij_Copy[liveHerbIndex] += w_o_ij_Copy[deadHerbIndex];
 
-			//Delete the dead herbeous class:
+			//Delete the dead herbaceous class:
 			w_o_ij_Copy.erase(w_o_ij_Copy.begin() + deadHerbIndex);
 			M_f_ij_Copy.erase(M_f_ij_Copy.begin() + deadHerbIndex);
 		}
