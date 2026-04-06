@@ -514,17 +514,17 @@ CrownFractionBurned <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, 
 #'            original Van Wagner notation.
 #' @param FMC Foliar moisture content of (conifer) canopy (%, water weight/dry fuel weight x 100)
 #' @param W_canopy Canopy fuel load (kg/m^2), AKA CFL.
-#' @param H_canopy Heat yield of canopy fuel, heat content - heat of drying (kJ/kg, default from 
-#'                 FARSITE).
 #' @param fuelModel10 Fuel model 10 with default values.  Only needed if fuelModel is not currently
 #'                    fuel model 10.
 #' @param windType The wind speed type (see windSpeed).
+#' @param H_canopy Heat yield of canopy fuel, heat content - heat of drying (kJ/kg, default from 
+#'                 FARSITE).
 #'
 #' @returns Byram's fireline intensity (kW/m).
 #' 
 #' @note Requires verification!
 CrownFireIntensity <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, CBH, FMC,
-                               W_canopy, H_canopy = 18000, fuelModel10 = NULL, windType = "O")
+                               W_canopy, fuelModel10 = NULL, windType = "O", H_canopy = 18000)
 {
   fuelModel = CheckFuelModel(fuelModel, convert = TRUE, fuelModel10)
   
