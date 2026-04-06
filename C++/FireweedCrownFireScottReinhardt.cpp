@@ -237,7 +237,7 @@ std::pair<double, double> CheckConvertWindSpeed(const double windSpeed, const do
 double SpreadRateCrownRothermel(FuelModel fuelModel, const double O, const double slopeSteepness,
                                 FuelModel fuelModel10)
 {
-	CheckFuelModel(fuelModel, fuelModel10);
+	CheckFuelModel(fuelModel, fuelModel10);//Validate and convert to fuel model 10.
 	
 	double U = O * kmPerHrToMPerMin * 0.4;//Use fixed 40% WRF from Rothermel 1991.
 	double R_surface = SpreadRateRothermelAlbini_Het(fuelModel, U, slopeSteepness);
