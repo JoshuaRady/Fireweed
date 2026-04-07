@@ -489,6 +489,11 @@ CrownFractionBurned <- function(fuelModel, windSpeed, WRF, slopeSteepness, CBD, 
   {
     #Calculate the transition as a linear function of wind speed:
     CFB = (1 / (CI - TI)) * (O - TI)
+    
+    if (CFB < 0.0 || CFB > 1.0)
+    {
+      stop(paste("Invalid value calculated for CFB =", CFB))
+    }
   }
   
   return(CFB)
