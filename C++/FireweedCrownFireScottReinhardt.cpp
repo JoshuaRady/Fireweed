@@ -636,7 +636,7 @@ double CrownHeatPerArea(FuelModel fuelModel, const double windSpeed, const doubl
  * @param windSpeed The wind speed, by default O the open wind speed at 6.1 m (km/hr), otherwise,
  *                  U the wind speed at midflame height (m/min).  Type set by windType.
  * @param WRF Wind reduction factor.  Ratio to convert from open (6.1 m) to mid-flame wind speed.
- *            Needed even in U is supplied.
+ *            Needed even if U is supplied.
  * @param slopeSteepness Slope steepness, maximum (unitless fraction: vertical rise / horizontal
  *                       distance).
  * @param CBD Canopy bulk density, the dry mass of canopy fuel, primarily foliage (needles) and
