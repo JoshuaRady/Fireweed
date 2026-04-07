@@ -204,7 +204,7 @@ std::pair<double, double> CheckConvertWindSpeed(const double windSpeed, const do
 	else if (windType == 'U')
 	{
 		U = windSpeed;
-		O = U / WRF;//If U is passed in we need to calculate O.
+		O = U / WRF / kmPerHrToMPerMin;//If U is passed in we need to calculate O.
 	}
 	else
 	{
