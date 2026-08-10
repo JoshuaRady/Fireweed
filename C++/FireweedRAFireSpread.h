@@ -52,16 +52,22 @@ struct FuelWeights {
  * The homogeneous and heterogenous forms of the spread calculations have some differences in their
  * intermediate calculations.  Members that have different interpretations based on the fuel model
  * type are indicated by trailing x subscripts (i.e. _x).  See the comments below.
+ * 
+ * Members are initialized to 'invald', an impossible value, to indicate the they have not been
+ * calculated yet.  In some cases functions may return SpreadCalcs without all values computed.
+ * Vectors may be empty in this case.  Not sure what to do for units and homogeneous.
  */
-struct SpreadCalcs {//Name????? SpreadComponents
+struct SpreadCalcs {//Or SpreadComponents?????
+	static const double invalid = -1.0;//A value to mark members that have not been calculated yet.
+	
 	UnitsType units;//The unit type for the values.
 	bool homogeneous;//True if homogeneous fuel model output, false if heterogeneous fuel model output.
 	
-	double R;//Rate of spread in ft/min | m/min.
+	double R {invalid};//Rate of spread in ft/min | m/min.
 	FuelWeights weights;//Weights.  Only calculated for heterogeneous fuels!
 	
 	//Heat source components:
-	double GammaPrime;//Optimum reaction velocity (min^-1).
+	double GammaPrime {invalid};//Optimum reaction velocity (min^-1).
 	//Net fuel load for live/dead fuel categories (lb/ft^2 | kg/m^2): 
 	std::vector <double> w_n_x;//homogeneous: w_n, heterogeneous: w_n_i
 	//Heat content for live/dead fuel (Btu/lb | kJ/kg):
@@ -70,22 +76,22 @@ struct SpreadCalcs {//Name????? SpreadComponents
 	std::vector <double> eta_M_x;//homogeneous: eta_M, heterogeneous: eta_M_i
 	//Mineral damping coefficient for live/dead fuel categories (unitless):
 	std::vector <double> eta_s_x;//homogeneous: eta_s, heterogeneous: eta_s_i
-	double I_R;//Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
-	double xi;//Propagating flux ratio (dimensionless ratio).
-	double phi_s;//Slope factor (dimensionless).
-	double phi_w;//Wind factor (dimensionless).
-	double heatSource;//Heat transfereed ahead of the fire (Btu/ft^2/min | kJ/m^2/min).
+	double I_R {invalid};//Reaction intensity (Btu/ft^2/min | kJ/m^2/min).
+	double xi {invalid};//Propagating flux ratio (dimensionless ratio).
+	double phi_s {invalid};//Slope factor (dimensionless).
+	double phi_w {invalid};//Wind factor (dimensionless).
+	double heatSource {invalid};//Heat transfereed ahead of the fire (Btu/ft^2/min | kJ/m^2/min).
 	
 	//Heat sink components:
-	double rho_b_x;//(Mean) bulk density: homogeneous: rho_b, heterogeneous: rho_b_bar
-	double epsilon;//Effective heating number.  Only calculated for homogeneous fuels! (-1 otherwise)
+	double rho_b_x {invalid};//(Mean) bulk density: homogeneous: rho_b, heterogeneous: rho_b_bar
+	double epsilon {invalid};//Effective heating number.  Only calculated for homogeneous fuels! (-1 otherwise)
 	std::vector <double> Q_ig_x;//Heat of preignition: homogeneous: Q_ig, heterogeneous: Q_ig_ij
-	double heatSink;
+	double heatSink {invalid};
 	
 	//Other components that can be informative:
-	double cSAV;//Fuel bed characteristic SAV (= SAV for homogeneous)
-	double packingRatio;//(Mean) packing ratio		xPackingRatio?????
-	double optimumPR;//Optimum packing ratio
+	double cSAV {invalid};//Fuel bed characteristic SAV (= SAV for homogeneous)
+	double packingRatio {invalid};//(Mean) packing ratio		xPackingRatio?????
+	double optimumPR {invalid};//Optimum packing ratio
 	
 	std::ostream& Print(std::ostream& output) const;//Print the struct contents.
 };
