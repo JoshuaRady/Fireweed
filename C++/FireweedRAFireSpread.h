@@ -58,7 +58,7 @@ struct FuelWeights {
  * Vectors may be empty in this case.  Not sure what to do for units and homogeneous.
  */
 struct SpreadCalcs {//Or SpreadComponents?????
-	static const double invalid = -1.0;//A value to mark members that have not been calculated yet.
+	static constexpr double invalid = -1.0;//A value to mark members that have not been calculated yet.
 	
 	UnitsType units;//The unit type for the values.
 	bool homogeneous;//True if homogeneous fuel model output, false if heterogeneous fuel model output.
