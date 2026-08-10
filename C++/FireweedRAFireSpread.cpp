@@ -2116,7 +2116,7 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 
 	//If the fuel loadings are all zero there can be no fire and the spread rate will be 0.  Return
 	//the spread rate and a few other values without going through all the calculations:
-	if (std::all_of(w_o_ij.begin(), w_o_ij.end(), [](int i) { return i == 0.0 }))
+	if (std::all_of(w_o_ij.begin(), w_o_ij.end(), [](int i) { return i == 0.0; }))
 	{
 		calcs.units = units;
 		calcs.homogeneous = false;
