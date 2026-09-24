@@ -88,7 +88,7 @@ void FWMessenger::Log(const char* message)
  */
 void FWMessenger::Log(const std::string& message)
 {
-	*logStream << message << std::endl;
+	Log(std::string(message));
 }
 
 /** Log a neutral message with a numeric value.
@@ -108,14 +108,25 @@ void FWMessenger::Log(const char* message, double value)
  */
 void FWMessenger::Log(const char* message, std::vector<double> value)
 {
-	*logStream << message << " ";
+//	*logStream << message << " ";
+// 
+// 	for (int i = 0; i < (value.size() - 1); i++)
+// 	{
+// 		*logStream << value[i] << ", ";
+// 	}
+// 
+// 	*logStream << value[value.size() - 1] << std::endl;
+
+	std::string logMessage(message);
+	logMessage += " ";
 
 	for (int i = 0; i < (value.size() - 1); i++)
 	{
-		*logStream << value[i] << ", ";
+		logMessage += value[i] + ", ";
 	}
 
-	*logStream << value[value.size() - 1] << std::endl;
+	logMessage += value[value.size() - 1];
+	Log(logMessage);
 }
 
 /** Log a neutral message with a numeric vector.
@@ -125,14 +136,25 @@ void FWMessenger::Log(const char* message, std::vector<double> value)
  */
 void FWMessenger::Log(const char* message, std::vector<int> value)
 {
-	*logStream << message << " ";
+// 	*logStream << message << " ";
+// 
+// 	for (int i = 0; i < (value.size() - 1); i++)
+// 	{
+// 		*logStream << value[i] << ", ";
+// 	}
+// 
+// 	*logStream << value[value.size() - 1] << std::endl;
+
+	std::string logMessage(message);
+	logMessage += " ";
 
 	for (int i = 0; i < (value.size() - 1); i++)
 	{
-		*logStream << value[i] << ", ";
+		logMessage += value[i] + ", ";
 	}
 
-	*logStream << value[value.size() - 1] << std::endl;
+	logMessage += value[value.size() - 1];
+	Log(logMessage);
 }
 
 /** Post a non-fatal warning.
