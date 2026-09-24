@@ -29,6 +29,7 @@ class FWMessenger {
 		void SetErrorStream(std::ostream* streamPtr);
 
 		void Log(const char* message);
+		void Log(const std::string& message);
 		void Log(const char* message, double value);
 		void Log(const char* message, std::vector<double> value);
 		void Log(const char* message, std::vector<int> value);

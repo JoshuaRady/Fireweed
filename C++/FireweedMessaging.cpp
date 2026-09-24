@@ -82,6 +82,15 @@ void FWMessenger::Log(const char* message)
 	*logStream << message << std::endl;
 }
 
+/** Log a neutral message.
+ *
+ * @param message A message to log.
+ */
+void FWMessenger::Log(const std::string& message)
+{
+	*logStream << message << std::endl;
+}
+
 /** Log a neutral message with a numeric value.
  *
  * @param message A message to log.
