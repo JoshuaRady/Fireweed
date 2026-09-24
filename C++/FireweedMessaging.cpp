@@ -132,12 +132,14 @@ void FWMessenger::Log(const char* message, std::vector<int> value)
  */
 void FWMessenger::Warning(const char* message)
 {
-	*warnStream << "Warning: " << message << std::endl;
+	Warning(std::string(message));
 }
 
 /** Post a non-fatal warning.
  *
  * @param message A warning message.
+ *
+ * @note You only need to override this function version in derived classes.
  */
 void FWMessenger::Warning(const std::string& message)
 {
@@ -150,16 +152,14 @@ void FWMessenger::Warning(const std::string& message)
  */
 void FWMessenger::Stop(const char* message)
 {
-	*errorStream << "Error: " << message << std::endl;
-	//Without a termination handler this will just result in abort() being called, which is probably
-	//acceptable since we only expect Stop() to be called when we can;t recover.
-	//Perhaps there is a more robust error throwing approach.
-	std::terminate();
+	Stop(std::string(message));
 }
 
 /** Post the passed message and shutdown.
  *
  * @param message An error message.
+ *
+ * @note You only need to override this function version in derived classes.
  */
 void FWMessenger::Stop(const std::string& message)
 {
