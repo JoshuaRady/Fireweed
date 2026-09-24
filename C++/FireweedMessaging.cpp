@@ -34,7 +34,7 @@ used in R.
  * updated to point to it.
  */
 FWMessenger GlobalMessenger;
-FWMessenger* Msg = &;
+FWMessenger* Msg = &GlobalMessenger;
 
 //Public Functions:---------------------------------------------------------------------------------
 
