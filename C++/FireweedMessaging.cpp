@@ -27,10 +27,14 @@ used in R.
 
 //Globals:------------------------------------------------------------------------------------------
 
-/** Use this global instantiation of the FWMessenger class for all Fireweed messaging.
- *
+/** The Msg global pointer provides access to messaging without having to explicitly declare a
+ * FWMessenger object.  It is used by the convenience functions for seemless messaging calls.
+ * If the SetXXXStream() functions are not a sufficient mechanism to overide the messaging behavior
+ * for a given application a child class can be created to overide the behavior and Msg can be
+ * updated to point to it.
  */
-FWMessenger Msg;
+FWMessenger GlobalMessenger;
+FWMessenger* Msg = &;
 
 //Public Functions:---------------------------------------------------------------------------------
 
@@ -174,7 +178,7 @@ void FWMessenger::Stop(const std::string& message)
  */
 void Warning(const char* message)
 {
-	Msg.Warning(message);
+	Msg->Warning(message);
 }
 
 /** Convenience wrapper for FWMessenger::Warning(). Post a non-fatal warning.
@@ -183,7 +187,7 @@ void Warning(const char* message)
  */
 void Warning(const std::string& message)
 {
-	Msg.Warning(message);
+	Msg->Warning(message);
 }
 
 /** Convenience wrapper for FWMessenger::Stop(). Post the passed message and shutdown.
@@ -192,7 +196,7 @@ void Warning(const std::string& message)
  */
 void Stop(const char* message)
 {
-	Msg.Stop(message);
+	Msg->Stop(message);
 }
 
 /** Convenience wrapper for FWMessenger::Stop(). Post the passed message and shutdown.
@@ -201,5 +205,5 @@ void Stop(const char* message)
  */
 void Stop(const std::string& message)
 {
-	Msg.Stop(message);
+	Msg->Stop(message);
 }

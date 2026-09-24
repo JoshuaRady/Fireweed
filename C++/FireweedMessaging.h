@@ -43,7 +43,7 @@ class FWMessenger {
 		std::ostream* errorStream;
 };
 
-extern FWMessenger Msg;//Global interface.
+extern FWMessenger* Msg;//Global interface.
 
 //External functions:
 
