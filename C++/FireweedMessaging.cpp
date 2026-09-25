@@ -78,7 +78,7 @@ void FWMessenger::SetErrorStream(std::ostream* streamPtr)
  *
  * @param message A message to log.
  */
-void FWMessenger::Log(const char* message)
+void FWMessenger::Log(const char* message) const
 {
 	Log(std::string(message));
 }
@@ -89,7 +89,7 @@ void FWMessenger::Log(const char* message)
  *
  * @note You only need to override this function version in derived classes.
  */
-void FWMessenger::Log(const std::string& message)
+void FWMessenger::Log(const std::string& message) const
 {
 	*logStream << message << std::endl;
 }
@@ -99,7 +99,7 @@ void FWMessenger::Log(const std::string& message)
  * @param message A message to log.
  * @param value A numeric value to appended after the message.  A space is added between them.
  */
-void FWMessenger::Log(const char* message, double value)
+void FWMessenger::Log(const char* message, double value) const
 {
 	*logStream << message << " " << value << std::endl;
 }
@@ -109,7 +109,7 @@ void FWMessenger::Log(const char* message, double value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void FWMessenger::Log(const char* message, std::vector<double> value)
+void FWMessenger::Log(const char* message, std::vector<double> value) const
 {
 	std::string logMessage(message);
 	logMessage += " " + VectorToStr(value);
@@ -121,7 +121,7 @@ void FWMessenger::Log(const char* message, std::vector<double> value)
  * @param message A message to log.
  * @param value A numeric vector to appended after the message, separated by commas.
  */
-void FWMessenger::Log(const char* message, std::vector<int> value)
+void FWMessenger::Log(const char* message, std::vector<int> value) const
 {
 	std::string logMessage(message);
 	logMessage += " " + VectorToStr(value);
@@ -132,7 +132,7 @@ void FWMessenger::Log(const char* message, std::vector<int> value)
  *
  * @param message A warning message.
  */
-void FWMessenger::Warning(const char* message)
+void FWMessenger::Warning(const char* message) const
 {
 	Warning(std::string(message));
 }
@@ -143,7 +143,7 @@ void FWMessenger::Warning(const char* message)
  *
  * @note You only need to override this function version in derived classes.
  */
-void FWMessenger::Warning(const std::string& message)
+void FWMessenger::Warning(const std::string& message) const
 {
 	*warnStream << "Warning: " << message << std::endl;
 }
@@ -152,7 +152,7 @@ void FWMessenger::Warning(const std::string& message)
  *
  * @param message An error message.
  */
-void FWMessenger::Stop(const char* message)
+void FWMessenger::Stop(const char* message) const
 {
 	Stop(std::string(message));
 }
@@ -163,7 +163,7 @@ void FWMessenger::Stop(const char* message)
  *
  * @note You only need to override this function version in derived classes.
  */
-void FWMessenger::Stop(const std::string& message)
+void FWMessenger::Stop(const std::string& message) const
 {
 	*errorStream << "Error: " << message << std::endl;
 	//Without a termination handler this will just result in abort() being called, which is probably
