@@ -111,24 +111,7 @@ void FWMessenger::Log(const char* message, double value)
  */
 void FWMessenger::Log(const char* message, std::vector<double> value)
 {
-//	*logStream << message << " ";
-// 
-// 	for (int i = 0; i < (value.size() - 1); i++)
-// 	{
-// 		*logStream << value[i] << ", ";
-// 	}
-// 
-// 	*logStream << value[value.size() - 1] << std::endl;
-
 	std::string logMessage(message);
-// 	logMessage += " ";
-// 
-// 	for (int i = 0; i < (value.size() - 1); i++)
-// 	{
-// 		logMessage += value[i] + ", ";
-// 	}
-// 
-// 	logMessage += value[value.size() - 1];
 	logMessage += " " + VectorToStr(value);
 	Log(logMessage);
 }
@@ -140,24 +123,7 @@ void FWMessenger::Log(const char* message, std::vector<double> value)
  */
 void FWMessenger::Log(const char* message, std::vector<int> value)
 {
-// 	*logStream << message << " ";
-// 
-// 	for (int i = 0; i < (value.size() - 1); i++)
-// 	{
-// 		*logStream << value[i] << ", ";
-// 	}
-// 
-// 	*logStream << value[value.size() - 1] << std::endl;
-
 	std::string logMessage(message);
-	//logMessage += " ";
-
-// 	for (int i = 0; i < (value.size() - 1); i++)
-// 	{
-// 		logMessage += value[i] + ", ";
-// 	}
-// 
-// 	logMessage += value[value.size() - 1];
 	logMessage += " " + VectorToStr(value);
 	Log(logMessage);
 }
