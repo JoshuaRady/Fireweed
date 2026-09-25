@@ -29,14 +29,14 @@ class FWMessenger {
 		void SetErrorStream(std::ostream* streamPtr);
 
 		void Log(const char* message);
-		void Log(const std::string& message);
+		virtual void Log(const std::string& message);
 		void Log(const char* message, double value);
 		void Log(const char* message, std::vector<double> value);
 		void Log(const char* message, std::vector<int> value);
 		void Warning(const char* message);
-		void Warning(const std::string& message);
+		virtual void Warning(const std::string& message);
 		void Stop(const char* message);
-		void Stop(const std::string& message);
+		virtual void Stop(const std::string& message);
 
 	protected:
 		std::ostream* logStream;
