@@ -38,7 +38,7 @@ class FWMessenger {
 		void Stop(const char* message);
 		void Stop(const std::string& message);
 
-	private:
+	protected:
 		std::ostream* logStream;
 		std::ostream* warnStream;
 		std::ostream* errorStream;
