@@ -79,7 +79,7 @@ void FWMessenger::SetErrorStream(std::ostream* streamPtr)
  */
 void FWMessenger::Log(const char* message)
 {
-	*logStream << message << std::endl;
+	Log(std::string(message));
 }
 
 /** Log a neutral message.
@@ -88,7 +88,7 @@ void FWMessenger::Log(const char* message)
  */
 void FWMessenger::Log(const std::string& message)
 {
-	Log(std::string(message));
+	*logStream << message << std::endl;
 }
 
 /** Log a neutral message with a numeric value.
