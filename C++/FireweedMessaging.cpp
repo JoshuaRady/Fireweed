@@ -150,7 +150,7 @@ void FWMessenger::Log(const char* message, std::vector<int> value)
 // 	*logStream << value[value.size() - 1] << std::endl;
 
 	std::string logMessage(message);
-	logMessage += " ";
+	//logMessage += " ";
 
 // 	for (int i = 0; i < (value.size() - 1); i++)
 // 	{
@@ -158,6 +158,7 @@ void FWMessenger::Log(const char* message, std::vector<int> value)
 // 	}
 // 
 // 	logMessage += value[value.size() - 1];
+	logMessage += " " + VectorToStr(value);
 	Log(logMessage);
 }
 
