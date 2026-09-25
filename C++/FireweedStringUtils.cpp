@@ -132,23 +132,3 @@ std::ostream& PrintVector(std::ostream& output, const std::vector<double>& vec, 
 
 	return output;
 }
-
-/** Convert a numeric vector to a string with separators between elements and return.
- *
- * @param vec The string vector to print.
- * @param separator The string to separate vector elements.  Default to a comma and space.
- *
- * Turn into a template?
- */
-// std::string VectorToStr(const std::vector<double> vec, std::string separator)
-// {
-// 	std::string str;
-// 
-// 	for (int i = 0; i < vec.size() - 1; i++)
-// 	{
-// 		str = str + std::to_string(vec[i]) + separator;
-// 	}
-// 	str = str + std::to_string(vec[vec.size() - 1]);
-// 	
-// 	return str;
-// }
