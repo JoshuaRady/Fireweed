@@ -24,6 +24,7 @@ used in R.
 
 #include <exception>
 #include "FireweedMessaging.h"
+#include "FireweedStringUtils.h"
 
 //Globals:------------------------------------------------------------------------------------------
 
@@ -120,14 +121,15 @@ void FWMessenger::Log(const char* message, std::vector<double> value)
 // 	*logStream << value[value.size() - 1] << std::endl;
 
 	std::string logMessage(message);
-	logMessage += " ";
-
-	for (int i = 0; i < (value.size() - 1); i++)
-	{
-		logMessage += value[i] + ", ";
-	}
-
-	logMessage += value[value.size() - 1];
+// 	logMessage += " ";
+// 
+// 	for (int i = 0; i < (value.size() - 1); i++)
+// 	{
+// 		logMessage += value[i] + ", ";
+// 	}
+// 
+// 	logMessage += value[value.size() - 1];
+	logMessage += " " + VectorToStr(value);
 	Log(logMessage);
 }
 
@@ -150,12 +152,12 @@ void FWMessenger::Log(const char* message, std::vector<int> value)
 	std::string logMessage(message);
 	logMessage += " ";
 
-	for (int i = 0; i < (value.size() - 1); i++)
-	{
-		logMessage += value[i] + ", ";
-	}
-
-	logMessage += value[value.size() - 1];
+// 	for (int i = 0; i < (value.size() - 1); i++)
+// 	{
+// 		logMessage += value[i] + ", ";
+// 	}
+// 
+// 	logMessage += value[value.size() - 1];
 	Log(logMessage);
 }
 
