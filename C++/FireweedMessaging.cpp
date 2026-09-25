@@ -85,6 +85,8 @@ void FWMessenger::Log(const char* message)
 /** Log a neutral message.
  *
  * @param message A message to log.
+ *
+ * @note You only need to override this function version in derived classes.
  */
 void FWMessenger::Log(const std::string& message)
 {
