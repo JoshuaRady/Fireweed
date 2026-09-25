@@ -28,7 +28,7 @@ std::ostream& PrintVector(std::ostream& output, const std::vector <double>& vec,
 template <typename T>
 std::string VectorToStr(const std::vector<T>& vec, std::string separator = ", ")
 {
-	//static_assert(std::is_arithmetic<T>)
+	static_assert(std::is_arithmetic_v<T>, "VectorToStr() expects numeric or boolean vectors.");
 
 	std::string str;
 
