@@ -101,7 +101,9 @@ void FWMessenger::Log(const std::string& message) const
  */
 void FWMessenger::Log(const char* message, double value) const
 {
-	*logStream << message << " " << value << std::endl;
+	std::string logMessage(message);
+	logMessage += " " + std::to_string(value);
+	Log(logMessage);
 }
 
 /** Log a neutral message with a numeric vector.
