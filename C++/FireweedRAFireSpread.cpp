@@ -657,12 +657,12 @@ double FuelBedSAV(std::vector<double> SAV_ij, std::vector<double> f_ij, std::vec
 	if (fuelBedSAV <= 0.0)
 	{
 		Warning("FuelBedSAV() output is invalid.");
-		Msg.Log("fuelBedSAV =", fuelBedSAV);
-		Msg.Log("FuelBedSAV() inputs:");
-		Msg.Log("SAV_ij =", SAV_ij);
-		Msg.Log("f_ij =", f_ij);
-		Msg.Log("f_i =", f_i);
-		Msg.Log("liveDead =", liveDead);
+		Msg->Log("fuelBedSAV =", fuelBedSAV);
+		Msg->Log("FuelBedSAV() inputs:");
+		Msg->Log("SAV_ij =", SAV_ij);
+		Msg->Log("f_ij =", f_ij);
+		Msg->Log("f_i =", f_i);
+		Msg->Log("liveDead =", liveDead);
 	}
 	//Checking positve values wouold require knowing the units and a reasonable value ranges.
 
