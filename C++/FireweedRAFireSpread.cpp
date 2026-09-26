@@ -1773,21 +1773,21 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Homo(double SAV, double w_o, double fuelB
 	//For debugging:  Note: Could be replaced with a SpreadCalcs print function.
 	if (debug)
 	{
-		Msg.Log("Homogeneous Spread Calc components:");
-		Msg.Log("GammaPrime =", GammaPrime);
-		Msg.Log("w_n =", w_n);
-		Msg.Log("h =", heatContent);
-		Msg.Log("eta_M =", eta_M);
-		Msg.Log("eta_s =", eta_s);
-		Msg.Log("I_R =", I_R);
-		Msg.Log("xi =", xi);
-		Msg.Log("phi_s =", phi_s);
-		Msg.Log("phi_w =", phi_w);
-		Msg.Log("Heat source =", heatSource);
-		Msg.Log("rho_b =", rho_b);
-		Msg.Log("epsilon =", epsilon);
-		Msg.Log("Qig =", Q_ig);
-		Msg.Log("Heat sink = ", heatSink);
+		Msg->Log("Homogeneous Spread Calc components:");
+		Msg->Log("GammaPrime =", GammaPrime);
+		Msg->Log("w_n =", w_n);
+		Msg->Log("h =", heatContent);
+		Msg->Log("eta_M =", eta_M);
+		Msg->Log("eta_s =", eta_s);
+		Msg->Log("I_R =", I_R);
+		Msg->Log("xi =", xi);
+		Msg->Log("phi_s =", phi_s);
+		Msg->Log("phi_w =", phi_w);
+		Msg->Log("Heat source =", heatSource);
+		Msg->Log("rho_b =", rho_b);
+		Msg->Log("epsilon =", epsilon);
+		Msg->Log("Qig =", Q_ig);
+		Msg->Log("Heat sink = ", heatSink);
 	}
 
 	return calcs;
@@ -2241,20 +2241,20 @@ SpreadCalcs SpreadCalcsRothermelAlbini_Het(std::vector <double> SAV_ij,
 	//For debugging:  Note: Could be replaced with a SpreadCalcs print function.
 	if (debug)
 	{
-		Msg.Log("Heterogeneous Spread Calc components:");
-		Msg.Log("Weights f_ij =", weights.f_ij);
-		Msg.Log("Weights f_i =", weights.f_i);
-		Msg.Log("Weights g_ij =", weights.g_ij);
-		Msg.Log("GammaPrime =", GammaPrime);
-		Msg.Log("w_n_i =", w_n_i);
-		Msg.Log("h_i =", h_i);
-		Msg.Log("eta_M_i =", eta_M_i);
-		Msg.Log("eta_s_i =", eta_s_i);
-		Msg.Log("I_R =", I_R);
-		Msg.Log("Heat source =", heatSource);
-		Msg.Log("rho_b_bar =", rho_b_bar);
-		Msg.Log("Q_ig_ij =", Q_ig_ij);
-		Msg.Log("Heat sink =", heatSink);
+		Msg->Log("Heterogeneous Spread Calc components:");
+		Msg->Log("Weights f_ij =", weights.f_ij);
+		Msg->Log("Weights f_i =", weights.f_i);
+		Msg->Log("Weights g_ij =", weights.g_ij);
+		Msg->Log("GammaPrime =", GammaPrime);
+		Msg->Log("w_n_i =", w_n_i);
+		Msg->Log("h_i =", h_i);
+		Msg->Log("eta_M_i =", eta_M_i);
+		Msg->Log("eta_s_i =", eta_s_i);
+		Msg->Log("I_R =", I_R);
+		Msg->Log("Heat source =", heatSource);
+		Msg->Log("rho_b_bar =", rho_b_bar);
+		Msg->Log("Q_ig_ij =", Q_ig_ij);
+		Msg->Log("Heat sink =", heatSink);
 	}
 
 	return calcs;
